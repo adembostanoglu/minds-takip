@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-style" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-logo" class="auth-logo" alt="Mind's Creative Agency">
-    <img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-slogan" class="auth-slogan" alt="Her Şey Bir Fikirle Başlar">
+    <img src="" data-b64="assets/logo.b64" data-mime="image/webp" class="auth-logo" alt="Mind's Creative Agency">
+    <img src="" data-b64="assets/slogan.b64" data-mime="image/webp" class="auth-slogan" alt="Her Şey Bir Fikirle Başlar">
     <div id="loginBox">
       <h2>Mind's Takip</h2>
       <p>Hesabınla giriş yap.</p>
@@ -37,7 +37,7 @@
 
 <div id="appShell" class="app-shell hidden">
   <aside class="sidebar">
-    <div class="brand-block"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-logo" alt="Mind's Creative Agency"></div>
+    <div class="brand-block"><img src="" data-b64="assets/logo.b64" data-mime="image/webp" alt="Mind's Creative Agency"></div>
     <nav>
       <button class="nav-item active" data-view="dashboard">⌂ <span>Ana Panel</span></button>
       <button class="nav-item" data-view="firms">◎ <span>Firmalar</span></button>
@@ -60,7 +60,7 @@
     </header>
 
     <section id="dashboard" class="view active-view">
-      <div class="hero"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-slogan" class="slogan" alt="Her Şey Bir Fikirle Başlar"><div class="hero-actions"><button class="primary admin-only" data-action="firm">+ Firma Ekle</button><button class="hero-dark" data-action="work">+ İş Ekle</button><button class="hero-dark" data-action="extra">+ Ekstra İş</button><button class="hero-dark" data-action="shoot">+ Çekim Ekle</button></div></div>
+      <div class="hero"><img src="" data-b64="assets/slogan.b64" data-mime="image/webp" class="slogan" alt="Her Şey Bir Fikirle Başlar"><div class="hero-actions"><button class="primary admin-only" data-action="firm">+ Firma Ekle</button><button class="hero-dark" data-action="work">+ İş Ekle</button><button class="hero-dark" data-action="extra">+ Ekstra İş</button><button class="hero-dark" data-action="shoot">+ Çekim Ekle</button></div></div>
       <div id="stats" class="stats-grid"></div>
       <div class="content-grid">
         <section class="panel wide"><div class="panel-head"><div><h3>Firma İş Takibi</h3><p>Seçili aya ait paket ilerlemeleri</p></div></div><div class="table-wrap"><table><thead><tr><th>No</th><th>Firma</th><th>Paket</th><th>Hazırlanan</th><th>Paylaşılan</th><th>Kalan</th><th>Sorumlu</th><th>Durum</th></tr></thead><tbody id="dashboardFirmRows"></tbody></table></div></section>
@@ -92,7 +92,15 @@
 
 <div id="modal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h3 id="modalTitle"></h3><button id="modalClose">×</button></div><form id="modalForm"></form></div></div>
 <div id="toast" class="toast"></div>
+
+<script>
+(async()=>{for(const img of document.querySelectorAll('img[data-b64]')){try{const r=await fetch(img.dataset.b64,{cache:'no-store'});if(!r.ok)throw new Error(String(r.status));const b64=(await r.text()).trim();img.src=`data:${img.dataset.mime||'image/webp'};base64,${b64}`}catch(e){console.error('Brand asset load failed',e)}}})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-script"></script>
+<script src="appx1.js"></script>
+<script src="appx2.js"></script>
+<script src="appx3.js"></script>
+<script src="appx4.js"></script>
+<script src="appx5.js"></script>
 </body>
 </html>
