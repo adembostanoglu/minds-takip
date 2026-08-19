@@ -1,1 +1,98 @@
-<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>Mind's Takip</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-style" /></head><body><section id="authScreen" class="auth-screen"><div class="auth-card"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-logo" class="auth-logo" alt="Mind's Creative Agency"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-slogan" class="auth-slogan" alt="Her Şey Bir Fikirle Başlar"><div id="loginBox"><h2>Mind's Takip</h2><p>Hesabınla giriş yap.</p><label>Kullanıcı adı<input id="loginUsername" autocomplete="username" placeholder="kullanıcı adı"></label><label>Şifre<input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></label><button id="loginBtn" class="primary full-btn">Giriş Yap</button><button id="showSetupBtn" class="text-btn">İlk yönetici kurulumu</button></div><div id="setupBox" class="hidden"><h2>İlk Kurulum</h2><p>Bu işlem yalnızca bir kez çalışır ve ilk yönetici hesabını oluşturur.</p><label>Yönetici adı<input value="mind's crt" disabled></label><label>Kullanıcı adı<input id="setupUsername" value="mindscrt"></label><label>Şifre<input id="setupPassword" type="password" placeholder="en az 8 karakter"></label><button id="setupBtn" class="primary full-btn">Yönetici Hesabını Oluştur</button><button id="showLoginBtn" class="text-btn">Giriş ekranına dön</button></div><div id="authMessage" class="auth-message"></div></div></section><div id="appShell" class="app-shell hidden"><aside class="sidebar"><div class="brand-block"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-logo" alt="Mind's Creative Agency"></div><nav><button class="nav-item active" data-view="dashboard">⌂ <span>Ana Panel</span></button><button class="nav-item" data-view="firms">◎ <span>Firmalar</span></button><button class="nav-item" data-view="works">☷ <span>İş Takibi</span></button><button class="nav-item" data-view="shares">↗ <span>Paylaşım Takibi</span></button><button class="nav-item" data-view="extras">✦ <span>Ekstra İşler</span></button><button class="nav-item" data-view="shoots">◉ <span>Çekimler</span></button><button class="nav-item admin-nav" data-view="team">♙ <span>Ekip</span></button><button class="nav-item" data-view="activity">◴ <span>Günlük Hareketler</span></button><button class="nav-item admin-nav" data-view="reports">▥ <span>Raporlar</span></button><button class="nav-item admin-nav" data-view="archive">▣ <span>Arşiv</span></button><button class="nav-item admin-nav" data-view="settings">⚙ <span>Ayarlar</span></button></nav><div class="profile-box"><div class="avatar accent" id="sideAvatar">M</div><div><b id="sideName">—</b><small id="sideRole">—</small></div></div></aside><main class="main"><header class="topbar"><div><h1 id="pageTitle">Ana Panel</h1><p id="pageSub">Ajansın aylık üretim durumunu tek ekrandan takip et.</p></div><div class="top-actions"><select id="monthPicker" class="select"></select><button id="quickAddFirmBtn" class="primary admin-only">+ Firma Ekle</button><button id="logoutBtn" class="ghost">Çıkış</button></div></header><section id="dashboard" class="view active-view"><div class="hero"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-slogan" class="slogan" alt="Her Şey Bir Fikirle Başlar"><div class="hero-actions"><button class="primary admin-only" data-action="firm">+ Firma Ekle</button><button class="hero-dark" data-action="work">+ İş Ekle</button><button class="hero-dark" data-action="extra">+ Ekstra İş</button><button class="hero-dark" data-action="shoot">+ Çekim Ekle</button></div></div><div id="stats" class="stats-grid"></div><div class="content-grid"><section class="panel wide"><div class="panel-head"><div><h3>Firma İş Takibi</h3><p>Seçili aya ait paket ilerlemeleri</p></div></div><div class="table-wrap"><table><thead><tr><th>No</th><th>Firma</th><th>Paket</th><th>Hazırlanan</th><th>Paylaşılan</th><th>Kalan</th><th>Sorumlu</th><th>Durum</th></tr></thead><tbody id="dashboardFirmRows"></tbody></table></div></section><section class="panel"><div class="panel-head"><div><h3>Günlük Hareketler</h3><p>Son ekip aktiviteleri</p></div></div><div id="activityMini" class="activity-list"></div></section></div></section><section id="firms" class="view"><div class="section-actions"><div><h2 id="firmsTitle">Firmalar</h2><p id="firmsDesc">Firma, logo, aylık paket ve ekip sorumluları.</p></div><button id="addFirmBtn" class="primary admin-only">+ Yeni Firma</button></div><div id="firmCards" class="card-grid"></div><div id="passiveFirmBlock" class="admin-only"><div class="subsection-head"><div><h3>Pasif Firmalar</h3><p>Geçmiş kayıtlar korunur; aktif sıra otomatik yenilenir.</p></div></div><div id="passiveFirmCards" class="card-grid"></div></div></section><section id="works" class="view"><div class="section-actions"><div><h2 id="worksTitle">İş Takibi</h2><p id="worksDesc">Paket dahilindeki post ve videolar.</p></div><button id="addWorkBtn" class="primary">+ İş Ekle</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Firma</th><th>İş</th><th>Tür</th><th>Hazırlık</th><th>Paylaşım</th><th>Sorumlu</th><th>Tarih</th><th>İşlem</th></tr></thead><tbody id="workRows"></tbody></table></div></div></section><section id="shares" class="view"><div class="section-actions"><div><h2 id="sharesTitle">Paylaşım Takibi</h2><p>Hazır olup henüz paylaşılmamış içerikler.</p></div></div><div id="shareCards" class="card-grid"></div></section><section id="extras" class="view"><div class="section-actions"><div><h2>Ekstra İşler</h2><p>Paket kotasını etkilemeyen firma ve ajans içi işler.</p></div><button id="addExtraBtn" class="primary">+ Ekstra İş Ekle</button></div><div class="info-banner"><b>Temel kural:</b> Ekstra işler paket kotasını düşürmez. Personelin kendi eklediği işler ayrıca görünür.</div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Tür</th><th>Kaynak</th><th>Firma / Alan</th><th>Yapılan İş</th><th>Adet</th><th>Personel</th><th>Tarih</th></tr></thead><tbody id="extraRows"></tbody></table></div></div></section><section id="shoots" class="view"><div class="section-actions"><div><h2>Çekimler</h2><p>Seçili ayda firmalar için yapılan video çekimlerini takip et.</p></div><button id="addShootBtn" class="primary">+ Çekim Ekle</button></div><div id="shootStats" class="stats-grid compact-stats"></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Firma</th><th>Çekim</th><th>Video İçeriği</th><th>Sorumlu</th><th>Not</th><th>İşlem</th></tr></thead><tbody id="shootRows"></tbody></table></div></div></section><section id="team" class="view"><div class="section-actions"><div><h2>Ekip</h2><p>Kullanıcılar, roller ve aylık üretim özeti.</p></div><button id="addPersonBtn" class="primary admin-only">+ Personel Ekle</button></div><div id="teamCards" class="card-grid"></div><div class="subsection-head"><div><h3>Pasif Personeller</h3><p>Geçmiş üretim kayıtları korunur.</p></div></div><div id="passiveTeamCards" class="card-grid"></div></section><section id="activity" class="view"><div class="section-actions"><div><h2 id="activityTitle">Günlük Hareketler</h2><p>Kim, ne zaman, hangi kaydı değiştirdi?</p></div></div><div class="panel"><div id="activityFull" class="timeline"></div></div></section><section id="reports" class="view"><div class="section-actions"><div><h2>Raporlar</h2><p>Seçili ayın toplam ajans üretimi.</p></div></div><div id="reportStats" class="stats-grid"></div><div class="content-grid"><div class="panel wide"><h3>Paket / Ekstra Ayrımı</h3><div id="reportBreakdown"></div></div><div class="panel"><h3>Personel Özeti</h3><div id="reportPeople"></div></div></div></section><section id="archive" class="view"><div class="section-actions"><div><h2>Arşiv</h2><p>Aylar kapanınca veriler silinmez.</p></div></div><div id="archiveCards" class="card-grid"></div></section><section id="settings" class="view"><div class="section-actions"><div><h2>Ayarlar</h2><p>Mind's Takip çevrimiçi sürümü.</p></div></div><div class="panel settings-list"><div><b>Uygulama</b><span>Mind's Takip V1.9 Team Ready</span></div><div><b>Yönetici</b><span>mind's crt</span></div><div><b>Tema</b><span>Koyu / Mind's Sarı</span></div><div><b>Tarih</b><span>Gün.Ay.Yıl</span></div><div><b>Veri</b><span>Supabase ortak veritabanı / anlık senkronizasyon</span></div></div></section></main></div><div id="modal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h3 id="modalTitle"></h3><button id="modalClose">×</button></div><form id="modalForm"></form></div></div><div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-script"></script></body></html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mind's Takip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-style" />
+</head>
+<body>
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-logo" class="auth-logo" alt="Mind's Creative Agency">
+    <img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-slogan" class="auth-slogan" alt="Her Şey Bir Fikirle Başlar">
+    <div id="loginBox">
+      <h2>Mind's Takip</h2>
+      <p>Hesabınla giriş yap.</p>
+      <label>Kullanıcı adı<input id="loginUsername" autocomplete="username" placeholder="kullanıcı adı"></label>
+      <label>Şifre<input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+      <button id="loginBtn" class="primary full-btn">Giriş Yap</button>
+      <button id="showSetupBtn" class="text-btn">İlk yönetici kurulumu</button>
+    </div>
+    <div id="setupBox" class="hidden">
+      <h2>İlk Kurulum</h2>
+      <p>Bu işlem yalnızca bir kez çalışır ve ilk yönetici hesabını oluşturur.</p>
+      <label>Yönetici adı<input value="mind's crt" disabled></label>
+      <label>Kullanıcı adı<input id="setupUsername" value="mindscrt"></label>
+      <label>Şifre<input id="setupPassword" type="password" placeholder="en az 8 karakter"></label>
+      <button id="setupBtn" class="primary full-btn">Yönetici Hesabını Oluştur</button>
+      <button id="showLoginBtn" class="text-btn">Giriş ekranına dön</button>
+    </div>
+    <div id="authMessage" class="auth-message"></div>
+  </div>
+</section>
+
+<div id="appShell" class="app-shell hidden">
+  <aside class="sidebar">
+    <div class="brand-block"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-logo" alt="Mind's Creative Agency"></div>
+    <nav>
+      <button class="nav-item active" data-view="dashboard">⌂ <span>Ana Panel</span></button>
+      <button class="nav-item" data-view="firms">◎ <span>Firmalar</span></button>
+      <button class="nav-item" data-view="works">☷ <span>İş Takibi</span></button>
+      <button class="nav-item" data-view="shares">↗ <span>Paylaşım Takibi</span></button>
+      <button class="nav-item" data-view="extras">✦ <span>Ekstra İşler</span></button>
+      <button class="nav-item" data-view="shoots">◉ <span>Çekimler</span></button>
+      <button class="nav-item admin-nav" data-view="team">♙ <span>Ekip</span></button>
+      <button class="nav-item" data-view="activity">◴ <span>Günlük Hareketler</span></button>
+      <button class="nav-item admin-nav" data-view="reports">▥ <span>Raporlar</span></button>
+      <button class="nav-item admin-nav" data-view="archive">▣ <span>Arşiv</span></button>
+      <button class="nav-item admin-nav" data-view="settings">⚙ <span>Ayarlar</span></button>
+    </nav>
+    <div class="profile-box"><div class="avatar accent" id="sideAvatar">M</div><div><b id="sideName">—</b><small id="sideRole">—</small></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="pageTitle">Ana Panel</h1><p id="pageSub">Ajansın aylık üretim durumunu tek ekrandan takip et.</p></div>
+      <div class="top-actions"><select id="monthPicker" class="select"></select><button id="quickAddFirmBtn" class="primary admin-only">+ Firma Ekle</button><button id="logoutBtn" class="ghost">Çıkış</button></div>
+    </header>
+
+    <section id="dashboard" class="view active-view">
+      <div class="hero"><img src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-slogan" class="slogan" alt="Her Şey Bir Fikirle Başlar"><div class="hero-actions"><button class="primary admin-only" data-action="firm">+ Firma Ekle</button><button class="hero-dark" data-action="work">+ İş Ekle</button><button class="hero-dark" data-action="extra">+ Ekstra İş</button><button class="hero-dark" data-action="shoot">+ Çekim Ekle</button></div></div>
+      <div id="stats" class="stats-grid"></div>
+      <div class="content-grid">
+        <section class="panel wide"><div class="panel-head"><div><h3>Firma İş Takibi</h3><p>Seçili aya ait paket ilerlemeleri</p></div></div><div class="table-wrap"><table><thead><tr><th>No</th><th>Firma</th><th>Paket</th><th>Hazırlanan</th><th>Paylaşılan</th><th>Kalan</th><th>Sorumlu</th><th>Durum</th></tr></thead><tbody id="dashboardFirmRows"></tbody></table></div></section>
+        <section class="panel"><div class="panel-head"><div><h3>Günlük Hareketler</h3><p>Son ekip aktiviteleri</p></div></div><div id="activityMini" class="activity-list"></div></section>
+      </div>
+    </section>
+
+    <section id="firms" class="view"><div class="section-actions"><div><h2 id="firmsTitle">Firmalar</h2><p id="firmsDesc">Firma, logo, aylık paket ve ekip sorumluları.</p></div><button id="addFirmBtn" class="primary admin-only">+ Yeni Firma</button></div><div id="firmCards" class="card-grid"></div><div id="passiveFirmBlock" class="admin-only"><div class="subsection-head"><div><h3>Pasif Firmalar</h3><p>Geçmiş kayıtlar korunur; aktif sıra otomatik yenilenir.</p></div></div><div id="passiveFirmCards" class="card-grid"></div></div></section>
+
+    <section id="works" class="view"><div class="section-actions"><div><h2 id="worksTitle">İş Takibi</h2><p id="worksDesc">Paket dahilindeki post ve videolar.</p></div><button id="addWorkBtn" class="primary">+ İş Ekle</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Firma</th><th>İş</th><th>Tür</th><th>Hazırlık</th><th>Paylaşım</th><th>Sorumlu</th><th>Tarih</th><th>İşlem</th></tr></thead><tbody id="workRows"></tbody></table></div></div></section>
+
+    <section id="shares" class="view"><div class="section-actions"><div><h2 id="sharesTitle">Paylaşım Takibi</h2><p>Hazır olup henüz paylaşılmamış içerikler.</p></div></div><div id="shareCards" class="card-grid"></div></section>
+
+    <section id="extras" class="view"><div class="section-actions"><div><h2>Ekstra İşler</h2><p>Paket kotasını etkilemeyen firma ve ajans içi işler.</p></div><button id="addExtraBtn" class="primary">+ Ekstra İş Ekle</button></div><div class="info-banner"><b>Temel kural:</b> Ekstra işler paket kotasını düşürmez. Personelin kendi eklediği işler ayrıca görünür.</div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Tür</th><th>Kaynak</th><th>Firma / Alan</th><th>Yapılan İş</th><th>Adet</th><th>Personel</th><th>Tarih</th></tr></thead><tbody id="extraRows"></tbody></table></div></div></section>
+
+    <section id="shoots" class="view"><div class="section-actions"><div><h2>Çekimler</h2><p>Seçili ayda firmalar için yapılan video çekimlerini takip et.</p></div><button id="addShootBtn" class="primary">+ Çekim Ekle</button></div><div id="shootStats" class="stats-grid compact-stats"></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Firma</th><th>Çekim</th><th>Video İçeriği</th><th>Sorumlu</th><th>Not</th><th>İşlem</th></tr></thead><tbody id="shootRows"></tbody></table></div></div></section>
+
+    <section id="team" class="view"><div class="section-actions"><div><h2>Ekip</h2><p>Kullanıcılar, roller ve aylık üretim özeti.</p></div><button id="addPersonBtn" class="primary admin-only">+ Personel Ekle</button></div><div id="teamCards" class="card-grid"></div><div class="subsection-head"><div><h3>Pasif Personeller</h3><p>Geçmiş üretim kayıtları korunur.</p></div></div><div id="passiveTeamCards" class="card-grid"></div></section>
+
+    <section id="activity" class="view"><div class="section-actions"><div><h2 id="activityTitle">Günlük Hareketler</h2><p>Kim, ne zaman, hangi kaydı değiştirdi?</p></div></div><div class="panel"><div id="activityFull" class="timeline"></div></div></section>
+
+    <section id="reports" class="view"><div class="section-actions"><div><h2>Raporlar</h2><p>Seçili ayın toplam ajans üretimi.</p></div></div><div id="reportStats" class="stats-grid"></div><div class="content-grid"><div class="panel wide"><h3>Paket / Ekstra Ayrımı</h3><div id="reportBreakdown"></div></div><div class="panel"><h3>Personel Özeti</h3><div id="reportPeople"></div></div></div></section>
+
+    <section id="archive" class="view"><div class="section-actions"><div><h2>Arşiv</h2><p>Aylar kapanınca veriler silinmez.</p></div></div><div id="archiveCards" class="card-grid"></div></section>
+
+    <section id="settings" class="view"><div class="section-actions"><div><h2>Ayarlar</h2><p>Mind's Takip çevrimiçi sürümü.</p></div></div><div class="panel settings-list"><div><b>Uygulama</b><span>Mind's Takip V1.9 Team Ready</span></div><div><b>Yönetici</b><span>mind's crt</span></div><div><b>Tema</b><span>Koyu / Mind's Sarı</span></div><div><b>Tarih</b><span>Gün.Ay.Yıl</span></div><div><b>Veri</b><span>Supabase ortak veritabanı / anlık senkronizasyon</span></div></div></section>
+  </main>
+</div>
+
+<div id="modal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h3 id="modalTitle"></h3><button id="modalClose">×</button></div><form id="modalForm"></form></div></div>
+<div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://wfcjrbdydaqtpqqhflbv.supabase.co/functions/v1/minds-takip-script"></script>
+</body>
+</html>
