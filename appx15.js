@@ -16,3 +16,12 @@
     if(typeof dateMonthISO==='function') window.dateMonthISO=dateMonthISO;
   }catch(e){ console.warn('Team drilldown compatibility aliases',e); }
 })();
+
+// V1.12.4 shared team shoots loader.
+if(!document.querySelector('script[data-minds-v124-shoots]')){
+  const s=document.createElement('script');
+  s.src='appx17.js?v=1240';
+  s.dataset.mindsV124Shoots='1';
+  s.onerror=()=>console.error('V1.12.4 shared shoots module could not be loaded');
+  document.body.appendChild(s);
+}
