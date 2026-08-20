@@ -68,3 +68,12 @@ if(!document.querySelector('script[data-minds-v113]')){
   s.onerror=()=>console.error('V1.11.3 dashboard icon module could not be loaded');
   document.body.appendChild(s);
 }
+
+// Load V1.11.4 social media staff firm-scope hardening.
+if(!document.querySelector('script[data-minds-v114]')){
+  const s=document.createElement('script');
+  s.src='appx11.js?v=1114';
+  s.dataset.mindsV114='1';
+  s.onerror=()=>console.error('V1.11.4 social media firm scope module could not be loaded');
+  document.body.appendChild(s);
+}
