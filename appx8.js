@@ -105,12 +105,12 @@ if(!document.querySelector('script[data-minds-v121]')){
   document.body.appendChild(s);
 }
 
-// Compatibility aliases for lexical helpers used by V1.12.1.
+// Compatibility aliases + current shoots/performance loaders.
 if(!document.querySelector('script[data-minds-v121-compat]')){
   const s=document.createElement('script');
-  s.src='appx15.js?v=1210';
+  s.src='appx15.js?v=1310';
   s.dataset.mindsV121Compat='1';
-  s.onerror=()=>console.error('V1.12.1 team detail compatibility module could not be loaded');
+  s.onerror=()=>console.error('V1.13.1 compatibility/performance loader could not be loaded');
   document.body.appendChild(s);
 }
 
