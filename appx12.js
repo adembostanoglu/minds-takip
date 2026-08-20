@@ -1,100 +1,63 @@
-// V1.11.5 — robust firm completion colors from rendered card metrics
-(function bootFirmCompletionColorsV115(){
-  if(window.__mindsFirmCompletionColorsV115) return;
-  window.__mindsFirmCompletionColorsV115=true;
-
-  function parseFraction(text){
-    const m=String(text||'').match(/(\d+)\s*\/\s*(\d+)/);
-    return m ? {done:Number(m[1]), total:Number(m[2])} : {done:0,total:0};
+// V1.11.7 — firm completion colors from real firm metrics, no duplicate badges
+(function bootFirmCompletionColorsV117(){
+  if(window.__mindsFirmCompletionColorsV117) return;
+  if(typeof firmMetrics!=='function' || typeof activeFirms!=='function'){
+    setTimeout(bootFirmCompletionColorsV117,100);
+    return;
   }
+  window.__mindsFirmCompletionColorsV117=true;
 
-  function parseShared(text){
-    const s=String(text||'');
-    const p=s.match(/(\d+)\s*P/i);
-    const v=s.match(/(\d+)\s*V/i);
-    return {post:p?Number(p[1]):0, video:v?Number(v[1]):0};
-  }
-
-  function metricMap(card){
-    const out={};
-    card.querySelectorAll('.mini').forEach(mini=>{
-      const label=(mini.querySelector('small')?.textContent||'').trim().toLocaleLowerCase('tr-TR');
-      const value=(mini.querySelector('b')?.textContent||'').trim();
-      if(label) out[label]=value;
-    });
-    return out;
-  }
-
-  function ensureBadge(card,status){
-    let badge=card.querySelector('.firm-status-badge-v115');
-    if(!badge){
-      badge=document.createElement('span');
-      badge.className='firm-status-badge-v115';
-      const actions=card.querySelector('.card-actions');
-      const top=card.querySelector('.firm-card-top');
-      if(actions) actions.insertAdjacentElement('beforebegin',badge);
-      else if(top) top.appendChild(badge);
-      else card.prepend(badge);
-    }
-    badge.className='firm-status-badge-v115 '+status.cls;
-    badge.textContent=status.text;
-  }
-
-  function evaluateCard(card){
-    if(card.classList.contains('passive-card')) return;
-    const m=metricMap(card);
-    const post=parseFraction(m['post']);
-    const video=parseFraction(m['video']);
-    const shared=parseShared(m['paylaşılan']);
-    const waitingRaw=m['paylaşım bekleyen'] ?? m['bekleyen'] ?? '0';
-    const waiting=Number(String(waitingRaw).match(/\d+/)?.[0]||0);
-
-    const packageDone = post.done>=post.total && video.done>=video.total;
-    const sharesDone = shared.post>=post.total && shared.video>=video.total && waiting===0;
-
-    card.classList.remove('firm-done-v115','firm-waiting-v115','firm-progress-v115');
-
-    if(packageDone && sharesDone){
-      card.classList.add('firm-done-v115');
-      ensureBadge(card,{cls:'done',text:'✓ Tamamlandı'});
-    }else if(packageDone && waiting>0){
-      card.classList.add('firm-waiting-v115');
-      ensureBadge(card,{cls:'waiting',text:'◷ Paylaşım Bekliyor'});
-    }else{
-      card.classList.add('firm-progress-v115');
-      ensureBadge(card,{cls:'progress',text:'◷ Devam Ediyor'});
-    }
+  function statusForMetrics(m){
+    if(!m) return 'progress';
+    const packageDone=Number(m.post||0)>=Number(m.pq||0) && Number(m.video||0)>=Number(m.vq||0);
+    if(packageDone && Number(m.sharePending||0)===0) return 'done';
+    if(packageDone && Number(m.sharePending||0)>0) return 'waiting';
+    return 'progress';
   }
 
   function apply(){
-    document.querySelectorAll('#firmCards .firm-card').forEach(evaluateCard);
+    const cards=[...document.querySelectorAll('#firmCards .firm-card')];
+    const firms=activeFirms();
+    cards.forEach((card,i)=>{
+      if(card.classList.contains('passive-card')) return;
+      const f=firms[i];
+      if(!f) return;
+      const status=statusForMetrics(firmMetrics(f.id));
+
+      card.classList.remove('firm-done-v115','firm-waiting-v115','firm-progress-v115');
+      card.classList.add(status==='done'?'firm-done-v115':status==='waiting'?'firm-waiting-v115':'firm-progress-v115');
+
+      // V1.11.2 already renders the canonical status badge. Remove the old duplicate V1.11.5 badge if present.
+      card.querySelectorAll('.firm-status-badge-v115').forEach(x=>x.remove());
+
+      // Keep the canonical V1.11.2 status class/badge synchronized with the same real metrics.
+      card.classList.remove('status-done','status-waiting','status-progress');
+      card.classList.add(`status-${status}`);
+      const badge=card.querySelector('.firm-state-badge-v112');
+      if(badge){
+        badge.className=`firm-state-badge-v112 state-${status}`;
+        badge.textContent=status==='done'?'✓ Tamamlandı':status==='waiting'?'◷ Paylaşım Bekliyor':'◷ Devam Ediyor';
+      }
+    });
   }
 
   const st=document.createElement('style');
-  st.id='firmCompletionColorsStyleV115';
+  st.id='firmCompletionColorsStyleV117';
   st.textContent=`
     #firmCards .firm-card{position:relative;transition:border-color .22s ease,box-shadow .22s ease,background .22s ease}
     #firmCards .firm-card.firm-done-v115{border-color:#178b34!important;background:linear-gradient(145deg,#0f1b13,#10161a)!important;box-shadow:inset 0 0 38px rgba(31,180,68,.085),0 0 0 1px rgba(70,225,102,.055)!important}
     #firmCards .firm-card.firm-waiting-v115{border-color:#9b8210!important;background:linear-gradient(145deg,#19180d,#11161a)!important;box-shadow:inset 0 0 34px rgba(223,190,28,.065)!important}
-    #firmCards .firm-card.firm-progress-v115{border-color:#38444d!important}
-    .firm-status-badge-v115{display:inline-flex;align-items:center;justify-content:center;border-radius:9px;padding:5px 8px;font-size:9px;font-weight:800;white-space:nowrap;margin-right:8px}
-    .firm-status-badge-v115.done{color:#67e77b;background:#0d2e15;border:1px solid #1e6d2d;box-shadow:0 0 16px rgba(67,210,91,.08)}
-    .firm-status-badge-v115.waiting{color:#f2d629;background:#302908;border:1px solid #6e5f0d}
-    .firm-status-badge-v115.progress{color:#b9c4cb;background:#151e24;border:1px solid #33414a}
+    #firmCards .firm-card.firm-progress-v115{border-color:#38444d!important;background:linear-gradient(145deg,#11171c,#0f1418)!important;box-shadow:none!important}
     #firmCards .firm-card.firm-done-v115 .firm-order{color:#68e17b!important}
     #firmCards .firm-card.firm-waiting-v115 .firm-order{color:#f0d52a!important}
   `;
   document.head.appendChild(st);
 
   let timer=null;
-  const schedule=()=>{ clearTimeout(timer); timer=setTimeout(apply,40); };
+  const schedule=()=>{clearTimeout(timer);timer=setTimeout(apply,50);};
   const root=document.getElementById('firmCards');
-  if(root){
-    new MutationObserver(schedule).observe(root,{childList:true,subtree:true,characterData:true});
-  }
-  document.addEventListener('click',e=>{
-    if(e.target.closest('[data-view="firms"]')) setTimeout(apply,80);
-  });
-  window.addEventListener('load',()=>setTimeout(apply,120));
-  setTimeout(apply,120);
+  if(root) new MutationObserver(schedule).observe(root,{childList:true,subtree:true,characterData:true});
+  document.addEventListener('click',e=>{if(e.target.closest('[data-view="firms"]')) setTimeout(apply,100);});
+  window.addEventListener('load',()=>setTimeout(apply,150));
+  setTimeout(apply,150);
 })();
