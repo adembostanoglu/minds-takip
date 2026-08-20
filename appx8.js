@@ -113,3 +113,12 @@ if(!document.querySelector('script[data-minds-v121-compat]')){
   s.onerror=()=>console.error('V1.12.1 team detail compatibility module could not be loaded');
   document.body.appendChild(s);
 }
+
+// Load V1.12.2 clickable/printable personnel reports.
+if(!document.querySelector('script[data-minds-v122]')){
+  const s=document.createElement('script');
+  s.src='appx16.js?v=1220';
+  s.dataset.mindsV122='1';
+  s.onerror=()=>console.error('V1.12.2 personnel report module could not be loaded');
+  document.body.appendChild(s);
+}
