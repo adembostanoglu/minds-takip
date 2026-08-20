@@ -59,3 +59,12 @@ if(!document.querySelector('script[data-minds-v112]')){
   s.onerror=()=>console.error('V1.11.2 Firms visual module could not be loaded');
   document.body.appendChild(s);
 }
+
+// Load V1.11.3 premium Ana Panel KPI icon layer.
+if(!document.querySelector('script[data-minds-v113]')){
+  const s=document.createElement('script');
+  s.src='appx10.js?v=1113';
+  s.dataset.mindsV113='1';
+  s.onerror=()=>console.error('V1.11.3 dashboard icon module could not be loaded');
+  document.body.appendChild(s);
+}
