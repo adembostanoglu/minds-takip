@@ -1,11 +1,11 @@
-// V1.12.2 — clickable personnel summary in Reports + printable monthly person report
-(function bootReportPersonDetailV122(){
+// V1.12.3 — clickable/printable personnel reports; production firms exclude social-media-only scope
+(function bootReportPersonDetailV123(){
   if(typeof renderReports!=='function' || typeof isAdmin!=='function' || typeof activeProfiles!=='function' || typeof monthWorks!=='function'){
-    setTimeout(bootReportPersonDetailV122,120);
+    setTimeout(bootReportPersonDetailV123,120);
     return;
   }
-  if(window.__mindsReportPersonDetailV122) return;
-  window.__mindsReportPersonDetailV122=true;
+  if(window.__mindsReportPersonDetailV123) return;
+  window.__mindsReportPersonDetailV123=true;
 
   let selectedPersonId=null;
   const respLabels={ana_sorumlu:'Ana Sorumlu',tasarim:'Tasarım',video:'Video',sosyal_medya:'Sosyal Medya',diger:'Diğer'};
@@ -33,18 +33,24 @@
   function personRecord(pid){ return (state.profiles||[]).find(p=>p.id===pid)||null; }
   function firmRecord(fid){ return typeof firm==='function'?firm(fid):(state.firms||[]).find(f=>f.id===fid); }
   function monthFirmRecord(fid){ return (state.months||[]).find(m=>m.firm_id===fid&&m.month===selectedMonth)||null; }
+
+  // Reports are production-focused: social_media alone must not make a firm appear in the person's firm list.
+  function productionAssignments(pid){
+    return (state.assignments||[]).filter(a=>a.person_id===pid && a.responsibility!=='sosyal_medya');
+  }
   function roleList(pid,fid){
-    return (state.assignments||[]).filter(a=>a.person_id===pid&&a.firm_id===fid).map(a=>respLabels[a.responsibility]||a.responsibility).filter(Boolean);
+    return productionAssignments(pid).filter(a=>a.firm_id===fid).map(a=>respLabels[a.responsibility]||a.responsibility).filter(Boolean);
   }
   function monthExtras(pid){ return (state.extras||[]).filter(x=>x.month===selectedMonth&&x.person_id===pid); }
   function monthShootsFor(pid){ return (state.shoots||[]).filter(x=>x.month===selectedMonth&&x.responsible_id===pid); }
   function relatedFirmIds(pid){
     const ids=new Set();
-    (state.assignments||[]).filter(a=>a.person_id===pid).forEach(a=>ids.add(a.firm_id));
+    productionAssignments(pid).forEach(a=>ids.add(a.firm_id));
+    // Real production activity may still count even if an assignment was later changed.
     monthWorks().filter(w=>w.assigned_to===pid).forEach(w=>{const fid=workFirm(w);if(fid)ids.add(fid);});
-    sharesForMonth().filter(s=>s.shared_by===pid).forEach(s=>{const w=(state.works||[]).find(x=>x.id===s.work_id);const fid=workFirm(w);if(fid)ids.add(fid);});
     monthExtras(pid).forEach(x=>{if(x.firm_id)ids.add(x.firm_id);});
     monthShootsFor(pid).forEach(x=>{if(x.firm_id)ids.add(x.firm_id);});
+    // Intentionally DO NOT add firms from sharing records here.
     return [...ids].filter(fid=>firmRecord(fid)).sort((a,b)=>String(firmRecord(a)?.name||'').localeCompare(String(firmRecord(b)?.name||''),'tr'));
   }
   function personData(pid){
@@ -52,7 +58,7 @@
     const works=monthWorks().filter(w=>w.assigned_to===pid);
     const shares=sharesForMonth().filter(s=>s.shared_by===pid);
     const extras=monthExtras(pid), shoots=monthShootsFor(pid);
-    const assignedFirmCount=new Set((state.assignments||[]).filter(a=>a.person_id===pid&&firmRecord(a.firm_id)?.active).map(a=>a.firm_id)).size;
+    const assignedFirmCount=new Set(productionAssignments(pid).filter(a=>firmRecord(a.firm_id)?.active).map(a=>a.firm_id)).size;
     return {
       p,works,shares,extras,shoots,assignedFirmCount,
       post:qty(works.filter(w=>w.type==='post'&&ready(w))),
@@ -109,8 +115,8 @@
     panel.style.display='block';
     panel.innerHTML=`<div class="report-person-head-v122"><div class="report-person-identity-v122">${avatar}<div><h3>${esc(data.p.full_name)}</h3><p>${esc(data.p.job_title||'Personel')} · ${prettyMonth(selectedMonth)} ayrıntılı raporu</p></div></div><div class="report-person-actions-v122"><button type="button" class="primary" id="printPersonReportV122">Yazdır</button><button type="button" class="ghost" id="closePersonReportV122">Kapat</button></div></div>
       <div class="report-person-stats-v122"><div><small>Sorumlu Firma</small><b>${data.assignedFirmCount}</b></div><div><small>Hazırladığı Post</small><b>${data.post}</b></div><div><small>Hazırladığı Video</small><b>${data.video}</b></div><div><small>Devam / Bekleyen</small><b>${data.ongoing}</b></div><div><small>Paylaştığı Post</small><b>${data.sharedPost}</b></div><div><small>Paylaştığı Video</small><b>${data.sharedVideo}</b></div><div><small>Ekstra İş</small><b>${data.extraQty}</b></div><div><small>Çekim</small><b>${data.shoots.length}</b><span>${data.shootVideos} video içeriği</span></div></div>
-      <div class="report-person-section-title-v122"><div><h4>Firma Bazlı İş Takibi</h4><p>Seçili ayda bu personele ait firma ve üretim detayları</p></div><span>${data.firmIds.length} firma kaydı</span></div>
-      <div class="table-wrap"><table><thead><tr><th>No</th><th>Firma</th><th>Sorumluluk</th><th>Paket</th><th>Hazırladığı</th><th>İşler</th><th>Paylaştığı</th><th>Ekstra</th><th>Çekim</th><th>Son Hareket</th></tr></thead><tbody>${rows||'<tr><td colspan="10" class="empty">Bu ay firma bazlı kayıt bulunmuyor.</td></tr>'}</tbody></table></div>
+      <div class="report-person-section-title-v122"><div><h4>Firma Bazlı İş Takibi</h4><p>Üretim sorumluluğu olan firmalar gösterilir; yalnızca Sosyal Medya paylaşım sorumluluğu olan firmalar bu listeye dahil edilmez.</p></div><span>${data.firmIds.length} firma kaydı</span></div>
+      <div class="table-wrap"><table><thead><tr><th>No</th><th>Firma</th><th>Sorumluluk</th><th>Paket</th><th>Hazırladığı</th><th>İşler</th><th>Paylaştığı</th><th>Ekstra</th><th>Çekim</th><th>Son Hareket</th></tr></thead><tbody>${rows||'<tr><td colspan="10" class="empty">Bu ay firma bazlı üretim kaydı bulunmuyor.</td></tr>'}</tbody></table></div>
       <div class="report-person-activity-v122"><div class="report-person-section-title-v122"><div><h4>Son Hareketleri</h4><p>${prettyMonth(selectedMonth)} içindeki son işlemler</p></div></div>${activities.length?activities.map(a=>`<div class="report-person-activity-row-v122"><span class="dot"></span><div><b>${esc(a.description||'Hareket')}</b><small>${a.firm_id&&firmRecord(a.firm_id)?esc(firmRecord(a.firm_id).name):'Ajans / Genel'}</small></div><time>${formatDateTime(a.created_at)}</time></div>`).join(''):'<div class="empty">Bu ay hareket kaydı yok.</div>'}</div>`;
     document.getElementById('closePersonReportV122')?.addEventListener('click',closePanel);
     document.getElementById('printPersonReportV122')?.addEventListener('click',()=>printPerson(pid));
@@ -144,18 +150,21 @@
     const win=window.open('','_blank','width=1200,height=800');
     if(!win){ if(typeof toast==='function') toast('Yazdırma penceresi engellendi. Tarayıcıda açılır pencerelere izin ver.',true); return; }
     win.document.open();
-    win.document.write(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>${esc(data.p.full_name)} - ${esc(prettyMonth(selectedMonth))} Raporu</title><style>@page{size:A4 landscape;margin:11mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#151515;margin:0;font-size:10px}h1{font-size:20px;margin:0 0 3px}h2{font-size:14px;margin:18px 0 8px}.brand{border-bottom:3px solid #d8d52b;padding-bottom:10px;margin-bottom:14px}.muted{color:#666}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.summary div{border:1px solid #ccc;border-radius:7px;padding:8px}.summary small{display:block;color:#666;margin-bottom:4px}.summary b{font-size:16px}table{width:100%;border-collapse:collapse;table-layout:auto}th,td{border:1px solid #bbb;padding:6px;vertical-align:top;text-align:left}th{background:#f1f1f1;font-size:9px}td{font-size:9px}small{color:#666}.footer{margin-top:12px;color:#777;font-size:8px}.no-print{display:none}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="brand"><h1>Mind's Takip · Personel Aylık Raporu</h1><div><b>${esc(data.p.full_name)}</b> · ${esc(data.p.job_title||'Personel')} · ${esc(prettyMonth(selectedMonth))}</div></div><div class="summary"><div><small>Sorumlu Firma</small><b>${data.assignedFirmCount}</b></div><div><small>Hazırlanan Post / Video</small><b>${data.post} / ${data.video}</b></div><div><small>Paylaşılan Post / Video</small><b>${data.sharedPost} / ${data.sharedVideo}</b></div><div><small>Ekstra / Çekim</small><b>${data.extraQty} / ${data.shoots.length}</b></div></div><h2>Firma Bazlı İş Takibi</h2><table><thead><tr><th>No</th><th>Firma</th><th>Sorumluluk</th><th>Paket</th><th>Hazırladığı</th><th>İşler</th><th>Paylaştığı</th><th>Ekstra</th><th>Çekim</th></tr></thead><tbody>${rows||'<tr><td colspan="9">Kayıt yok.</td></tr>'}</tbody></table><div class="footer">Mind's Creative Agency · ${esc(prettyMonth(selectedMonth))} · Mind's Takip tarafından oluşturuldu.</div><script>window.onload=()=>setTimeout(()=>window.print(),180)<\/script></body></html>`);
+    win.document.write(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>${esc(data.p.full_name)} - ${esc(prettyMonth(selectedMonth))} Raporu</title><style>@page{size:A4 landscape;margin:11mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#151515;margin:0;font-size:10px}h1{font-size:20px;margin:0 0 3px}h2{font-size:14px;margin:18px 0 8px}.brand{border-bottom:3px solid #d8d52b;padding-bottom:10px;margin-bottom:14px}.muted{color:#666}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.summary div{border:1px solid #ccc;border-radius:7px;padding:8px}.summary small{display:block;color:#666;margin-bottom:4px}.summary b{font-size:16px}table{width:100%;border-collapse:collapse;table-layout:auto}th,td{border:1px solid #bbb;padding:5px;vertical-align:top;text-align:left}th{background:#f0f0e6}.footer{margin-top:14px;padding-top:8px;border-top:1px solid #ccc;font-size:9px;color:#777}</style></head><body><div class="brand"><h1>Mind's Takip · Personel Aylık Raporu</h1><div><b>${esc(data.p.full_name)}</b> · ${esc(data.p.job_title||'Personel')} · ${esc(prettyMonth(selectedMonth))}</div></div><div class="summary"><div><small>Sorumlu Firma</small><b>${data.assignedFirmCount}</b></div><div><small>Hazırladığı</small><b>${data.post} P / ${data.video} V</b></div><div><small>Paylaştığı</small><b>${data.sharedPost} P / ${data.sharedVideo} V</b></div><div><small>Ekstra / Çekim</small><b>${data.extraQty} / ${data.shoots.length}</b></div></div><h2>Firma Bazlı İş Takibi</h2><table><thead><tr><th>No</th><th>Firma</th><th>Sorumluluk</th><th>Paket</th><th>Hazırladığı</th><th>İşler</th><th>Paylaştığı</th><th>Ekstra</th><th>Çekim</th></tr></thead><tbody>${rows||'<tr><td colspan="9">Firma bazlı üretim kaydı yok.</td></tr>'}</tbody></table><div class="footer">Mind's Creative Agency · Mind's Takip · ${esc(prettyMonth(selectedMonth))}</div><script>window.onload=()=>{setTimeout(()=>window.print(),180)}<\/script></body></html>`);
     win.document.close();
   }
 
   function installStyles(){
-    if(document.getElementById('reportPersonStyleV122')) return;
-    const st=document.createElement('style'); st.id='reportPersonStyleV122'; st.textContent=`#reportPeople .report-row.clickable-report-person-v122{cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;transition:background .15s ease,border-color .15s ease,transform .15s ease;position:relative}#reportPeople .report-row.clickable-report-person-v122:hover{background:#171d20;transform:translateX(2px)}#reportPeople .report-row.clickable-report-person-v122:after{content:'›';color:#737d83;font-size:18px;margin-left:10px}#reportPeople .report-row.selected-report-person-v122{background:rgba(235,233,60,.07);box-shadow:inset 2px 0 #ebe93c}#reportPeople .report-row.selected-report-person-v122:after{color:#ebe93c}.report-person-detail-v122{display:none;margin-top:14px;border-color:#343d42}.report-person-head-v122{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.report-person-identity-v122{display:flex;align-items:center;gap:12px}.report-person-identity-v122 h3{margin:0 0 3px;font-size:18px}.report-person-identity-v122 p{margin:0;color:#7f8b91}.report-person-avatar-v122{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#20272c;border:1px solid #3a4449}.report-person-avatar-v122.fallback{display:grid;place-items:center;background:#ebe93c;color:#101416;font-weight:900}.report-person-actions-v122{display:flex;gap:7px}.report-person-stats-v122{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px;margin:10px 0 15px}.report-person-stats-v122>div{background:#0d1317;border:1px solid #242d32;border-radius:9px;padding:9px}.report-person-stats-v122 small{display:block;color:#7f8b91;font-size:9px}.report-person-stats-v122 b{display:block;font-size:19px;margin-top:3px}.report-person-stats-v122 span{display:block;color:#8a969b;font-size:8px;margin-top:2px}.report-person-section-title-v122{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:12px 0 7px}.report-person-section-title-v122 h4{margin:0;font-size:14px}.report-person-section-title-v122 p{margin:2px 0 0;color:#77848a;font-size:9px}.report-person-section-title-v122>span{color:#b6b93a;font-size:9px}.report-person-sub-v122{display:block;color:#718087;font-size:8px;margin-top:3px}.report-person-chip-v122{display:inline-block;padding:3px 5px;border:1px solid #313a3f;border-radius:999px;font-size:8px;margin:1px}.report-person-activity-v122{border-top:1px solid #242d32;margin-top:12px;padding-top:2px}.report-person-activity-row-v122{display:grid;grid-template-columns:8px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #1f272b}.report-person-activity-row-v122 .dot{width:6px;height:6px;border-radius:50%;background:#ebe93c}.report-person-activity-row-v122 b{display:block;font-size:9px}.report-person-activity-row-v122 small{display:block;color:#748087;font-size:8px;margin-top:2px}.report-person-activity-row-v122 time{color:#69767c;font-size:8px}@media(max-width:1100px){.report-person-stats-v122{grid-template-columns:repeat(4,1fr)}}`;
-    document.head.appendChild(st);
+    if(document.getElementById('reportPersonDetailStyleV122')) return;
+    const st=document.createElement('style'); st.id='reportPersonDetailStyleV122'; st.textContent=`
+      #reportPeople .report-row.clickable-report-person-v122{cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;transition:background .15s,border-color .15s,transform .15s}
+      #reportPeople .report-row.clickable-report-person-v122:hover{background:#171d21;transform:translateX(2px)}#reportPeople .report-row.selected-report-person-v122{background:#25250d;box-shadow:inset 3px 0 #e7e43a}
+      .report-person-detail-v122{display:none;margin-top:14px;padding:14px;border-color:#343d42}.report-person-head-v122{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.report-person-identity-v122{display:flex;align-items:center;gap:11px}.report-person-identity-v122 h3{margin:0;font-size:18px}.report-person-identity-v122 p{margin:4px 0 0;color:#818b91;font-size:10px}.report-person-avatar-v122{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #d9d737}.report-person-avatar-v122.fallback{display:grid;place-items:center;background:#e4e239;color:#111;font-weight:900}.report-person-actions-v122{display:flex;gap:7px}
+      .report-person-stats-v122{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;margin-bottom:14px}.report-person-stats-v122>div{background:#0d1317;border:1px solid #252e34;border-radius:10px;padding:10px}.report-person-stats-v122 small{display:block;color:#7f898f;font-size:8px}.report-person-stats-v122 b{display:block;margin-top:4px;font-size:18px}.report-person-stats-v122 span{display:block;color:#8d969c;font-size:8px;margin-top:2px}.report-person-section-title-v122{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:13px 0 8px}.report-person-section-title-v122 h4{margin:0;font-size:12px}.report-person-section-title-v122 p{margin:3px 0 0;color:#7e888e;font-size:9px}.report-person-section-title-v122>span{color:#d4d232;font-size:9px;font-weight:800}.report-person-sub-v122{display:block;color:#7e888e;font-size:8px;margin-top:3px}.report-person-chip-v122{display:inline-block;border:1px solid #3a464d;background:#172027;color:#c7d0d5;border-radius:12px;padding:3px 6px;font-size:8px;margin:1px}.report-person-activity-v122{margin-top:14px;border-top:1px solid #252e34;padding-top:4px}.report-person-activity-row-v122{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid #20282d}.report-person-activity-row-v122 .dot{width:6px;height:6px;border-radius:50%;background:#e7e43a}.report-person-activity-row-v122 b{display:block;font-size:9px}.report-person-activity-row-v122 small{display:block;color:#7d878d;font-size:8px;margin-top:2px}.report-person-activity-row-v122 time{color:#6e787e;font-size:8px}@media(max-width:1300px){.report-person-stats-v122{grid-template-columns:repeat(4,1fr)}}@media(max-width:700px){.report-person-stats-v122{grid-template-columns:repeat(2,1fr)}.report-person-head-v122{align-items:flex-start;flex-direction:column}}
+    `; document.head.appendChild(st);
   }
 
-  installStyles();
-  const previousRenderReports=renderReports;
-  renderReports=function(){ previousRenderReports(); setTimeout(()=>{bindRows();if(selectedPersonId)renderDetail(selectedPersonId);},0); };
-  setTimeout(bindRows,180);
+  const oldRenderReports=renderReports;
+  renderReports=function(){ oldRenderReports(); bindRows(); if(selectedPersonId) setTimeout(()=>renderDetail(selectedPersonId),0); };
+  installStyles(); bindRows();
 })();
