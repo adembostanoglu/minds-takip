@@ -17,20 +17,20 @@
   }catch(e){ console.warn('Team drilldown compatibility aliases',e); }
 })();
 
-// V1.12.4 shared team shoots loader.
+// V1.12.5 shared team shoots + category loader.
 if(!document.querySelector('script[data-minds-v124-shoots]')){
   const s=document.createElement('script');
-  s.src='appx17.js?v=1240';
+  s.src='appx17.js?v=1250';
   s.dataset.mindsV124Shoots='1';
-  s.onerror=()=>console.error('V1.12.4 shared shoots module could not be loaded');
+  s.onerror=()=>console.error('V1.12.5 shared shoots module could not be loaded');
   document.body.appendChild(s);
 }
 
-// V1.13 automatic performance scoring + Employee of the Month.
+// V1.13.1 role-based automatic performance scoring + Employee of the Month.
 if(!document.querySelector('script[data-minds-v130-performance]')){
   const s=document.createElement('script');
-  s.src='appx18.js?v=1300';
+  s.src='appx18.js?v=1310';
   s.dataset.mindsV130Performance='1';
-  s.onerror=()=>console.error('V1.13 performance module could not be loaded');
+  s.onerror=()=>console.error('V1.13.1 performance module could not be loaded');
   document.body.appendChild(s);
 }
