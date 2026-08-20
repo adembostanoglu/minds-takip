@@ -86,3 +86,12 @@ if(!document.querySelector('script[data-minds-v115]')){
   s.onerror=()=>console.error('V1.11.5 firm completion color module could not be loaded');
   document.body.appendChild(s);
 }
+
+// Load V1.12 self-service profile avatars.
+if(!document.querySelector('script[data-minds-v120]')){
+  const s=document.createElement('script');
+  s.src='appx13.js?v=1200';
+  s.dataset.mindsV120='1';
+  s.onerror=()=>console.error('V1.12 profile avatar module could not be loaded');
+  document.body.appendChild(s);
+}
