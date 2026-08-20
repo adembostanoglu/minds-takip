@@ -77,3 +77,12 @@ if(!document.querySelector('script[data-minds-v114]')){
   s.onerror=()=>console.error('V1.11.4 social media firm scope module could not be loaded');
   document.body.appendChild(s);
 }
+
+// Load V1.11.5 robust firm completion colors.
+if(!document.querySelector('script[data-minds-v115]')){
+  const s=document.createElement('script');
+  s.src='appx12.js?v=1115';
+  s.dataset.mindsV115='1';
+  s.onerror=()=>console.error('V1.11.5 firm completion color module could not be loaded');
+  document.body.appendChild(s);
+}
