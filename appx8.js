@@ -105,12 +105,12 @@ if(!document.querySelector('script[data-minds-v121]')){
   document.body.appendChild(s);
 }
 
-// Compatibility aliases + current shoots/performance loaders.
+// Compatibility aliases + current shoots/performance/target loaders.
 if(!document.querySelector('script[data-minds-v121-compat]')){
   const s=document.createElement('script');
-  s.src='appx15.js?v=1320';
+  s.src='appx15.js?v=1330';
   s.dataset.mindsV121Compat='1';
-  s.onerror=()=>console.error('V1.13.2 compatibility/performance loader could not be loaded');
+  s.onerror=()=>console.error('V1.13.3 compatibility/performance loader could not be loaded');
   document.body.appendChild(s);
 }
 
