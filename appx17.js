@@ -1,11 +1,11 @@
-// V1.12.4 — shared team shoots: all active users can see/add, personal edit/delete stays scoped
-(function bootSharedShootsV124(){
+// V1.12.5 — shared team shoots + shoot category for performance
+(function bootSharedShootsV125(){
   if(typeof sb==='undefined' || typeof openModal!=='function' || typeof isAdmin!=='function'){
-    setTimeout(bootSharedShootsV124,120);
+    setTimeout(bootSharedShootsV125,120);
     return;
   }
-  if(window.__mindsSharedShootsV124) return;
-  window.__mindsSharedShootsV124=true;
+  if(window.__mindsSharedShootsV125) return;
+  window.__mindsSharedShootsV125=true;
 
   let shootFirmDirectory=[];
   let directoryLoading=null;
@@ -20,6 +20,7 @@
   function allMonthShoots(){ return (state.shoots||[]).filter(x=>x.month===selectedMonth); }
   function shootFirm(fid){ return shootFirmDirectory.find(f=>f.id===fid) || (state.firms||[]).find(f=>f.id===fid) || null; }
   function canEditShoot(x){ return typeof canManageShoot==='function'?canManageShoot(x):(isAdmin()||x?.created_by===profile?.id||x?.responsible_id===profile?.id); }
+  function categoryLabel(v){ return v==='takim'?'Takım / Antrenman / Deplasman':'Firma Çekimi'; }
 
   async function loadShootFirmDirectory(force=false){
     if(directoryLoading) return directoryLoading;
@@ -50,7 +51,7 @@
       note.style.marginBottom='12px';
       actions.insertAdjacentElement('afterend',note);
     }
-    note.innerHTML='<b>Ortak Çekim Listesi:</b> Bu bölüm tüm aktif ekip tarafından görülür. Her personel çekim ekleyebilir; personel kendi oluşturduğu veya sorumlu olduğu kaydı yönetebilir, yönetici tüm kayıtları yönetebilir.';
+    note.innerHTML='<b>Ortak Çekim Listesi:</b> Bu bölüm tüm aktif ekip tarafından görülür. Çekim eklerken “Firma Çekimi” veya “Takım / Antrenman / Deplasman” türünü doğru seç; bu bilgi otomatik performans hesabında kullanılır.';
   }
 
   function renderSharedShoots(){
@@ -68,7 +69,9 @@
         const f=shootFirm(x.firm_id);
         const can=canEditShoot(x);
         const actions=can?`<div class="row-actions"><button class="small-primary" data-edit-shoot="${x.id}">Güncelle</button><button class="small-danger" data-delete-shoot="${x.id}">Sil</button></div>`:'—';
-        return `<tr><td>${dateLabel(x.shoot_date)}</td><td><div class="firm-cell">${firmLogoForShoot(f)}<b>${esc(f?.name||'Firma')}</b></div></td><td><b>${esc(x.title||'Video Çekimi')}</b></td><td><span class="badge blue">${Number(x.video_count||0)} Video</span></td><td>${esc(personLabel(x.responsible_id))}</td><td>${esc(x.notes||'—')}</td><td>${actions}</td></tr>`;
+        const cat=x.shoot_category||'firma';
+        const catBadge=`<div style="margin-top:5px"><span class="badge ${cat==='takim'?'yellow':'blue'}">${esc(categoryLabel(cat))}</span></div>`;
+        return `<tr><td>${dateLabel(x.shoot_date)}</td><td><div class="firm-cell">${firmLogoForShoot(f)}<b>${esc(f?.name||'Firma')}</b></div></td><td><b>${esc(x.title||'Video Çekimi')}</b>${catBadge}</td><td><span class="badge blue">${Number(x.video_count||0)} Video</span></td><td>${esc(personLabel(x.responsible_id))}</td><td>${esc(x.notes||'—')}</td><td>${actions}</td></tr>`;
       }).join('')||'<tr><td colspan="7" class="empty">Bu ay çekim kaydı yok.</td></tr>';
     }
   }
@@ -89,6 +92,7 @@
     openModal(shoot?'Çekimi Güncelle':'Yeni Çekim',`<div class="form-grid">
       <div class="field full"><label>Firma</label><select name="firm" required>${available.map(f=>`<option value="${f.id}" ${shoot?.firm_id===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select></div>
       <div class="field full"><label>Çekim Başlığı</label><input name="title" placeholder="Örn. Aylık sosyal medya çekimi" value="${esc(shoot?.title||'')}"></div>
+      <div class="field"><label>Çekim Türü</label><select name="category" required><option value="firma" ${(shoot?.shoot_category||'firma')==='firma'?'selected':''}>Firma Çekimi</option><option value="takim" ${shoot?.shoot_category==='takim'?'selected':''}>Takım / Antrenman / Deplasman</option></select></div>
       <div class="field"><label>Çekim Tarihi</label><input name="date" type="date" required value="${shoot?.shoot_date||selectedMonthDateDefault()}"></div>
       <div class="field"><label>Çekilen Video İçeriği</label><input name="video_count" type="number" min="1" step="1" required value="${shoot?.video_count??1}"></div>
       ${responsibleField}
@@ -98,9 +102,12 @@
       if(typeof assertSelectedMonthDate==='function') assertSelectedMonthDate(fd.get('date'),'Çekim tarihi');
       const count=Number(fd.get('video_count'));
       if(!Number.isInteger(count)||count<1) throw new Error('Çekilen video içeriği en az 1 olmalı.');
+      const category=String(fd.get('category')||'firma');
+      if(!['firma','takim'].includes(category)) throw new Error('Çekim türü geçersiz.');
       const payload={
         firm_id:fd.get('firm'),
         shoot_date:fd.get('date'),
+        shoot_category:category,
         title:String(fd.get('title')||'').trim()||null,
         video_count:count,
         responsible_id:isAdmin()?(fd.get('person')||profile.id):profile.id,
