@@ -69,12 +69,12 @@ if(!document.querySelector('script[data-minds-v113]')){
   document.body.appendChild(s);
 }
 
-// Load V1.11.4 social media staff firm-scope hardening.
-if(!document.querySelector('script[data-minds-v114]')){
+// Load V1.11.6 separated design-firm and social-media sharing scopes.
+if(!document.querySelector('script[data-minds-v116]')){
   const s=document.createElement('script');
-  s.src='appx11.js?v=1114';
-  s.dataset.mindsV114='1';
-  s.onerror=()=>console.error('V1.11.4 social media firm scope module could not be loaded');
+  s.src='appx11.js?v=1116';
+  s.dataset.mindsV116='1';
+  s.onerror=()=>console.error('V1.11.6 responsibility scope module could not be loaded');
   document.body.appendChild(s);
 }
 
