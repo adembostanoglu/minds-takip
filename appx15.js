@@ -25,3 +25,12 @@ if(!document.querySelector('script[data-minds-v124-shoots]')){
   s.onerror=()=>console.error('V1.12.4 shared shoots module could not be loaded');
   document.body.appendChild(s);
 }
+
+// V1.13 automatic performance scoring + Employee of the Month.
+if(!document.querySelector('script[data-minds-v130-performance]')){
+  const s=document.createElement('script');
+  s.src='appx18.js?v=1300';
+  s.dataset.mindsV130Performance='1';
+  s.onerror=()=>console.error('V1.13 performance module could not be loaded');
+  document.body.appendChild(s);
+}
