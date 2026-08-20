@@ -1,6 +1,6 @@
 // V1.10.1 — record edit/delete controls and tightened staff ownership UI
 function canManageWork(w){ return !!w && (isAdmin() || w.assigned_to===profile?.id || w.created_by===profile?.id); }
-function canManageExtra(x){ return !!x && (isAdmin() || x.person_id===profile?.id); }
+function canManageExtra(x){ return !!x && (isAdmin() || (x.person_id===profile?.id && x.created_by===profile?.id)); }
 function canManageShoot(x){ return !!x && (isAdmin() || x.responsible_id===profile?.id || x.created_by===profile?.id); }
 
 function actionButtons(kind,id,canEdit=true){
@@ -92,5 +92,4 @@ document.addEventListener('click',async e=>{
   if(ds){ const x=state.shoots.find(v=>v.id===ds.dataset.deleteShoot); if(!canManageShoot(x)) return toast('Bu çekimi silme yetkin yok.',true); await deleteRecord('shoots',x.id,'Çekim kaydı'); return; }
 });
 
-// Make sure the extra table header is correct on first load and future renders.
 setTimeout(()=>{ try{ ensureActionHeaders(); renderAll(); }catch(e){ console.warn('V1.10.1 initial render',e); } },0);
