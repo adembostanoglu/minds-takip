@@ -93,3 +93,12 @@ document.addEventListener('click',async e=>{
 });
 
 setTimeout(()=>{ try{ ensureActionHeaders(); renderAll(); }catch(e){ console.warn('V1.10.1 initial render',e); } },0);
+
+// Load V1.11 as a separate layer so the stable V1.10.1 core stays intact.
+if(!document.querySelector('script[data-minds-v11]')){
+  const s=document.createElement('script');
+  s.src='appx7.js?v=111';
+  s.dataset.mindsV11='1';
+  s.onerror=()=>console.error('V1.11 module could not be loaded');
+  document.body.appendChild(s);
+}
