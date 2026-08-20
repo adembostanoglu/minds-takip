@@ -78,12 +78,12 @@ if(!document.querySelector('script[data-minds-v116]')){
   document.body.appendChild(s);
 }
 
-// Load V1.11.5 robust firm completion colors.
+// Load V1.11.7 firm completion colors from real metrics.
 if(!document.querySelector('script[data-minds-v115]')){
   const s=document.createElement('script');
-  s.src='appx12.js?v=1115';
+  s.src='appx12.js?v=1117';
   s.dataset.mindsV115='1';
-  s.onerror=()=>console.error('V1.11.5 firm completion color module could not be loaded');
+  s.onerror=()=>console.error('V1.11.7 firm completion color module could not be loaded');
   document.body.appendChild(s);
 }
 
@@ -114,11 +114,11 @@ if(!document.querySelector('script[data-minds-v121-compat]')){
   document.body.appendChild(s);
 }
 
-// Load V1.12.2 clickable/printable personnel reports.
+// Load V1.12.3 clickable/printable production-focused personnel reports.
 if(!document.querySelector('script[data-minds-v122]')){
   const s=document.createElement('script');
-  s.src='appx16.js?v=1220';
+  s.src='appx16.js?v=1230';
   s.dataset.mindsV122='1';
-  s.onerror=()=>console.error('V1.12.2 personnel report module could not be loaded');
+  s.onerror=()=>console.error('V1.12.3 personnel report module could not be loaded');
   document.body.appendChild(s);
 }
