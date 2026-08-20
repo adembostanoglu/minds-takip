@@ -95,3 +95,12 @@ if(!document.querySelector('script[data-minds-v120]')){
   s.onerror=()=>console.error('V1.12 profile avatar module could not be loaded');
   document.body.appendChild(s);
 }
+
+// Load V1.12.1 clickable team member drilldown.
+if(!document.querySelector('script[data-minds-v121]')){
+  const s=document.createElement('script');
+  s.src='appx14.js?v=1210';
+  s.dataset.mindsV121='1';
+  s.onerror=()=>console.error('V1.12.1 team detail module could not be loaded');
+  document.body.appendChild(s);
+}
