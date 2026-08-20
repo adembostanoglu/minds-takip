@@ -34,3 +34,12 @@ if(!document.querySelector('script[data-minds-v130-performance]')){
   s.onerror=()=>console.error('V1.13.1 performance module could not be loaded');
   document.body.appendChild(s);
 }
+
+// V1.13.2 August training/test month marker; official awards start September 2026.
+if(!document.querySelector('script[data-minds-v132-training]')){
+  const s=document.createElement('script');
+  s.src='appx19.js?v=1320';
+  s.dataset.mindsV132Training='1';
+  s.onerror=()=>console.error('V1.13.2 training month module could not be loaded');
+  document.body.appendChild(s);
+}
