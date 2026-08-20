@@ -50,3 +50,12 @@
 
   installShareShortcut();
 })();
+
+// Load V1.11.2 approved Firms page visual layer.
+if(!document.querySelector('script[data-minds-v112]')){
+  const s=document.createElement('script');
+  s.src='appx9.js?v=1112';
+  s.dataset.mindsV112='1';
+  s.onerror=()=>console.error('V1.11.2 Firms visual module could not be loaded');
+  document.body.appendChild(s);
+}
