@@ -35,11 +35,11 @@ if(!document.querySelector('script[data-minds-v130-performance]')){
   document.body.appendChild(s);
 }
 
-// V1.13.2 August training/test month marker; official awards start September 2026.
+// V1.13.2.1 safe August training/test marker; official awards start September 2026.
 if(!document.querySelector('script[data-minds-v132-training]')){
   const s=document.createElement('script');
-  s.src='appx19.js?v=1320';
+  s.src='appx19.js?v=1321';
   s.dataset.mindsV132Training='1';
-  s.onerror=()=>console.error('V1.13.2 training month module could not be loaded');
+  s.onerror=()=>console.error('V1.13.2.1 training month module could not be loaded');
   document.body.appendChild(s);
 }
