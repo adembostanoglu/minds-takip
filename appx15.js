@@ -43,12 +43,3 @@ if(!document.querySelector('script[data-minds-v132-training]')){
   s.onerror=()=>console.error('V1.13.2 training month module could not be loaded');
   document.body.appendChild(s);
 }
-
-// V1.13.3 read-only personnel target vs actual summary.
-if(!document.querySelector('script[data-minds-v133-target-actual]')){
-  const s=document.createElement('script');
-  s.src='appx20.js?v=1330';
-  s.dataset.mindsV133TargetActual='1';
-  s.onerror=()=>console.error('V1.13.3 target/actual personnel summary module could not be loaded');
-  document.body.appendChild(s);
-}
