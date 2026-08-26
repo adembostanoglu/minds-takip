@@ -1,7 +1,7 @@
-// V1.16.2 loader bridge — stable bootstrap + target summary + weighted extras + carryover + shoot notes + performance + external shoots + prepared highlight + agenda + attendance/payroll + account security + premium attendance layout.
-(function loadStableLayersV162(){
+// V1.16.3 loader bridge — stable bootstrap + share sync + attendance readability.
+(function loadStableLayersV163(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
-  load('data-minds-v135-bootstrap','appx22.js?v=1350','V1.13.5 bootstrap module could not be loaded');
+  load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
   load('data-minds-v140-external-extras','appx24.js?v=1400','V1.14 weighted extra work module could not be loaded');
   load('data-minds-v138-carryover','appx25.js?v=1400','V1.14.0 carryover module could not be loaded');
@@ -12,5 +12,5 @@
   load('data-minds-v150-agenda','appx31.js?v=1500','V1.15.0 agency agenda module could not be loaded');
   load('data-minds-v160-attendance-payroll','appx32.js?v=1600','V1.16.0 attendance/payroll module could not be loaded');
   load('data-minds-v161-my-account','appx33.js?v=1610','V1.16.1 account/password module could not be loaded');
-  load('data-minds-v162-attendance-reference','appx34.js?v=1620','V1.16.2 premium attendance layout module could not be loaded');
+  load('data-minds-v162-attendance-reference','appx34.js?v=1630','V1.16.3 premium attendance layout module could not be loaded');
 })();
