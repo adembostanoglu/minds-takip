@@ -11,7 +11,7 @@
   function installStyles(){
     if(document.getElementById('myAccountV161Styles')) return;
     const st=document.createElement('style'); st.id='myAccountV161Styles'; st.textContent=`
-      #account{padding-bottom:30px}.account-card-v161{max-width:720px;border:1px solid #293239;border-radius:14px;background:#0f1519;overflow:hidden}.account-head-v161{padding:18px;border-bottom:1px solid #263037;display:flex;align-items:center;gap:12px}.account-avatar-v161{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#dfe72c;color:#111;font-size:18px;font-weight:850}.account-head-v161 h3{margin:0;font-size:15px}.account-head-v161 p{margin:4px 0 0;color:#7d8a90;font-size:9px}.account-body-v161{padding:18px}.account-row-v161{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid #20292e;font-size:10px}.account-row-v161 span{color:#7c8a90}.account-row-v161 b{color:#dfe6e8}.account-actions-v161{display:flex;justify-content:flex-end;padding-top:16px}.account-note-v161{margin-top:12px;padding:10px 12px;border:1px solid #303a40;border-radius:10px;background:#11181c;color:#87949a;font-size:9px;line-height:1.55}@media(max-width:700px){.account-row-v161{grid-template-columns:1fr;gap:4px}}
+      #account{padding-bottom:30px}.account-card-v161{max-width:720px;border:1px solid #293239;border-radius:14px;background:#0f1519;overflow:hidden}.account-head-v161{padding:18px;border-bottom:1px solid #263037;display:flex;align-items:center;gap:12px}.account-avatar-v161{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#dfe72c;color:#111;font-size:18px;font-weight:850}.account-head-v161 h3{margin:0;font-size:15px}.account-head-v161 p{margin:4px 0 0;color:#7d8a90;font-size:9px}.account-body-v161{padding:18px}.account-row-v161{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid #20292e;font-size:10px}.account-row-v161 span{color:#7c8a90}.account-row-v161 b{color:#dfe6e8}.account-actions-v161{display:flex;justify-content:flex-end;padding-top:16px}.account-note-v161{margin-top:12px;padding:10px 12px;border:1px solid #303a40;border-radius:10px;background:#11181c;color:#87949a;font-size:9px;line-height:1.55}.profile-box[data-account-v161]{cursor:pointer}.profile-box[data-account-v161]:hover{border-color:#5a5c28;background:#151a17}@media(max-width:700px){.account-row-v161{grid-template-columns:1fr;gap:4px}}
     `; document.head.appendChild(st);
   }
 
@@ -29,6 +29,11 @@
       section=document.createElement('section'); section.id='account'; section.className='view';
       const settingsSection=document.getElementById('settings');
       settingsSection?settingsSection.insertAdjacentElement('beforebegin',section):document.querySelector('.main')?.appendChild(section);
+    }
+    const box=document.querySelector('.profile-box');
+    if(box&&!box.dataset.accountV161){
+      box.dataset.accountV161='1'; box.title='Hesabım / Şifre Değiştir';
+      box.addEventListener('click',openAccount);
     }
     renderAccount();
   }
