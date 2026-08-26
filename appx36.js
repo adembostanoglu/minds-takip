@@ -9,8 +9,13 @@
   const monthStart=()=>String(typeof selectedMonth!=='undefined'?selectedMonth:'').slice(0,7)+'-01';
   const nextMonth=()=>{const [y,m]=monthStart().split('-').map(Number);return `${m===12?y+1:y}-${String(m===12?1:m+1).padStart(2,'0')}-01`;};
   const dateTR=v=>{if(!v)return '—';const [y,m,d]=String(v).slice(0,10).split('-');return `${d}.${m}.${y}`;};
-  const timeTR=v=>{if(!v)return '—';const p=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(v));const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return `${o.hour}:${o.minute}`;};
+  const tzParts=v=>{const p=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(v));return Object.fromEntries(p.map(x=>[x.type,x.value]));};
+  const timeTR=v=>{if(!v)return '—';const o=tzParts(v);return `${o.hour}:${o.minute}`;};
+  const localMinutes=v=>{if(!v)return null;const o=tzParts(v);return Number(o.hour)*60+Number(o.minute);};
+  const dow=date=>new Date(`${date}T12:00:00Z`).getUTCDay();
   const profileName=id=>(state?.profiles||[]).find(p=>p.id===id)?.full_name||'Personel';
+  function lateFor(r,ds){if(!r?.clock_in||r.mode==='field')return 0;if(ds&&ds.status!=='absent')return 0;if(dow(r.work_date)===0)return 0;const t=localMinutes(r.clock_in);return t>=550?Math.max(0,t-510):0;}
+  function overtimeFor(r){if(!r?.clock_out)return 0;const d=dow(r.work_date);if(d<1||d>5)return 0;const t=localMinutes(r.clock_out);return t>=1170?Math.max(0,t-1110):0;}
 
   function installStyles(){
     if(document.getElementById('attDetailDrawerV166Style'))return;
@@ -58,8 +63,8 @@
       const name=pay.full_name||profileName(pid);
       const dates=new Set([...recs.map(x=>x.work_date),...stats.map(x=>x.status_date)]);
       const rows=[...dates].sort((a,b)=>b.localeCompare(a)).map(date=>{
-        const r=recs.find(x=>x.work_date===date),ds=stats.find(x=>x.status_date===date);
-        return `<tr><td>${dateTR(date)}</td><td>${esc(statusLabel(ds?.status,r?.mode,r?.clock_out,r?.clock_in))}</td><td>${timeTR(r?.clock_in)}</td><td>${timeTR(r?.clock_out)}</td><td class="bad">${Number(r?.late_minutes||0)>0?minsText(r.late_minutes):'—'}</td><td class="good">${Number(r?.overtime_minutes||0)>0?minsText(r.overtime_minutes):'—'}</td><td>${r?.overtime_approved?'Onaylı':Number(r?.overtime_minutes||0)>0?'Onay Bekliyor':'—'}</td></tr>`;
+        const r=recs.find(x=>x.work_date===date),ds=stats.find(x=>x.status_date===date),late=lateFor(r,ds),ot=overtimeFor(r);
+        return `<tr><td>${dateTR(date)}</td><td>${esc(statusLabel(ds?.status,r?.mode,r?.clock_out,r?.clock_in))}</td><td>${timeTR(r?.clock_in)}</td><td>${timeTR(r?.clock_out)}</td><td class="bad">${late?minsText(late):'—'}</td><td class="good">${ot?minsText(ot):'—'}</td><td>${ot?(r?.overtime_approved?'Onaylı':'Onay Bekliyor'):'—'}</td></tr>`;
       }).join('');
       const people=(state?.profiles||[]).filter(p=>p.active);
       const adjNames={bonus:'Prim',addition:'Ek Ödeme',advance:'Avans',deduction:'Kesinti'};
