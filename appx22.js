@@ -1,4 +1,4 @@
-// V1.13.5 — single-RPC role-aware bootstrap loader
+// V1.13.5.1 — single-RPC role-aware bootstrap loader + content shares
 (function bootSingleRpcV135(){
   if(typeof sb==='undefined' || typeof state==='undefined'){
     setTimeout(bootSingleRpcV135,100);
@@ -35,7 +35,7 @@
       if(error) throw error;
       if(!data || typeof data!=='object') throw new Error('Bootstrap verisi boş döndü.');
 
-      const keys=['profiles','firms','months','works','extras','shoots','activity','assignments'];
+      const keys=['profiles','firms','months','works','shares','extras','shoots','activity','assignments'];
       keys.forEach(k=>{ state[k]=Array.isArray(data[k])?data[k]:[]; });
 
       if(typeof renderAll==='function') renderAll();
