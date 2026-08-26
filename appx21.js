@@ -1,5 +1,5 @@
-// V1.14.4 loader bridge — stable bootstrap + target summary + weighted extras + carryover + shoot notes + performance + external shoot clients + prepared column highlight.
-(function loadStableLayersV144(){
+// V1.15.0 loader bridge — stable bootstrap + target summary + weighted extras + carryover + shoot notes + performance + external shoots + prepared highlight + agenda.
+(function loadStableLayersV150(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1350','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
@@ -9,4 +9,5 @@
   load('data-minds-v142-performance-direct','appx28.js?v=1420','V1.14.2 direct performance recovery module could not be loaded');
   load('data-minds-v143-external-shoots','appx29.js?v=1430','V1.14.3 external shoot clients module could not be loaded');
   load('data-minds-v144-prepared-highlight','appx30.js?v=1440','V1.14.4 prepared column highlight module could not be loaded');
+  load('data-minds-v150-agenda','appx31.js?v=1500','V1.15.0 agency agenda module could not be loaded');
 })();
