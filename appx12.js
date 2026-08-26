@@ -1,4 +1,4 @@
-// V1.11.7 — firm completion colors from real firm metrics, no duplicate badges
+// V1.16.7 — firm completion colors use required package quotas; surplus/future content does not block completion
 (function bootFirmCompletionColorsV117(){
   if(window.__mindsFirmCompletionColorsV117) return;
   if(typeof firmMetrics!=='function' || typeof activeFirms!=='function'){
@@ -9,9 +9,14 @@
 
   function statusForMetrics(m){
     if(!m) return 'progress';
-    const packageDone=Number(m.post||0)>=Number(m.pq||0) && Number(m.video||0)>=Number(m.vq||0);
-    if(packageDone && Number(m.sharePending||0)===0) return 'done';
-    if(packageDone && Number(m.sharePending||0)>0) return 'waiting';
+    const pq=Number(m.pq||0), vq=Number(m.vq||0);
+    const hasPackage=(pq+vq)>0;
+    const packageDone=Number(m.post||0)>=pq && Number(m.video||0)>=vq;
+    // Completion is based on the contracted package only. Surplus content prepared for a future month
+    // may remain unshared without turning an otherwise completed firm yellow.
+    const requiredSharesDone=Number(m.sharedPost||0)>=pq && Number(m.sharedVideo||0)>=vq;
+    if(hasPackage && packageDone && requiredSharesDone) return 'done';
+    if(hasPackage && packageDone && !requiredSharesDone) return 'waiting';
     return 'progress';
   }
 
@@ -27,10 +32,8 @@
       card.classList.remove('firm-done-v115','firm-waiting-v115','firm-progress-v115');
       card.classList.add(status==='done'?'firm-done-v115':status==='waiting'?'firm-waiting-v115':'firm-progress-v115');
 
-      // V1.11.2 already renders the canonical status badge. Remove the old duplicate V1.11.5 badge if present.
       card.querySelectorAll('.firm-status-badge-v115').forEach(x=>x.remove());
 
-      // Keep the canonical V1.11.2 status class/badge synchronized with the same real metrics.
       card.classList.remove('status-done','status-waiting','status-progress');
       card.classList.add(`status-${status}`);
       const badge=card.querySelector('.firm-state-badge-v112');
