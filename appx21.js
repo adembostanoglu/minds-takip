@@ -1,5 +1,5 @@
-// V1.17.7 loader bridge — stable bootstrap + share sync + attendance/payroll + safe personnel detail drawer + social media tracking with VAT + staff-only attendance.
-(function loadStableLayersV177(){
+// V1.17.8 loader bridge — stable bootstrap + share sync + attendance/payroll + safe personnel detail drawer + social media tracking with VAT + staff-only attendance + person-grouped activity.
+(function loadStableLayersV178(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
@@ -17,4 +17,5 @@
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
   load('data-minds-v177-social-media-tracking','appx39.js?v=1770','V1.17.7 social media tracking module could not be loaded');
   load('data-minds-v176-attendance-staff-only','appx41.js?v=1760','V1.17.6 attendance staff-only module could not be loaded');
+  load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
 })();
