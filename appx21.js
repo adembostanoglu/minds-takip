@@ -1,7 +1,8 @@
-// V1.18.6 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names.
-(function loadStableLayersV186(){
+// V1.18.7 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + staff desktop-only access.
+(function loadStableLayersV187(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
+  load('data-minds-v187-staff-desktop-only','appx50.js?v=1870','V1.18.7 staff desktop-only access module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
   load('data-minds-v140-external-extras','appx24.js?v=1400','V1.14 weighted extra work module could not be loaded');
   load('data-minds-v138-carryover','appx25.js?v=1400','V1.14.0 carryover module could not be loaded');
