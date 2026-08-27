@@ -1,5 +1,5 @@
-// V1.18.5 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state.
-(function loadStableLayersV185(){
+// V1.18.6 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names.
+(function loadStableLayersV186(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
@@ -24,4 +24,5 @@
   load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows could not be loaded');
   load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state could not be loaded');
+  load('data-minds-v186-agenda-firm-names','appx49.js?v=1860','V1.18.6 staff agenda firm names module could not be loaded');
 })();
