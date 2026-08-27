@@ -1,5 +1,5 @@
-// V1.17.9 loader bridge — stable bootstrap + share sync + attendance/payroll + safe personnel detail drawer + social media tracking with VAT + staff-only attendance + person-grouped activity + person-grouped extras.
-(function loadStableLayersV179(){
+// V1.18.0 loader bridge — stable bootstrap + share sync + attendance/payroll + safe personnel detail drawer + social media tracking with VAT + staff-only attendance + grouped activity/extras + Saturday overtime fix.
+(function loadStableLayersV180(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
@@ -19,4 +19,5 @@
   load('data-minds-v176-attendance-staff-only','appx41.js?v=1760','V1.17.6 attendance staff-only module could not be loaded');
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
+  load('data-minds-v180-saturday-overtime','appx44.js?v=1800','V1.18.0 Saturday overtime fix could not be loaded');
 })();
