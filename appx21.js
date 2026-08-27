@@ -1,5 +1,5 @@
-// V1.18.8 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + role/person device access policy.
-(function loadStableLayersV188(){
+// V1.18.9 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + role/person device access policy + attendance day management.
+(function loadStableLayersV189(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v188-staff-device-policy','appx50.js?v=1880','V1.18.8 staff device access policy module could not be loaded');
@@ -15,6 +15,7 @@
   load('data-minds-v161-my-account','appx33.js?v=1610','V1.16.1 account/password module could not be loaded');
   load('data-minds-v162-attendance-reference','appx34.js?v=1630','V1.16.3 premium attendance layout module could not be loaded');
   load('data-minds-v174-attendance-detail-drawer','appx36.js?v=1740','V1.17.4 attendance personnel detail drawer could not be loaded');
+  load('data-minds-v189-attendance-day-manage','appx51.js?v=1890','V1.18.9 attendance day management module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
   load('data-minds-v177-social-media-tracking','appx39.js?v=1770','V1.17.7 social media tracking module could not be loaded');
   load('data-minds-v176-attendance-staff-only','appx41.js?v=1760','V1.17.6 attendance staff-only module could not be loaded');
