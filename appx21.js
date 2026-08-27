@@ -1,5 +1,5 @@
-// V1.19.7 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + color-coded premium sidebar.
-(function loadStableLayersV197(){
+// V1.19.8 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + corrected color-coded sidebar labels.
+(function loadStableLayersV198(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v188-staff-device-policy','appx50.js?v=1880','V1.18.8 staff device access policy module could not be loaded');
@@ -31,5 +31,5 @@
   load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state could not be loaded');
   load('data-minds-v186-agenda-firm-names','appx49.js?v=1860','V1.18.6 staff agenda firm names module could not be loaded');
-  load('data-minds-v197-sidebar-colors','appx56.js?v=1970','V1.19.7 sidebar color system module could not be loaded');
+  load('data-minds-v198-sidebar-colors','appx56.js?v=1980','V1.19.8 sidebar color system module could not be loaded');
 })();
