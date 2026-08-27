@@ -1,7 +1,7 @@
-// V1.19.4 — İş Takibi: 4 personeli aynı ekranda gösteren kompakt günlük sütunlar; okunaklı punto ve kart içi kaydırma.
-(function bootWorksByPersonV194(){
-  if(window.__mindsWorksByPersonV194)return;
-  window.__mindsWorksByPersonV194=true;
+// V1.19.6 — İş Takibi: 4 personeli aynı ekranda gösteren kompakt günlük sütunlar + her personelde 01'den başlayan iş sıra numaraları.
+(function bootWorksByPersonV196(){
+  if(window.__mindsWorksByPersonV196)return;
+  window.__mindsWorksByPersonV196=true;
 
   const ORDER=['umut faruk paroğlu','yusuf ebem','aslı coşkun','imran canbaz'];
   const norm=v=>String(v||'').trim().toLocaleLowerCase('tr-TR').replace(/\s+/g,' ');
@@ -12,9 +12,10 @@
   function dateKey(v){const m=String(v||'').match(/(\d{2})\.(\d{2})\.(\d{4})/);return m?`${m[3]}${m[2]}${m[1]}`:'00000000';}
 
   function installStyle(){
-    if(document.getElementById('worksPersonV194Style'))return;
+    if(document.getElementById('worksPersonV196Style'))return;
     document.getElementById('worksPersonV193Style')?.remove();
-    const s=document.createElement('style');s.id='worksPersonV194Style';s.textContent=`
+    document.getElementById('worksPersonV194Style')?.remove();
+    const s=document.createElement('style');s.id='worksPersonV196Style';s.textContent=`
       #works.works-person-v194 .section-actions{margin-bottom:10px!important}
       #works.works-person-v194 .section-actions h2{font-size:24px!important;letter-spacing:-.4px;margin-bottom:3px}
       #works.works-person-v194 .section-actions p{font-size:12.5px!important;color:#9aa5aa!important}
@@ -35,11 +36,13 @@
       .works-job-v194{padding:9px 9px 8px;border:1px solid #283238;border-radius:9px;background:#12191d;margin-bottom:6px}
       .works-job-v194:hover{background:#151d21;border-color:#3a454b}
       .works-job-top-v194{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;margin-bottom:5px}
-      .works-firm-v194{min-width:0;font-size:12.5px;font-weight:850;color:#eef2f3;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .works-job-main-v196{display:flex;align-items:flex-start;gap:7px;min-width:0;flex:1}
+      .works-job-index-v196{width:25px;height:25px;flex:0 0 25px;display:grid;place-items:center;border:1px solid #5c5720;border-radius:7px;background:#252407;color:#eee52b;font-size:9.5px;font-weight:900;line-height:1}
+      .works-firm-v194{min-width:0;font-size:12.5px;font-weight:850;color:#eef2f3;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-top:4px}
       .works-type-v194{flex:0 0 auto;font-size:9.5px;color:#aeb8bc;font-weight:750;border:1px solid #303b41;border-radius:6px;padding:3px 5px;background:#10161a;white-space:nowrap}
-      .works-title-v194{font-size:12px;font-weight:760;color:#e5eaec;line-height:1.3;margin-bottom:6px;overflow-wrap:anywhere}
+      .works-title-v194{font-size:12px;font-weight:760;color:#e5eaec;line-height:1.3;margin:0 0 6px 32px;overflow-wrap:anywhere}
       .works-title-v194 small{display:inline;margin-left:5px;font-size:9.5px;font-weight:650;color:#87949a}
-      .works-status-v194{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:2px}
+      .works-status-v194{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:2px 0 0 32px}
       .works-status-v194 .badge{font-size:8.5px!important;padding:4px 6px!important;line-height:1.1!important}
       .works-actions-v194{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;margin-top:7px;padding-top:7px;border-top:1px solid #232c31}
       .works-actions-v194:empty{display:none}
@@ -81,9 +84,10 @@
       const arr=groups.get(person).sort((a,b)=>dateKey(b.date).localeCompare(dateKey(a.date)));
       const dates=[...new Set(arr.map(x=>x.date))];
       const no=rank(person)<999?rank(person)+1:'';
+      let seq=0;
       const blocks=dates.map(date=>{
         const dayJobs=arr.filter(x=>x.date===date);
-        const jobs=dayJobs.map(x=>`<div class="works-job-v194"><div class="works-job-top-v194"><div class="works-firm-v194" title="${esc(x.firm)}">${esc(x.firm)}</div><div class="works-type-v194">${esc(x.type)}</div></div><div class="works-title-v194">${esc(x.title)}${x.qty?`<small>${esc(x.qty)}</small>`:''}</div><div class="works-status-v194"><span>${x.prep}</span><span>${x.share}</span></div><div class="works-actions-v194">${x.actions}</div></div>`).join('');
+        const jobs=dayJobs.map(x=>{seq+=1;const jobNo=String(seq).padStart(2,'0');return `<div class="works-job-v194"><div class="works-job-top-v194"><div class="works-job-main-v196"><span class="works-job-index-v196">${jobNo}</span><div class="works-firm-v194" title="${esc(x.firm)}">${esc(x.firm)}</div></div><div class="works-type-v194">${esc(x.type)}</div></div><div class="works-title-v194">${esc(x.title)}${x.qty?`<small>${esc(x.qty)}</small>`:''}</div><div class="works-status-v194"><span>${x.prep}</span><span>${x.share}</span></div><div class="works-actions-v194">${x.actions}</div></div>`;}).join('');
         return `<div class="works-date-block-v194"><div class="works-date-head-v194">${esc(date)} <span class="works-date-count-v194">• ${dayJobs.length} iş</span></div>${jobs}</div>`;
       }).join('');
       return `<section class="works-person-card-v194"><div class="works-person-head-v194"><div class="works-person-name-v194">${no?`<span class="works-person-no-v194">${no}</span>`:''}<span>${esc(person)}</span></div><span class="works-person-count-v194">${arr.length} kayıt</span></div><div class="works-person-body-v194">${blocks}</div></section>`;
