@@ -1,5 +1,5 @@
-// V1.18.0 loader bridge — stable bootstrap + share sync + attendance/payroll + safe personnel detail drawer + social media tracking with VAT + staff-only attendance + grouped activity/extras + Saturday overtime fix.
-(function loadStableLayersV180(){
+// V1.18.1 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday and separate manual overtime workflow.
+(function loadStableLayersV181(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
@@ -20,4 +20,5 @@
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
   load('data-minds-v180-saturday-overtime','appx44.js?v=1800','V1.18.0 Saturday overtime fix could not be loaded');
+  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow could not be loaded');
 })();
