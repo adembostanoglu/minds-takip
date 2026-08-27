@@ -1,7 +1,7 @@
-// V1.19.1 — Mesai ana listesinde personel adına tıklayınca satır altında geniş günlük detay; ayrı Detay çekmecesi korunur.
-(function bootAttendanceInlineDetailsV191(){
-  if(window.__mindsAttendanceInlineDetailsV191)return;
-  window.__mindsAttendanceInlineDetailsV191=true;
+// V1.19.3 — Mesai ana listesinde personel satırına/ismine tıklayınca geniş günlük detay; Detay çekmecesi ayrıca korunur.
+(function bootAttendanceInlineDetailsV193(){
+  if(window.__mindsAttendanceInlineDetailsV193)return;
+  window.__mindsAttendanceInlineDetailsV193=true;
 
   let expandedPid=null;
   let rebuilding=false;
@@ -9,27 +9,33 @@
   const norm=v=>String(v||'').trim().toLocaleLowerCase('tr-TR').replace(/\s+/g,' ');
 
   function installStyle(){
-    if(document.getElementById('attInlineDetailsV191Style'))return;
+    if(document.getElementById('attInlineDetailsV193Style'))return;
     const s=document.createElement('style');
-    s.id='attInlineDetailsV191Style';
+    s.id='attInlineDetailsV193Style';
     s.textContent=`
       #attendance.ref-ui-v162 .att-grid-v160{grid-template-columns:1fr!important}
       #attendance.ref-ui-v162 .att-grid-v160>aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
       #attendance.ref-ui-v162 .att-grid-v160>aside>.att-inline-source-v191{display:none!important}
+      #attendance .att-payroll-person-cell-v193{cursor:pointer;user-select:none}
+      #attendance .att-payroll-person-cell-v193:hover{background:#181e1a!important}
       #attendance .att-payroll-person-click-v191{cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:6px}
-      #attendance .att-payroll-person-click-v191:after{content:'⌄';font-size:11px;color:#777f83;transition:transform .16s ease,color .16s ease}
+      #attendance .att-payroll-person-click-v191:after{content:'⌄';font-size:13px;color:#8b9498;transition:transform .16s ease,color .16s ease}
       #attendance tr.att-inline-open-v191 .att-payroll-person-click-v191:after{transform:rotate(180deg);color:#e9df2c}
       #attendance tr.att-inline-open-v191>td{background:#141916!important}
       #attendance .att-person-expand-row-v191>td{padding:0!important;border-bottom:1px solid #30393f!important;background:#0c1114!important}
-      #attendance .att-person-expand-v191{padding:14px 15px 17px;border-left:2px solid #6e671d;background:linear-gradient(180deg,#10171a,#0d1215)}
-      #attendance .att-person-expand-head-v191{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
-      #attendance .att-person-expand-head-v191 b{font-size:13px;color:#edf1f2}
-      #attendance .att-person-expand-head-v191 span{font-size:9px;color:#7d898f}
+      #attendance .att-person-expand-v191{padding:16px 17px 18px;border-left:3px solid #d8d126;background:linear-gradient(180deg,#10171a,#0d1215)}
+      #attendance .att-person-expand-head-v191{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+      #attendance .att-person-expand-head-v191 b{font-size:15px;color:#edf1f2}
+      #attendance .att-person-expand-head-v191 span{font-size:11px;color:#89969b}
       #attendance .att-person-expand-v191 .att-detail-summary-v160{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important;margin-bottom:12px!important}
-      #attendance .att-person-expand-v191 .att-detail-item-v160{padding:10px!important}
+      #attendance .att-person-expand-v191 .att-detail-item-v160{padding:11px!important}
+      #attendance .att-person-expand-v191 .att-detail-item-v160 small{font-size:10px!important}
+      #attendance .att-person-expand-v191 .att-detail-item-v160 b{font-size:14px!important}
       #attendance .att-person-expand-v191 .att-table-scroll-v160{overflow-x:auto!important;overflow-y:visible!important;max-height:none!important;border:1px solid #273137;border-radius:10px}
       #attendance .att-person-expand-v191 .att-table-v160{width:100%!important;min-width:980px!important;table-layout:auto!important}
-      #attendance .att-person-expand-v191 .att-table-v160 th,#attendance .att-person-expand-v191 .att-table-v160 td{white-space:nowrap!important;padding:10px 8px!important}
+      #attendance .att-person-expand-v191 .att-table-v160 th{font-size:10px!important}
+      #attendance .att-person-expand-v191 .att-table-v160 td{font-size:11px!important}
+      #attendance .att-person-expand-v191 .att-table-v160 th,#attendance .att-person-expand-v191 .att-table-v160 td{white-space:nowrap!important;padding:11px 9px!important}
       #attendance .att-person-expand-v191 .att-adjust-list-v160{margin-top:8px}
       #attendance .att-person-expand-v191 [data-origin-id="attAdjustmentDetailBtnV160"]{display:inline-flex}
       @media(max-width:1100px){#attendance.ref-ui-v162 .att-grid-v160>aside{grid-template-columns:1fr}#attendance .att-person-expand-v191 .att-detail-summary-v160{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
@@ -47,10 +53,7 @@
 
   function sourcePanel(){return sourceSelect()?.closest('.att-panel-v160')||null;}
 
-  function markSource(){
-    const p=sourcePanel();
-    if(p)p.classList.add('att-inline-source-v191');
-  }
+  function markSource(){const p=sourcePanel();if(p)p.classList.add('att-inline-source-v191');}
 
   function payrollRows(){
     const tb=payrollPanel()?.querySelector('table.att-table-v160 tbody');
@@ -60,14 +63,18 @@
 
   function rowForPid(pid){return payrollRows().find(r=>r.querySelector(`[data-att-detail="${CSS.escape(pid)}"]`))||null;}
 
-  function patchNames(){
+  function patchRows(){
     payrollRows().forEach(row=>{
       const btn=row.querySelector('[data-att-detail]');
-      const name=row.cells[0]?.querySelector('b');
-      if(!btn||!name)return;
+      const cell=row.cells[0];
+      const name=cell?.querySelector('b');
+      if(!btn||!cell||!name)return;
+      const pid=btn.dataset.attDetail;
+      cell.classList.add('att-payroll-person-cell-v193');
+      cell.dataset.attInlinePerson=pid;
       name.classList.add('att-payroll-person-click-v191');
-      name.dataset.attInlinePerson=btn.dataset.attDetail;
-      row.classList.toggle('att-inline-open-v191',expandedPid===btn.dataset.attDetail);
+      name.dataset.attInlinePerson=pid;
+      row.classList.toggle('att-inline-open-v191',expandedPid===pid);
     });
   }
 
@@ -103,21 +110,23 @@
       wrap.innerHTML=`<div class="att-person-expand-head-v191"><b>${person}</b><span>Günlük giriş–çıkış, izin ve mesai detayları</span></div>`;
       wrap.appendChild(clone);
       td.appendChild(wrap);tr.appendChild(td);row.insertAdjacentElement('afterend',tr);
+      setTimeout(()=>window.dispatchEvent(new Event('resize')),0);
     }finally{rebuilding=false;}
   }
 
-  function selectPersonForInline(pid){
+  function selectPersonForInline(pid,attempt=0){
     const sel=sourceSelect();
-    if(!sel){setTimeout(()=>selectPersonForInline(pid),80);return;}
-    if(sel.value===pid){setTimeout(buildExpansion,25);return;}
+    if(!sel){if(attempt<12)setTimeout(()=>selectPersonForInline(pid,attempt+1),100);return;}
+    if(sel.value===pid){setTimeout(buildExpansion,50);return;}
     sel.value=pid;
     sel.dispatchEvent(new Event('change',{bubbles:true}));
-    setTimeout(()=>{markSource();patchNames();buildExpansion();},90);
+    setTimeout(()=>{markSource();patchRows();buildExpansion();},160);
   }
 
   function toggle(pid){
-    if(expandedPid===pid){expandedPid=null;clearExpansion();patchNames();return;}
-    expandedPid=pid;clearExpansion();patchNames();selectPersonForInline(pid);
+    if(!pid)return;
+    if(expandedPid===pid){expandedPid=null;clearExpansion();patchRows();return;}
+    expandedPid=pid;clearExpansion();patchRows();selectPersonForInline(pid);
   }
 
   function routeCloneButton(btn){
@@ -134,19 +143,21 @@
 
   function apply(){
     if(!document.getElementById('attendance')?.classList.contains('active-view'))return;
-    installStyle();markSource();patchNames();
+    installStyle();markSource();patchRows();
     if(expandedPid&&!document.querySelector('#attendance .att-person-expand-row-v191'))buildExpansion();
   }
 
   document.addEventListener('click',e=>{
-    const name=e.target.closest('#attendance .att-payroll-person-click-v191');
-    if(name){e.preventDefault();e.stopPropagation();toggle(name.dataset.attInlinePerson);return;}
+    if(!document.getElementById('attendance')?.classList.contains('active-view'))return;
     const cloneBtn=e.target.closest('#attendance .att-person-expand-v191 button');
-    if(cloneBtn&&routeCloneButton(cloneBtn)){e.preventDefault();}
+    if(cloneBtn){if(routeCloneButton(cloneBtn)){e.preventDefault();e.stopPropagation();}return;}
+    if(e.target.closest('#attendance [data-att-detail]'))return; // ayrı Detay butonu kendi işini yapsın
+    const cell=e.target.closest('#attendance .att-payroll-person-cell-v193');
+    if(cell){e.preventDefault();e.stopPropagation();toggle(cell.dataset.attInlinePerson);}
   },true);
 
   document.addEventListener('click',e=>{
-    if(e.target.closest('#attendance [data-att-detail]'))setTimeout(()=>{markSource();patchNames();},100);
+    if(e.target.closest('#attendance [data-att-detail]'))setTimeout(()=>{markSource();patchRows();},120);
   });
 
   installStyle();
