@@ -1,5 +1,5 @@
-// V1.19.5 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact four-column person/day work tracking.
-(function loadStableLayersV195(){
+// V1.19.6 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact four-column person/day work tracking with per-person job sequence numbers.
+(function loadStableLayersV196(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v188-staff-device-policy','appx50.js?v=1880','V1.18.8 staff device access policy module could not be loaded');
@@ -19,7 +19,7 @@
   load('data-minds-v191-attendance-staff-order','appx52.js?v=1910','V1.19.1 attendance staff order module could not be loaded');
   load('data-minds-v195-attendance-inline-details','appx53.js?v=1950','V1.19.5 focused inline attendance details module could not be loaded');
   load('data-minds-v192-attendance-overtime-notes','appx54.js?v=1920','V1.19.2 overtime work notes module could not be loaded');
-  load('data-minds-v194-works-by-person','appx55.js?v=1940','V1.19.4 compact four-column work tracking module could not be loaded');
+  load('data-minds-v196-works-by-person','appx55.js?v=1960','V1.19.6 numbered compact work tracking module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
   load('data-minds-v177-social-media-tracking','appx39.js?v=1770','V1.17.7 social media tracking module could not be loaded');
   load('data-minds-v176-attendance-staff-only','appx41.js?v=1760','V1.17.6 attendance staff-only module could not be loaded');
