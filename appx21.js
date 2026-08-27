@@ -1,5 +1,5 @@
-// V1.16.8 loader bridge — stable bootstrap + share sync + attendance modules + package-based firm completion.
-(function loadStableLayersV168(){
+// V1.17.0 loader bridge — stable bootstrap + share sync + attendance modules + package-based firm completion + social media tracking.
+(function loadStableLayersV170(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
@@ -16,4 +16,5 @@
   load('data-minds-v166-attendance-detail-drawer','appx36.js?v=1660','V1.16.6 attendance personnel detail drawer could not be loaded');
   load('data-minds-v167-attendance-detail-layout','appx37.js?v=1670','V1.16.7 attendance detail layout module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
+  load('data-minds-v170-social-media-tracking','appx39.js?v=1700','V1.17.0 social media tracking module could not be loaded');
 })();
