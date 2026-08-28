@@ -1,7 +1,7 @@
-// V1.20.0 — Sol menü düzeltmesi: etiketler data-view üzerinden sabitlenir; çift/üst üste metin oluşmaz.
-(function bootSidebarColorSystemV200(){
-  if(window.__mindsSidebarColorSystemV200)return;
-  window.__mindsSidebarColorSystemV200=true;
+// V1.20.1 — Sol menü: sabit ve doğru etiketler + daha büyük, okunaklı tipografi.
+(function bootSidebarColorSystemV201(){
+  if(window.__mindsSidebarColorSystemV201)return;
+  window.__mindsSidebarColorSystemV201=true;
 
   const CFG={
     dashboard:{label:'Ana Panel',color:'#e6e92b',icon:'⌂'},
@@ -56,21 +56,26 @@
   }
 
   function installStyle(){
-    document.getElementById('sidebarColorSystemV197Style')?.remove();
-    document.getElementById('sidebarColorSystemV198Style')?.remove();
-    if(document.getElementById('sidebarColorSystemV200Style'))return;
+    ['sidebarColorSystemV197Style','sidebarColorSystemV198Style','sidebarColorSystemV200Style'].forEach(id=>document.getElementById(id)?.remove());
+    if(document.getElementById('sidebarColorSystemV201Style'))return;
     const s=document.createElement('style');
-    s.id='sidebarColorSystemV200Style';
+    s.id='sidebarColorSystemV201Style';
     s.textContent=`
-      .sidebar nav{display:flex!important;flex-direction:column!important;gap:3px!important;padding:10px 7px 12px!important;overflow:hidden!important}
-      .sidebar nav .nav-item{box-sizing:border-box!important;position:relative!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:7px!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:38px!important;height:38px!important;padding:4px 7px!important;margin:0!important;border:1px solid transparent!important;border-left:2px solid var(--navc,#657078)!important;border-radius:8px!important;background:transparent!important;color:#e7ecee!important;text-align:left!important;overflow:hidden!important;line-height:1!important;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease!important}
-      .sidebar nav .nav-color-icon-v200{box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 25px!important;width:25px!important;height:25px!important;min-width:25px!important;border-radius:7px!important;border:1px solid var(--navborder)!important;background:var(--naviconbg)!important;color:var(--navc)!important;font-size:12px!important;font-weight:850!important;line-height:1!important;overflow:hidden!important;box-shadow:0 0 9px var(--navglow)!important}
-      .sidebar nav .nav-color-label-v200{display:block!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:calc(100% - 32px)!important;margin:0!important;padding:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;word-break:normal!important;font-size:11.5px!important;font-weight:700!important;line-height:1!important;letter-spacing:-.05px!important;color:inherit!important}
+      .sidebar nav{display:flex!important;flex-direction:column!important;gap:4px!important;padding:11px 9px 13px!important;overflow-x:hidden!important}
+      .sidebar nav .nav-item{box-sizing:border-box!important;position:relative!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:9px!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:43px!important;height:43px!important;padding:6px 9px!important;margin:0!important;border:1px solid transparent!important;border-left:2px solid var(--navc,#657078)!important;border-radius:9px!important;background:transparent!important;color:#eef2f3!important;text-align:left!important;overflow:hidden!important;line-height:1!important;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease!important}
+      .sidebar nav .nav-color-icon-v201{box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 28px!important;width:28px!important;height:28px!important;min-width:28px!important;border-radius:7px!important;border:1px solid var(--navborder)!important;background:var(--naviconbg)!important;color:var(--navc)!important;font-size:13.5px!important;font-weight:850!important;line-height:1!important;overflow:hidden!important;box-shadow:0 0 10px var(--navglow)!important}
+      .sidebar nav .nav-color-label-v201{display:block!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:calc(100% - 37px)!important;margin:0!important;padding:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;word-break:normal!important;font-size:14px!important;font-weight:750!important;line-height:1.12!important;letter-spacing:-.12px!important;color:inherit!important}
       .sidebar nav .nav-item:hover{background:var(--navhover)!important;border-color:var(--navborder)!important}
-      .sidebar nav .nav-item.active{background:linear-gradient(90deg,var(--navactive),rgba(19,25,29,.72))!important;border-color:var(--navc)!important;box-shadow:0 0 0 1px var(--navsoft),0 0 13px var(--navglow)!important;color:#fff!important}
-      .sidebar nav .nav-item.active .nav-color-icon-v200{background:var(--naviconactive)!important;border-color:var(--navc)!important}
+      .sidebar nav .nav-item.active{background:linear-gradient(90deg,var(--navactive),rgba(19,25,29,.72))!important;border-color:var(--navc)!important;box-shadow:0 0 0 1px var(--navsoft),0 0 14px var(--navglow)!important;color:#fff!important}
+      .sidebar nav .nav-item.active .nav-color-icon-v201{background:var(--naviconactive)!important;border-color:var(--navc)!important}
       .sidebar nav:after{content:'';height:1px;margin:6px 7px 0;background:linear-gradient(90deg,transparent,#263137,transparent)}
       .sidebar .profile-box{border-top-color:#222d32!important}
+      @media(max-width:1100px){
+        .sidebar nav{padding-left:8px!important;padding-right:8px!important}
+        .sidebar nav .nav-item{gap:8px!important;padding-left:8px!important;padding-right:8px!important}
+        .sidebar nav .nav-color-label-v201{font-size:13.2px!important;font-weight:750!important;letter-spacing:-.18px!important}
+        .sidebar nav .nav-color-icon-v201{width:27px!important;height:27px!important;min-width:27px!important;flex-basis:27px!important;font-size:13px!important}
+      }
     `;
     document.head.appendChild(s);
   }
@@ -95,13 +100,12 @@
     btn.title=cfg.label;
     btn.setAttribute('aria-label',cfg.label);
 
-    // Her seferinde içerik baştan kurulur; eski ikon/yazı kalıntıları kesin olarak silinir.
     const icon=document.createElement('span');
-    icon.className='nav-color-icon-v200';
+    icon.className='nav-color-icon-v201';
     icon.setAttribute('aria-hidden','true');
     icon.textContent=cfg.icon;
     const text=document.createElement('span');
-    text.className='nav-color-label-v200';
+    text.className='nav-color-label-v201';
     text.textContent=cfg.label;
     btn.replaceChildren(icon,text);
   }
