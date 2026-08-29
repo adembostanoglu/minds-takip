@@ -1,7 +1,7 @@
-// V1.19.2 — Personel fazla mesai açıklaması: çalışan kendi mesai kaydına iş/not ekler, yönetici aynı tarihte görür.
-(function bootAttendanceOvertimeNotesV192(){
-  if(window.__mindsAttendanceOvertimeNotesV192)return;
-  window.__mindsAttendanceOvertimeNotesV192=true;
+// V1.21.0 — Personel fazla mesai açıklaması; Cumartesi mesai notu çıkış 14:30 ve sonrasında açılır.
+(function bootAttendanceOvertimeNotesV210(){
+  if(window.__mindsAttendanceOvertimeNotesV210)return;
+  window.__mindsAttendanceOvertimeNotesV210=true;
 
   let rows=[];
   let loadedMonth='';
@@ -22,7 +22,7 @@
     if(!r?.clock_out)return false;
     const d=dow(r.work_date),t=localMinutes(r.clock_out);
     if(d>=1&&d<=5)return t>=1170; // 19:30 ve sonrası
-    if(d===6)return t>810; // Cumartesi 13:30 sonrası
+    if(d===6)return t>=870; // Cumartesi 14:30 ve sonrası; mesai 13:30 bazından hesaplanır
     return false;
   }
   function trToIso(v){
