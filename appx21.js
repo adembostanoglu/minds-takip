@@ -43,5 +43,5 @@
   load('data-minds-v216-operations-hub','appx65.js?v=2160','V1.21.6 operations hub module could not be loaded');
   load('data-minds-v217-content-rhythm','appx66.js?v=2170','V1.21.7 content rhythm module could not be loaded');
   load('data-minds-v219-september-readiness','appx67.js?v=2190','V1.21.9 September readiness and package pace module could not be loaded');
-  load('data-minds-v220-mobile-shell','appx68.js?v=2200','V1.22.0 dedicated mobile shell module could not be loaded');
+  load('data-minds-v220-mobile-shell','appx68.js?v=2201','V1.22.0 dedicated mobile shell module could not be loaded');
 })();
