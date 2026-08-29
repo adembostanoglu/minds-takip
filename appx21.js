@@ -1,5 +1,5 @@
-// V1.20.9 loader bridge — stable bootstrap + long-session stability + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets.
-(function loadStableLayersV209(){
+// V1.21.0 loader bridge — stable bootstrap + long-session stability + attendance/payroll + grouped activity/extras + Saturday 14:30 overtime trigger + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets.
+(function loadStableLayersV210(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v203-long-session-stability','appx58.js?v=2030','V1.20.3 long-session stability module could not be loaded');
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
@@ -19,15 +19,15 @@
   load('data-minds-v189-attendance-day-manage','appx51.js?v=1890','V1.18.9 attendance day management module could not be loaded');
   load('data-minds-v191-attendance-staff-order','appx52.js?v=1910','V1.19.1 attendance staff order module could not be loaded');
   load('data-minds-v195-attendance-inline-details','appx53.js?v=1950','V1.19.5 focused inline attendance details module could not be loaded');
-  load('data-minds-v192-attendance-overtime-notes','appx54.js?v=1920','V1.19.2 overtime work notes module could not be loaded');
+  load('data-minds-v210-attendance-overtime-notes','appx54.js?v=2100','V1.21.0 overtime work notes module could not be loaded');
   load('data-minds-v196-works-by-person','appx55.js?v=1960','V1.19.6 numbered compact work tracking module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
   load('data-minds-v177-social-media-tracking','appx39.js?v=1770','V1.17.7 social media tracking module could not be loaded');
   load('data-minds-v176-attendance-staff-only','appx41.js?v=1760','V1.17.6 attendance staff-only module could not be loaded');
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
-  load('data-minds-v180-saturday-overtime','appx44.js?v=1800','V1.18.0 Saturday overtime fix could not be loaded');
-  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow could not be loaded');
+  load('data-minds-v210-saturday-overtime','appx44.js?v=2100','V1.21.0 Saturday overtime rule module could not be loaded');
+  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow module could not be loaded');
   load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows could not be loaded');
   load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state could not be loaded');
