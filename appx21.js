@@ -1,5 +1,5 @@
-// V1.21.1 loader bridge — stable bootstrap + long-session stability + attendance/payroll + grouped activity/extras + corrected Saturday overtime baseline + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets.
-(function loadStableLayersV211(){
+// V1.21.2 loader bridge — stable bootstrap + long-session stability + attendance/payroll + grouped activity/extras + corrected Saturday overtime baseline + Saturday duty assignments + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets.
+(function loadStableLayersV212(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v203-long-session-stability','appx58.js?v=2030','V1.20.3 long-session stability module could not be loaded');
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
@@ -27,10 +27,10 @@
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
   load('data-minds-v211-saturday-overtime','appx44.js?v=2110','V1.21.1 Saturday overtime rule module could not be loaded');
-  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow could not be loaded');
+  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow module could not be loaded');
   load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows could not be loaded');
   load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
-  load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state could not be loaded');
+  load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state module could not be loaded');
   load('data-minds-v186-agenda-firm-names','appx49.js?v=1860','V1.18.6 staff agenda firm names module could not be loaded');
   load('data-minds-v201-sidebar-colors','appx56.js?v=2010','V1.20.1 sidebar color system module could not be loaded');
   load('data-minds-v199-intraday-leave','appx57.js?v=1990','V1.19.9 intraday leave workflow module could not be loaded');
@@ -38,4 +38,5 @@
   load('data-minds-v207-admin-social-nav','appx60.js?v=2070','V1.20.7 admin-only social media navigation module could not be loaded');
   load('data-minds-v208-package-quota-guard','appx61.js?v=2080','V1.20.8 package quota warning module could not be loaded');
   load('data-minds-v209-dashboard-targets','appx62.js?v=2090','V1.20.9 dashboard monthly target KPI module could not be loaded');
+  load('data-minds-v212-saturday-duty','appx63.js?v=2120','V1.21.2 Saturday duty assignment module could not be loaded');
 })();
