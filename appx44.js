@@ -1,7 +1,7 @@
-// V1.18.0 — Cumartesi mesaisi: 13:30 sonrası fazla mesai olarak gösterilir.
-(function bootSaturdayOvertimeV180(){
-  if(window.__mindsSaturdayOvertimeV180)return;
-  window.__mindsSaturdayOvertimeV180=true;
+// V1.21.0 — Cumartesi çalışma 13:30'da biter; çıkış 14:30 ve sonrasındaysa mesai 13:30'dan itibaren hesaplanır.
+(function bootSaturdayOvertimeV210(){
+  if(window.__mindsSaturdayOvertimeV210)return;
+  window.__mindsSaturdayOvertimeV210=true;
 
   const parseTime=v=>{const m=String(v||'').match(/^(\d{1,2}):(\d{2})$/);return m?Number(m[1])*60+Number(m[2]):null;};
   const minsText=v=>{const n=Math.max(0,Math.round(Number(v||0))),h=Math.floor(n/60),m=n%60;return h?(m?`${h} sa ${m} dk`:`${h} sa`):`${m} dk`;};
@@ -12,7 +12,7 @@
       const title=card.querySelector('b')?.textContent?.trim();
       if(title!=='Cumartesi')return;
       const p=card.querySelector('p');if(!p)return;
-      p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • <strong>13:30 sonrası fazla mesai</strong> olarak hesaplanır. Ara mola yok.';
+      p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • Çıkış <strong>14:30 ve sonrası</strong> ise fazla mesai <strong>13:30\'dan itibaren</strong> hesaplanır. Ara mola yok.';
     });
   }
 
@@ -26,7 +26,8 @@
       const ci=parseTime(cells[inI]?.textContent.trim()),co=parseTime(cells[outI]?.textContent.trim());
       if(ci===null||co===null)return;
       const saturdayEnd=13*60+30;
-      const ot=co>saturdayEnd?Math.max(0,co-Math.max(ci,saturdayEnd)):0;
+      const saturdayTrigger=14*60+30;
+      const ot=co>=saturdayTrigger?Math.max(0,co-Math.max(ci,saturdayEnd)):0;
       if(!ot)return;
       cells[otI].textContent=minsText(ot);cells[otI].classList.add('pos');
       if(statusI>=0&&cells[statusI]&&['—','-',''].includes(cells[statusI].textContent.trim())){
