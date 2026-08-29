@@ -9,7 +9,7 @@
   const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
   const n2=n=>String(n).padStart(2,'0');
 
-  function isAdminLocal(){try{return typeof isAdmin==='function'&&isAdmin();}catch(_e){return String(window.profile?.role||'').toLowerCase()==='admin';}}
+  function isAdminLocal(){try{return typeof isAdmin==='function'&&isAdmin();}catch(_e){return typeof profile!=='undefined'&&String(profile?.role||'').toLowerCase()==='admin';}}
   function monthStart(){return String(typeof selectedMonth!=='undefined'?selectedMonth:'').slice(0,7)+'-01';}
   function shiftMonth(date,delta){const [y,m]=String(date).slice(0,7).split('-').map(Number);const d=new Date(Date.UTC(y,m-1+delta,1));return `${d.getUTCFullYear()}-${n2(d.getUTCMonth()+1)}-01`;}
   function todayIso(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return `${o.year}-${o.month}-${o.day}`;}
@@ -17,8 +17,8 @@
   function trToIso(v){const m=String(v||'').match(/(\d{2})\.(\d{2})\.(\d{4})/);return m?`${m[3]}-${m[2]}-${m[1]}`:'';}
   function dateTR(v){if(!v)return '—';const [y,m,d]=v.split('-');return `${d}.${m}.${y}`;}
   function nextSaturday(){const d=new Date(`${todayIso()}T12:00:00Z`);const day=d.getUTCDay();const add=day===6?0:(6-day+7)%7;d.setUTCDate(d.getUTCDate()+add);return d.toISOString().slice(0,10);}
-  function activeStaff(){return (window.state?.profiles||[]).filter(p=>p.active&&String(p.role||'').toLowerCase()!=='admin');}
-  function personName(id){return (window.state?.profiles||[]).find(p=>p.id===id)?.full_name||'Personel';}
+  function activeStaff(){return (typeof state!=='undefined'?state.profiles:[]).filter(p=>p.active&&String(p.role||'').toLowerCase()!=='admin');}
+  function personName(id){return (typeof state!=='undefined'?state.profiles:[]).find(p=>p.id===id)?.full_name||'Personel';}
   function isDuty(pid,date){return !!pid&&!!date&&dutyRows.some(x=>x.person_id===pid&&x.duty_date===date);}
 
   function personForTable(table){
@@ -28,7 +28,7 @@
     if(drawer)return drawer.querySelector('[data-original-id="attPersonSelectV160"]')?.value||drawer.querySelector('#attPersonSelectV160')?.value||'';
     const panel=table.closest('.att-panel-v160');
     const sel=panel?.querySelector('#attPersonSelectV160');if(sel)return sel.value||'';
-    return window.profile?.id||'';
+    return typeof profile!=='undefined'?(profile?.id||''):'';
   }
 
   function installStyle(){
@@ -88,7 +88,8 @@
 
   function patchToday(){
     const att=document.getElementById('attendance');if(!att)return;
-    att.classList.toggle('att-duty-today-v212',isDuty(window.profile?.id,todayIso()));
+    const pid=typeof profile!=='undefined'?profile?.id:null;
+    att.classList.toggle('att-duty-today-v212',isDuty(pid,todayIso()));
   }
 
   function ensureAdminButton(){
@@ -112,7 +113,8 @@
       const date=String(fd.get('duty_date')||'');if(!isSaturdayIso(date)){if(typeof toast==='function')toast('Nöbet tarihi Cumartesi olmalı.',true);throw new Error('Nöbet tarihi Cumartesi olmalı');}
       const ids=fd.getAll('person_ids').map(String);
       const del=await sb.from('attendance_saturday_duty').delete().eq('duty_date',date);if(del.error)throw del.error;
-      if(ids.length){const ins=await sb.from('attendance_saturday_duty').insert(ids.map(person_id=>({person_id,duty_date:date,note:'Cumartesi nöbeti',created_by:window.profile?.id||null})));if(ins.error)throw ins.error;}
+      const creator=typeof profile!=='undefined'?profile?.id:null;
+      if(ids.length){const ins=await sb.from('attendance_saturday_duty').insert(ids.map(person_id=>({person_id,duty_date:date,note:'Cumartesi nöbeti',created_by:creator||null})));if(ins.error)throw ins.error;}
       if(typeof toast==='function')toast(ids.length?`${dateTR(date)} nöbeti kaydedildi.`:`${dateTR(date)} nöbet ataması temizlendi.`);
       await loadDuty(true);setTimeout(()=>document.querySelector('.nav-item[data-view="attendance"]')?.click(),180);
     });
