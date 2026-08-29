@@ -1,18 +1,28 @@
-// V1.20.3 — Uzun açık oturum stabilitesi: hızlı dekorasyon döngülerini yavaşlatır, gizli sekmede durdurur, veri yenilemelerini tekilleştirir ve oturumu tazeler.
-(function bootLongSessionStabilityV203(){
-  if(window.__mindsLongSessionStabilityV203)return;
-  window.__mindsLongSessionStabilityV203=true;
+// V1.21.4 — Uzun açık oturum stabilitesi: Mesai ekranındaki dekorasyon döngülerini sakinleştirir, gizli sekmede durdurur, veri yenilemelerini tekilleştirir ve oturumu tazeler.
+(function bootLongSessionStabilityV214(){
+  if(window.__mindsLongSessionStabilityV214)return;
+  window.__mindsLongSessionStabilityV214=true;
 
-  const nativeSetInterval=window.setInterval.bind(window);
-  const nativeClearInterval=window.clearInterval.bind(window);
+  const nativeSetInterval=window.__mindsNativeSetIntervalV203||window.setInterval.bind(window);
+  const nativeClearInterval=window.__mindsNativeClearIntervalV203||window.clearInterval.bind(window);
   window.__mindsNativeSetIntervalV203=nativeSetInterval;
   window.__mindsNativeClearIntervalV203=nativeClearInterval;
 
-  // Sonradan yüklenen görünüm/dekorasyon modüllerinin 650–1200 ms arası sürekli DOM taramasını azalt.
-  // Sekme arka plandaysa bu dekorasyon döngüleri tamamen pas geçilir.
+  function attendanceDecorator(handler,requested){
+    if(typeof handler!=='function'||requested<=0||requested>=2000)return false;
+    try{
+      const src=Function.prototype.toString.call(handler);
+      return src.includes("getElementById('attendance')")||src.includes('getElementById("attendance")')||(src.includes('attendance')&&src.includes('active-view'));
+    }catch(_e){return false;}
+  }
+
+  // Mesai eklenti modüllerinin eski 650–1200 ms sürekli DOM taramalarını 30 saniyeye düşür.
+  // Kullanıcı tıklaması, ay/personel değişimi ve realtime olayları yine anında kendi event akışlarıyla çalışır.
+  // Diğer hızlı dekorasyon döngülerini de 3 saniyenin altına düşürme.
   window.setInterval=function(handler,delay,...args){
     const requested=Number(delay)||0;
-    const effective=requested>0&&requested<2000?2600:requested;
+    const isAttendance=attendanceDecorator(handler,requested);
+    const effective=isAttendance?30000:(requested>0&&requested<2000?3000:requested);
     if(typeof handler!=='function')return nativeSetInterval(handler,effective,...args);
     return nativeSetInterval(function(){
       if(document.hidden)return;
@@ -106,7 +116,6 @@
     try{await window.loadData?.({silent:true});}catch(e){console.warn('[Stability wake sync]',e);}
   }
 
-  // İnternet yokken form submit edilirse mevcut girilen metni koru; başarısız kayıt denemesine izin verme.
   document.addEventListener('submit',e=>{
     if(navigator.onLine)return;
     e.preventDefault();
@@ -124,9 +133,7 @@
     wakeSync(true).finally(()=>{if(notify&&typeof toast==='function')toast('Bağlantı yeniden kuruldu. Veriler eşitlendi.');});
   });
 
-  document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden)wakeSync(false);
-  });
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)wakeSync(false);});
   window.addEventListener('pageshow',()=>wakeSync(false));
   window.addEventListener('focus',()=>wakeSync(false));
 
@@ -134,6 +141,5 @@
   setTimeout(wrapLoadData,250);
   setTimeout(()=>wakeSync(false),900);
 
-  // Bu heartbeat native timer kullanır; dekorasyon timer throttle'ından etkilenmez.
   nativeSetInterval(()=>{if(!document.hidden)ensureFreshSession();},8*60*1000);
 })();
