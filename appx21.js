@@ -1,5 +1,5 @@
-// V1.21.4 loader bridge — stable bootstrap + attendance refresh stabilization + attendance/payroll + grouped activity/extras + corrected Saturday overtime baseline + Saturday duty assignments + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets.
-(function loadStableLayersV214(){
+// V1.21.5 loader bridge — stable bootstrap + attendance refresh stabilization + attendance/payroll + grouped activity/extras + corrected Saturday overtime baseline + Saturday duty assignments + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets + extra work assignment tracking.
+(function loadStableLayersV215(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v214-long-session-stability','appx58.js?v=2140','V1.21.4 long-session stability module could not be loaded');
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
@@ -39,4 +39,5 @@
   load('data-minds-v208-package-quota-guard','appx61.js?v=2080','V1.20.8 package quota warning module could not be loaded');
   load('data-minds-v209-dashboard-targets','appx62.js?v=2090','V1.20.9 dashboard monthly target KPI module could not be loaded');
   load('data-minds-v212-saturday-duty','appx63.js?v=2121','V1.21.2 Saturday duty assignment module could not be loaded');
+  load('data-minds-v215-extra-assignment-tracking','appx64.js?v=2150','V1.21.5 extra work assignment tracking module could not be loaded');
 })();
