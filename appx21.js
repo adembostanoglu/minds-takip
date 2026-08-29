@@ -1,6 +1,7 @@
-// V1.20.2 loader bridge — stable bootstrap + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography.
-(function loadStableLayersV202(){
-  const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
+// V1.20.3 loader bridge — stable bootstrap + long-session stability + attendance/payroll + grouped activity/extras + Saturday, manual overtime, fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + numbered staff order + focused inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + larger corrected sidebar typography.
+(function loadStableLayersV203(){
+  const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
+  load('data-minds-v203-long-session-stability','appx58.js?v=2030','V1.20.3 long-session stability module could not be loaded');
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
   load('data-minds-v202-staff-device-policy','appx50.js?v=2020','V1.20.2 staff device access policy module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
