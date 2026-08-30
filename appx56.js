@@ -1,7 +1,7 @@
-// V1.20.1 — Sol menü: sabit ve doğru etiketler + daha büyük, okunaklı tipografi.
-(function bootSidebarColorSystemV201(){
-  if(window.__mindsSidebarColorSystemV201)return;
-  window.__mindsSidebarColorSystemV201=true;
+// V1.22.4 — Sol menü ikon/etiket bütünlüğü: metinlerin ikon kutularına taşmasını engeller ve event-driven korur.
+(function bootSidebarColorSystemV224(){
+  if(window.__mindsSidebarColorSystemV224)return;
+  window.__mindsSidebarColorSystemV224=true;
 
   const CFG={
     dashboard:{label:'Ana Panel',color:'#e6e92b',icon:'⌂'},
@@ -28,6 +28,7 @@
     team:'team',activity:'activity',reports:'reports',performance:'performance',archive:'archive',account:'account',settings:'settings'
   };
 
+  let observer=null,observedNav=null,pending=false;
   const norm=v=>String(v||'').trim().toLocaleLowerCase('tr-TR').replace(/\s+/g,' ');
   function keyFromText(v){
     const n=norm(v);
@@ -40,7 +41,7 @@
     if(n.includes('çekim'))return'shoots';
     if(n.includes('ajanda'))return'agenda';
     if(n.includes('mesai'))return'attendance';
-    if(n==='ekip'||n.includes('ekip'))return'team';
+    if(n.includes('ekip'))return'team';
     if(n.includes('günlük hareket'))return'activity';
     if(n.includes('rapor'))return'reports';
     if(n.includes('performans'))return'performance';
@@ -49,21 +50,25 @@
     if(n.includes('ayar'))return'settings';
     return null;
   }
-
+  function isAdminLocal(){try{return typeof isAdmin==='function'&&!!isAdmin();}catch(_e){return true;}}
+  function effectiveLabel(key){
+    if(key==='extras'&&!isAdminLocal())return'Ekstra Görevlerim';
+    return CFG[key]?.label||'';
+  }
   function rgba(hex,a){
     const h=hex.replace('#',''),n=parseInt(h,16);
     return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
   }
 
   function installStyle(){
-    ['sidebarColorSystemV197Style','sidebarColorSystemV198Style','sidebarColorSystemV200Style'].forEach(id=>document.getElementById(id)?.remove());
-    if(document.getElementById('sidebarColorSystemV201Style'))return;
+    ['sidebarColorSystemV197Style','sidebarColorSystemV198Style','sidebarColorSystemV200Style','sidebarColorSystemV201Style'].forEach(id=>document.getElementById(id)?.remove());
+    if(document.getElementById('sidebarColorSystemV224Style'))return;
     const s=document.createElement('style');
-    s.id='sidebarColorSystemV201Style';
+    s.id='sidebarColorSystemV224Style';
     s.textContent=`
       .sidebar nav{display:flex!important;flex-direction:column!important;gap:4px!important;padding:11px 9px 13px!important;overflow-x:hidden!important}
       .sidebar nav .nav-item{box-sizing:border-box!important;position:relative!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:9px!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:43px!important;height:43px!important;padding:6px 9px!important;margin:0!important;border:1px solid transparent!important;border-left:2px solid var(--navc,#657078)!important;border-radius:9px!important;background:transparent!important;color:#eef2f3!important;text-align:left!important;overflow:hidden!important;line-height:1!important;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease!important}
-      .sidebar nav .nav-color-icon-v201{box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 28px!important;width:28px!important;height:28px!important;min-width:28px!important;border-radius:7px!important;border:1px solid var(--navborder)!important;background:var(--naviconbg)!important;color:var(--navc)!important;font-size:13.5px!important;font-weight:850!important;line-height:1!important;overflow:hidden!important;box-shadow:0 0 10px var(--navglow)!important}
+      .sidebar nav .nav-color-icon-v201{box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 28px!important;width:28px!important;height:28px!important;min-width:28px!important;max-width:28px!important;border-radius:7px!important;border:1px solid var(--navborder)!important;background:var(--naviconbg)!important;color:var(--navc)!important;font-family:Inter,Arial,sans-serif!important;font-size:13.5px!important;font-weight:850!important;line-height:1!important;overflow:hidden!important;text-overflow:clip!important;white-space:nowrap!important;box-shadow:0 0 10px var(--navglow)!important}
       .sidebar nav .nav-color-label-v201{display:block!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:calc(100% - 37px)!important;margin:0!important;padding:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;word-break:normal!important;font-size:14px!important;font-weight:750!important;line-height:1.12!important;letter-spacing:-.12px!important;color:inherit!important}
       .sidebar nav .nav-item:hover{background:var(--navhover)!important;border-color:var(--navborder)!important}
       .sidebar nav .nav-item.active{background:linear-gradient(90deg,var(--navactive),rgba(19,25,29,.72))!important;border-color:var(--navc)!important;box-shadow:0 0 0 1px var(--navsoft),0 0 14px var(--navglow)!important;color:#fff!important}
@@ -74,20 +79,20 @@
         .sidebar nav{padding-left:8px!important;padding-right:8px!important}
         .sidebar nav .nav-item{gap:8px!important;padding-left:8px!important;padding-right:8px!important}
         .sidebar nav .nav-color-label-v201{font-size:13.2px!important;font-weight:750!important;letter-spacing:-.18px!important}
-        .sidebar nav .nav-color-icon-v201{width:27px!important;height:27px!important;min-width:27px!important;flex-basis:27px!important;font-size:13px!important}
+        .sidebar nav .nav-color-icon-v201{width:27px!important;height:27px!important;min-width:27px!important;max-width:27px!important;flex-basis:27px!important;font-size:13px!important}
       }
     `;
     document.head.appendChild(s);
   }
 
   function resolveKey(btn){
-    const view=String(btn.dataset.view||'').toLocaleLowerCase('tr-TR').replace(/[^a-z0-9_]/g,'');
-    return viewMap[view]||keyFromText(btn.getAttribute('aria-label')||btn.title||btn.textContent);
+    const raw=String(btn.dataset.view||'').toLocaleLowerCase('tr-TR').replace(/[^a-z0-9_]/g,'');
+    return viewMap[raw]||btn.dataset.navColorKey||keyFromText(btn.getAttribute('aria-label')||btn.title||btn.textContent);
   }
 
   function patchButton(btn){
-    const key=resolveKey(btn),cfg=CFG[key];
-    if(!cfg)return;
+    const key=resolveKey(btn),cfg=CFG[key];if(!cfg)return;
+    const label=effectiveLabel(key);
     btn.dataset.navColorKey=key;
     btn.style.setProperty('--navc',cfg.color);
     btn.style.setProperty('--navborder',rgba(cfg.color,.36));
@@ -97,25 +102,42 @@
     btn.style.setProperty('--naviconactive',rgba(cfg.color,.19));
     btn.style.setProperty('--navglow',rgba(cfg.color,.16));
     btn.style.setProperty('--navsoft',rgba(cfg.color,.10));
-    btn.title=cfg.label;
-    btn.setAttribute('aria-label',cfg.label);
+    btn.title=label;btn.setAttribute('aria-label',label);
 
-    const icon=document.createElement('span');
-    icon.className='nav-color-icon-v201';
-    icon.setAttribute('aria-hidden','true');
-    icon.textContent=cfg.icon;
-    const text=document.createElement('span');
-    text.className='nav-color-label-v201';
-    text.textContent=cfg.label;
-    btn.replaceChildren(icon,text);
+    let icon=btn.querySelector(':scope > .nav-color-icon-v201');
+    let text=btn.querySelector(':scope > .nav-color-label-v201');
+    const valid=icon&&text&&btn.children.length===2;
+    if(!valid){
+      icon=document.createElement('span');icon.className='nav-color-icon-v201';icon.setAttribute('aria-hidden','true');
+      text=document.createElement('span');text.className='nav-color-label-v201';
+      btn.replaceChildren(icon,text);
+    }
+    if(icon.textContent!==cfg.icon)icon.textContent=cfg.icon;
+    if(text.textContent!==label)text.textContent=label;
   }
 
   function apply(){
     installStyle();
-    document.querySelectorAll('.sidebar nav .nav-item').forEach(patchButton);
+    const nav=document.querySelector('.sidebar nav');if(!nav)return;
+    const wasObserving=observer&&observedNav===nav;
+    if(wasObserving)observer.disconnect();
+    try{nav.querySelectorAll('.nav-item').forEach(patchButton);}finally{if(observer&&nav.isConnected){observedNav=nav;observer.observe(nav,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-view','aria-label','title']});}}
   }
 
-  apply();
-  [100,450,1200,2500,5000].forEach(ms=>setTimeout(apply,ms));
-  document.addEventListener('click',e=>{if(e.target.closest('.sidebar .nav-item'))setTimeout(apply,25);},true);
+  function scheduleApply(){
+    if(pending)return;pending=true;
+    requestAnimationFrame(()=>{pending=false;apply();});
+  }
+  function attachObserver(){
+    const nav=document.querySelector('.sidebar nav');if(!nav)return;
+    if(!observer)observer=new MutationObserver(scheduleApply);
+    if(observedNav===nav)return;
+    observer.disconnect();observedNav=nav;observer.observe(nav,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-view','aria-label','title']});
+  }
+
+  installStyle();apply();attachObserver();
+  [120,420,900,1800].forEach(ms=>setTimeout(()=>{attachObserver();apply();},ms));
+  document.addEventListener('click',e=>{if(e.target.closest('.sidebar .nav-item,#loginBtn'))setTimeout(scheduleApply,25);},true);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleApply();});
+  window.addEventListener('pageshow',scheduleApply);
 })();
