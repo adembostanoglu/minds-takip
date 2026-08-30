@@ -1,7 +1,7 @@
-// V1.21.2 — Cumartesi nöbet sistemi: nöbetçi personelde Cumartesi mesaisi gösterilmez; yönetici tarih/personel bazında nöbet atar.
-(function bootSaturdayDutyV212(){
-  if(window.__mindsSaturdayDutyV212)return;
-  window.__mindsSaturdayDutyV212=true;
+// V1.22.5 — Cumartesi nöbet sistemi: yeni inline personel detayıyla uyumlu, personelde kendi nöbet durumunu doğru gösterir.
+(function bootSaturdayDutyV225(){
+  if(window.__mindsSaturdayDutyV225)return;
+  window.__mindsSaturdayDutyV225=true;
 
   let dutyRows=[];
   let loading=false;
@@ -21,7 +21,16 @@
   function personName(id){return (typeof state!=='undefined'?state.profiles:[]).find(p=>p.id===id)?.full_name||'Personel';}
   function isDuty(pid,date){return !!pid&&!!date&&dutyRows.some(x=>x.person_id===pid&&x.duty_date===date);}
 
+  function sourcePersonId(){
+    const selected=document.querySelector('#attendance tr.att-focus-selected-v195 [data-att-detail]')?.dataset.attDetail;
+    if(selected)return selected;
+    const sel=[...document.querySelectorAll('#attendance #attPersonSelectV160')].find(x=>!x.closest('#attDetailDrawerV166'));
+    return sel?.value||'';
+  }
+
   function personForTable(table){
+    const focus=table.closest('#attPersonFocusV195,.att-person-focus-v195');
+    if(focus){const pid=sourcePersonId();if(pid)return pid;}
     const inline=table.closest('.att-person-expand-v191');
     if(inline){const expandRow=inline.closest('tr.att-person-expand-row-v191');const base=expandRow?.previousElementSibling;return base?.querySelector('[data-att-detail]')?.dataset.attDetail||'';}
     const drawer=table.closest('#attDetailDrawerV166');
@@ -64,8 +73,14 @@
       const p=card.querySelector('p');
       if(p)p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • Nöbetçi olmayan personelde <strong>14:30 sonrası süre</strong> fazla mesai • <strong>Nöbetçi personelde Cumartesi mesaisi yok</strong>.';
       let box=card.querySelector('.att-duty-summary-v212');if(!box){box=document.createElement('div');box.className='att-duty-summary-v212';card.appendChild(box);}
-      const d=nextSaturday();const list=dutyRows.filter(x=>x.duty_date===d).map(x=>personName(x.person_id));
-      box.innerHTML=list.length?`<b>${dateTR(d)} nöbetçi:</b> ${list.map(esc).join(' · ')}`:`<b>${dateTR(d)}:</b> Nöbetçi atanmamış`;
+      const d=nextSaturday();
+      if(isAdminLocal()){
+        const list=dutyRows.filter(x=>x.duty_date===d).map(x=>personName(x.person_id));
+        box.innerHTML=list.length?`<b>${dateTR(d)} nöbetçi:</b> ${list.map(esc).join(' · ')}`:`<b>${dateTR(d)}:</b> Nöbetçi atanmamış`;
+      }else{
+        const pid=typeof profile!=='undefined'?profile?.id:'';
+        box.innerHTML=isDuty(pid,d)?`<b>${dateTR(d)}:</b> Bu Cumartesi nöbetçisin.`:`<b>${dateTR(d)}:</b> Bu Cumartesi nöbetçi değilsin.`;
+      }
     });
   }
 
@@ -132,9 +147,12 @@
 
   document.addEventListener('click',e=>{
     if(e.target.closest('[data-view="attendance"]'))setTimeout(()=>loadDuty(true),140);
-    if(e.target.closest('[data-att-detail],.att-payroll-person-click-v191,[data-att-edit-day],#attPersonSelectV160'))schedulePatch();
+    if(e.target.closest('[data-att-detail],.att-payroll-person-click-v191,.att-payroll-person-click-v195,.att-payroll-person-cell-v195,[data-att-edit-day],#attPersonSelectV160'))schedulePatch();
   },true);
-  document.addEventListener('change',e=>{if(e.target?.id==='monthPicker')setTimeout(()=>loadDuty(true),100);},true);
+  document.addEventListener('change',e=>{
+    if(e.target?.id==='monthPicker'){setTimeout(()=>loadDuty(true),100);return;}
+    if(e.target.closest('#attPersonSelectV160,[data-original-id="attPersonSelectV160"]'))schedulePatch();
+  },true);
   window.addEventListener('load',()=>setTimeout(()=>loadDuty(true),500));
   installStyle();setTimeout(()=>loadDuty(true),500);
 })();
