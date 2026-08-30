@@ -1,5 +1,5 @@
-// V1.22.4 loader bridge — stable bootstrap + attendance refresh stabilization + attendance/payroll + grouped activity/extras + corrected Saturday overtime baseline + Saturday duty assignments + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + stable staff order + stable inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + stable sidebar icons/labels + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets + extra work assignment tracking + operations attention/notifications/history/health + scheduled reminders and firm content rhythm monitoring + pilot responsibility continuity scoring + September readiness, package pace and shift briefings + dedicated mobile shell + attendance render integrity sync.
-(function loadStableLayersV224(){
+// V1.22.5 loader bridge — stable bootstrap + attendance refresh stabilization + attendance/payroll + grouped activity/extras + corrected Saturday overtime baseline + Saturday duty assignments + manual overtime + fair Sunday weekly-rest workflow + visible completed-day state + staff agenda firm names + corrected role/person device access policy + attendance day management + stable staff order + stable inline personnel detail + overtime work notes + compact numbered work tracking + intraday hourly leave workflow + stable sidebar icons/labels + complete inline firm responsibilities and staff role grouping + admin-only social media navigation + package quota warning + monthly dashboard package targets + extra work assignment tracking + operations attention/notifications/history/health + scheduled reminders and firm content rhythm monitoring + pilot responsibility continuity scoring + September readiness, package pace and shift briefings + dedicated mobile shell + attendance render integrity sync + Saturday duty inline-detail compatibility.
+(function loadStableLayersV225(){
   const load=(flag,src,err)=>{if(document.querySelector(`script[${flag}]`))return;const s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(flag,'1');s.onerror=()=>console.error(err);document.body.appendChild(s);};
   load('data-minds-v214-long-session-stability','appx58.js?v=2140','V1.21.4 long-session stability module could not be loaded');
   load('data-minds-v135-bootstrap','appx22.js?v=1351','V1.13.5 bootstrap module could not be loaded');
@@ -27,7 +27,7 @@
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
   load('data-minds-v211-saturday-overtime','appx44.js?v=2110','V1.21.1 Saturday overtime rule module could not be loaded');
-  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow module could not be loaded');
+  load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow could not be loaded');
   load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows module could not be loaded');
   load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state module could not be loaded');
@@ -38,7 +38,7 @@
   load('data-minds-v207-admin-social-nav','appx60.js?v=2070','V1.20.7 admin-only social media navigation module could not be loaded');
   load('data-minds-v208-package-quota-guard','appx61.js?v=2080','V1.20.8 package quota warning module could not be loaded');
   load('data-minds-v209-dashboard-targets','appx62.js?v=2090','V1.20.9 dashboard monthly target KPI module could not be loaded');
-  load('data-minds-v212-saturday-duty','appx63.js?v=2121','V1.21.2 Saturday duty assignment module could not be loaded');
+  load('data-minds-v225-saturday-duty','appx63.js?v=2250','V1.22.5 Saturday duty assignment compatibility module could not be loaded');
   load('data-minds-v215-extra-assignment-tracking','appx64.js?v=2150','V1.21.5 extra work assignment tracking module could not be loaded');
   load('data-minds-v216-operations-hub','appx65.js?v=2160','V1.21.6 operations hub module could not be loaded');
   load('data-minds-v217-content-rhythm','appx66.js?v=2170','V1.21.7 content rhythm module could not be loaded');
