@@ -1,7 +1,7 @@
-// V1.22.1 — Mesai görünümünü render sonrası anında yeniden uygular; 30 sn bekleme ve bozuk ilk görünümü kaldırır.
-(function bootAttendanceRenderSyncV221(){
-  if(window.__mindsAttendanceRenderSyncV221)return;
-  window.__mindsAttendanceRenderSyncV221=true;
+// V1.22.2 — Mesai render senkronu: premium yerleşim + sabit personel sırası aynı event-driven akışta korunur.
+(function bootAttendanceRenderSyncV222(){
+  if(window.__mindsAttendanceRenderSyncV222)return;
+  window.__mindsAttendanceRenderSyncV222=true;
 
   let observer=null,observedRoot=null,pending=false,kpiBusy=false;
   const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
@@ -76,6 +76,9 @@
     const sourceSelect=root.querySelector('#attPersonSelectV160');
     const sourcePanel=sourceSelect?.closest('.att-panel-v160');
     if(sourcePanel)sourcePanel.classList.add('att-inline-source-v195');
+
+    // Render sonrası korunması gereken UI invariantları tek noktadan yeniden uygula.
+    try{window.__mindsApplyAttendanceStaffOrderV222?.();}catch(e){console.warn('Mesai personel sırası senkronu',e);}
   }
 
   function attachObserver(){
@@ -97,9 +100,7 @@
     observer.disconnect();observedRoot=root;observer.observe(root,{childList:true,subtree:true});
   }
 
-  function scheduleSync(){
-    [30,120,300,650,1200].forEach(ms=>setTimeout(()=>{attachObserver();syncLayout();},ms));
-  }
+  function scheduleSync(){[30,120,300,650,1200].forEach(ms=>setTimeout(()=>{attachObserver();syncLayout();},ms));}
 
   document.addEventListener('click',e=>{
     if(e.target.closest('[data-view="attendance"],#attendanceRootV160,[data-att-detail],[data-att-edit-day],[data-att-overtime]'))scheduleSync();
