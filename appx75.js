@@ -1,8 +1,10 @@
 // V1.23.3 — Sosyal Medya Takip firma sürekliliği: firmalar eklendikleri aydan itibaren sonraki aylarda görünmeye devam eder.
-(function bootSocialTrackingFirmContinuityV233(){
+(function bootSocialTrackingFirmContinuityV233(attempt=0){
   if(window.__mindsSocialTrackingFirmContinuityV233)return;
-  if(typeof selectedMonthFirms!=='function'||typeof state==='undefined'){
-    setTimeout(bootSocialTrackingFirmContinuityV233,120);
+  const dependenciesReady=typeof selectedMonthFirms==='function'&&typeof state!=='undefined'&&window.__mindsStaffResponsibilityScopesV116&&window.__mindsSocialMediaTrackingV170;
+  if(!dependenciesReady){
+    if(attempt<30)setTimeout(()=>bootSocialTrackingFirmContinuityV233(attempt+1),150);
+    else console.warn('V1.23.3 social tracking firm continuity dependencies not ready.');
     return;
   }
   window.__mindsSocialTrackingFirmContinuityV233=true;
