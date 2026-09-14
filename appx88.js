@@ -78,3 +78,12 @@
 
   [180,500,1100].forEach(ms=>setTimeout(decorate,ms));
 })();
+
+// V1.24.8 loader bridge — Cumartesi nöbetçisi 18:30 sonrası fazla mesai.
+(function loadDutyOvertimeV248(){
+  if(document.querySelector('script[data-minds-v248-duty-overtime]'))return;
+  const s=document.createElement('script');
+  s.src='appx89.js?v=2480';s.async=false;s.setAttribute('data-minds-v248-duty-overtime','1');
+  s.onerror=()=>console.error('V1.24.8 duty overtime module could not be loaded');
+  document.body.appendChild(s);
+})();
