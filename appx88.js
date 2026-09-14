@@ -87,3 +87,12 @@
   s.onerror=()=>console.error('V1.24.8 duty overtime module could not be loaded');
   document.body.appendChild(s);
 })();
+
+// V1.24.9 loader bridge — Günlük puantaj satırındaki ayrı ek mesaiyi doğrudan onaylama.
+(function loadInlineManualOvertimeApprovalV249(){
+  if(document.querySelector('script[data-minds-v249-inline-manual-approval]'))return;
+  const s=document.createElement('script');
+  s.src='appx90.js?v=2490';s.async=false;s.setAttribute('data-minds-v249-inline-manual-approval','1');
+  s.onerror=()=>console.error('V1.24.9 inline manual overtime approval module could not be loaded');
+  document.body.appendChild(s);
+})();
