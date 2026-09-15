@@ -114,3 +114,12 @@
   window.addEventListener('pageshow',()=>schedule(true));
   [250,700].forEach(ms=>setTimeout(()=>schedule(true),ms));
 })();
+
+// V1.25.2 loader bridge — Onaylı paylaşım kuyruğu ve ekip tarih görünümü.
+(function loadApprovedShareQueueV252(){
+  if(document.querySelector('script[data-minds-v252-approved-share-queue]'))return;
+  const s=document.createElement('script');
+  s.src='appx92.js?v=2520';s.async=false;s.setAttribute('data-minds-v252-approved-share-queue','1');
+  s.onerror=()=>console.error('V1.25.2 approved share queue module could not be loaded');
+  document.body.appendChild(s);
+})();
