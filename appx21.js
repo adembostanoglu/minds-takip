@@ -59,4 +59,5 @@
   load('data-minds-v239-staff-work-correction','appx81.js?v=2390','V1.23.9 safe staff work correction module could not be loaded');
   load('data-minds-v240-staff-wide-works','appx82.js?v=2400','V1.24.0 staff-wide work tracking layout module could not be loaded');
   load('data-minds-v242-mobile-agenda-labels','appx83.js?v=2420','V1.24.2 readable mobile agenda labels module could not be loaded');
+  load('data-minds-v267-final-shoot-edit','appx95.js?v=2670','V1.26.7 final shoot edit renderer could not be loaded');
 })();
