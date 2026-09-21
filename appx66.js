@@ -46,8 +46,22 @@
     if(typeof selectedMonth!=='undefined'&&selectedMonth!==currentMonth()){host.style.display='none';return;}host.style.display='';busy=true;
     host.innerHTML='<div class="rhythm-head-v217"><div><h3>◷ İçerik Ritmi</h3><p>Aktif firmalarda uzun süre içerik hareketi olmayan sorumlulukları takip eder.</p></div><span class="rhythm-engine-v217">Hatırlatma motoru · 15 dk</span></div><div class="rhythm-body-v217"><div class="ops-notify-empty-v216">Kontrol ediliyor...</div></div>';
     try{
-      const {data,error}=await sb.rpc('firm_inactivity_preview');if(error)throw error;const rows=data||[];
-      host.innerHTML=`<div class="rhythm-head-v217"><div><h3>◷ İçerik Ritmi</h3><p>${admin()?'Ekip sorumluluklarında':'Sana atanmış firmalarda'} 10+ günlük içerik sessizliği. 20+ gün kritik kabul edilir.</p></div><span class="rhythm-engine-v217">Sunucu kontrolü · 15 dk</span></div><div class="rhythm-body-v217">${rows.length?`<div class="rhythm-grid-v217">${rows.map(r=>`<div class="rhythm-card-v217 ${r.threshold_level==='critical'?'critical':''}" data-rhythm-firm-v217="${r.firm_id}"><div class="top"><b>${esc(r.firm_name)}</b><span class="rhythm-days-v217">${Number(r.inactivity_days||0)} gün</span></div><div class="rhythm-meta-v217">${admin()?`<strong>${esc(r.full_name)}</strong> · `:''}${esc(roleLabel(r.responsibility))}<br>Son hareket: ${esc(dateLabel(r.last_activity_date))} · Kalan kapsam: ${Number(r.pending_units||0)}</div></div>`).join('')}</div>`:'<div class="rhythm-empty-v217">Tüm takip edilen firmalarda içerik akışı normal görünüyor.</div>'}</div>`;
+      const {data,error}=await sb.rpc('firm_inactivity_preview');if(error)throw error;
+      const raw=data||[];
+      const byFirm=new Map();
+      raw.forEach(r=>{
+        const key=String(r.firm_id);
+        if(!byFirm.has(key)) byFirm.set(key,{...r,people:[]});
+        const g=byFirm.get(key);
+        const who=(r.full_name?esc(r.full_name)+' · ':'')+esc(roleLabel(r.responsibility));
+        if(who&&!g.people.includes(who))g.people.push(who);
+        if(Number(r.inactivity_days||0)>Number(g.inactivity_days||0))g.inactivity_days=r.inactivity_days;
+        if(r.threshold_level==='critical')g.threshold_level='critical';
+        if(r.last_activity_date&&(!g.last_activity_date||String(r.last_activity_date)>String(g.last_activity_date)))g.last_activity_date=r.last_activity_date;
+        g.pending_units=Math.max(Number(g.pending_units||0),Number(r.pending_units||0));
+      });
+      const rows=[...byFirm.values()].sort((a,b)=>Number(b.inactivity_days||0)-Number(a.inactivity_days||0)||String(a.firm_name||'').localeCompare(String(b.firm_name||''),'tr'));
+      host.innerHTML=`<div class="rhythm-head-v217"><div><h3>◷ İçerik Ritmi</h3><p>${admin()?'Aktif firmalarda':'Sana atanmış firmalarda'} firma bazlı kontrol periyoduna göre içerik hareketini takip eder. Post, video, paylaşım, çekim ve firma işi aktivite sayılır.</p></div><span class="rhythm-engine-v217">Sunucu kontrolü · 15 dk</span></div><div class="rhythm-body-v217">${rows.length?`<div class="rhythm-grid-v217">${rows.map(r=>`<div class="rhythm-card-v217 ${r.threshold_level==='critical'?'critical':''}" data-rhythm-firm-v217="${r.firm_id}"><div class="top"><b>${esc(r.firm_name)}</b><span class="rhythm-days-v217">${Number(r.inactivity_days||0)} gün</span></div><div class="rhythm-meta-v217">${admin()&&r.people.length?`<strong>Sorumlular:</strong> ${r.people.join(' / ')}<br>`:''}Son aktivite: ${esc(dateLabel(r.last_activity_date))} · Kalan kapsam: ${Number(r.pending_units||0)}</div></div>`).join('')}</div>`:'<div class="rhythm-empty-v217">Tüm takip edilen firmalarda içerik akışı normal görünüyor.</div>'}</div>`;
     }catch(e){console.warn('İçerik ritmi yüklenemedi',e);host.querySelector('.rhythm-body-v217').innerHTML='<div class="ops-health-chip-v216 danger">İçerik ritmi kontrolü alınamadı.</div>';}
     finally{busy=false;}
   }
@@ -57,6 +71,8 @@
     if(channel)return;channel=sb.channel('minds-content-rhythm-'+profile.id)
       .on('postgres_changes',{event:'*',schema:'public',table:'works'},scheduleRhythm)
       .on('postgres_changes',{event:'*',schema:'public',table:'content_shares'},scheduleRhythm)
+      .on('postgres_changes',{event:'*',schema:'public',table:'shoots'},scheduleRhythm)
+      .on('postgres_changes',{event:'*',schema:'public',table:'extra_works'},scheduleRhythm)
       .on('postgres_changes',{event:'*',schema:'public',table:'firm_assignments'},scheduleRhythm)
       .subscribe();
   }
