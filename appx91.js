@@ -119,7 +119,7 @@
 (function loadApprovedShareQueueV253(){
   if(document.querySelector('script[data-minds-v253-approved-share-queue]'))return;
   const s=document.createElement('script');
-  s.src='appx92.js?v=2530';s.async=false;s.setAttribute('data-minds-v253-approved-share-queue','1');
+  s.src='appx92.js?v=2620';s.async=false;s.setAttribute('data-minds-v253-approved-share-queue','1');
   s.onerror=()=>console.error('V1.25.3 approved share queue module could not be loaded');
   document.body.appendChild(s);
 })();
