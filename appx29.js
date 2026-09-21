@@ -43,77 +43,51 @@
 
   function shootEditInfo(x){
     const total=Math.max(0,Number(x?.video_count||0));
-    const done=Math.max(0,Math.min(total,Number(x?.edited_video_count||0)));
-    let status=x?.delivered_at?'teslim_edildi':String(x?.edit_status||'bekliyor');
-    if(status!=='teslim_edildi'){
-      if(total>0&&done>=total) status='editlendi';
-      else if(done>0) status='editleniyor';
-      else status='bekliyor';
-    }
-    const meta={
-      bekliyor:['Edit Bekliyor','red'],
-      editleniyor:['Editleniyor','yellow'],
-      editlendi:['Editlendi','green'],
-      teslim_edildi:['Teslim Edildi','blue']
-    }[status]||['Edit Bekliyor','red'];
-    return {total,done,status,label:meta[0],cls:meta[1],pct:total?Math.round(done/total*100):0};
-  }
-
-  function canEditProgress(x){
-    return !!x && (isAdmin() || x?.editor_id===profile?.id || x?.responsible_id===profile?.id || x?.created_by===profile?.id);
+    const edited=String(x?.edit_status||'bekliyor')==='editlendi' || (total>0 && Number(x?.edited_video_count||0)>=total);
+    return {
+      total,
+      edited,
+      status:edited?'editlendi':'bekliyor',
+      label:edited?'Editlendi':'Edit Bekliyor',
+      cls:edited?'green':'red'
+    };
   }
 
   function ensureEditStyles(){
-    if(document.getElementById('externalShootEditV263')) return;
+    if(document.getElementById('externalShootEditV266')) return;
     const s=document.createElement('style');
-    s.id='externalShootEditV263';
+    s.id='externalShootEditV266';
     s.textContent=`
-      #shootRows tr.edit-done td{background:rgba(69,181,97,.08)}
-      #shootRows tr.edit-delivered td{background:rgba(61,126,211,.08)}
-      #shootRows .edit-cell{min-width:150px}
-      #shootRows .edit-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
-      #shootRows .edit-track{height:5px;border-radius:999px;background:#20282d;overflow:hidden}
-      #shootRows .edit-fill{height:100%;border-radius:999px;background:#e6df29}
-      #shootRows tr.edit-done .edit-fill{background:#53c972}
-      #shootRows tr.edit-delivered .edit-fill{background:#4c8edf}
+      #shootRows tr.edit-done td{background:rgba(69,181,97,.10)}
+      #shootRows tr.edit-done:hover td{background:rgba(69,181,97,.14)}
+      #shootRows .edit-state-v266{display:inline-flex;align-items:center;gap:6px;font-weight:850}
       #shootRows .edit-actions{display:flex;gap:5px;flex-wrap:wrap}
-      #shoots .compact-stats{grid-template-columns:repeat(6,minmax(0,1fr))}
-      @media(max-width:1200px){#shoots .compact-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+      #shootRows .mark-edited-v266{border-color:#356844!important;background:#17331e!important;color:#91d09c!important;font-weight:900!important}
+      #shootRows .edited-by-v266{color:#9ed8a9;font-weight:800}
+      #shoots .compact-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+      @media(max-width:1000px){#shoots .compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
     `;
     document.head.appendChild(s);
   }
 
-  async function openShootEditProgress(x){
-    if(!canEditProgress(x)) return toast('Bu çekimin edit durumunu güncelleme yetkin yok.',true);
-    const i=shootEditInfo(x);
-    const editor=x.editor_id||(!isAdmin()?profile.id:'');
-    openModal('Edit Takibi',`<div class="form-grid">
-      <div class="field full"><label>Çekim</label><input disabled value="${esc(clientName(x)+' · '+(x.title||'Video Çekimi'))}"></div>
-      <div class="field"><label>Toplam Video</label><input disabled value="${i.total}"></div>
-      <div class="field"><label>Editlenen Video</label><input name="done" type="number" min="0" max="${i.total}" step="1" required value="${i.done}"></div>
-      ${isAdmin()?`<div class="field full"><label>Editör</label><select name="editor"><option value="">Atanmadı</option>${activeProfiles().map(p=>`<option value="${p.id}" ${p.id===editor?'selected':''}>${esc(p.full_name)}</option>`).join('')}</select></div>`:`<input type="hidden" name="editor" value="${editor}"><div class="field full"><label>Editör</label><input disabled value="${esc(personLabel(editor))}"></div>`}
-      <div class="field full"><label style="display:flex;align-items:center;gap:8px"><input style="width:auto" type="checkbox" name="delivered" value="1" ${i.status==='teslim_edildi'?'checked':''}> Müşteriye teslim edildi</label></div>
-      <div class="field full"><div class="info-banner"><b>Durum otomatik:</b> 0/${i.total} Edit Bekliyor · ara değer Editleniyor · ${i.total}/${i.total} Editlendi.</div></div>
-      <div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">Kaydet</button></div>
-    </div>`,async fd=>{
-      let done=Number(fd.get('done'));
-      if(!Number.isInteger(done)||done<0||done>i.total) throw new Error(`Editlenen video sayısı 0 ile ${i.total} arasında olmalı.`);
-      const delivered=fd.get('delivered')==='1';
-      if(delivered) done=i.total;
-      const status=delivered?'teslim_edildi':(i.total>0&&done>=i.total?'editlendi':done>0?'editleniyor':'bekliyor');
-      const now=new Date().toISOString();
-      const editorId=fd.get('editor')||x.editor_id||(!isAdmin()?profile.id:null);
-      const payload={
-        editor_id:editorId||null,
-        edited_video_count:done,
-        edit_status:status,
-        edit_started_at:done>0?(x.edit_started_at||now):null,
-        edited_at:(status==='editlendi'||status==='teslim_edildi')?(x.edited_at||now):null,
-        delivered_at:status==='teslim_edildi'?(x.delivered_at||now):null
-      };
-      const {error}=await sb.from('shoots').update(payload).eq('id',x.id);
-      if(error) throw error;
-    });
+  async function markShootEdited(x){
+    if(!x) return;
+    const who=profile?.full_name||'Sen';
+    if(!confirm(`${x.title||'Bu çekim'} editlendi olarak işaretlensin mi?\n\nEditi yapan: ${who}`)) return;
+    const {error}=await sb.rpc('mark_shoot_edited',{p_shoot_id:x.id});
+    if(error){toast('Edit durumu kaydedilemedi: '+(error.message||error),true);return;}
+    if(typeof loadData==='function') await loadData({silent:true});
+    toast('Çekim editlendi olarak işaretlendi.');
+    renderExternalShoots();
+  }
+
+  async function resetShootEdited(x){
+    if(!x||!isAdmin()) return;
+    if(!confirm('Bu çekimin edit durumunu sıfırlamak istiyor musun?')) return;
+    const {error}=await sb.rpc('reset_shoot_edit',{p_shoot_id:x.id});
+    if(error){toast('Edit durumu sıfırlanamadı: '+(error.message||error),true);return;}
+    if(typeof loadData==='function') await loadData({silent:true});
+    renderExternalShoots();
   }
 
   function ensureInfo(){
@@ -128,35 +102,46 @@
     const infos=sh.map(shootEditInfo);
     const stats=document.getElementById('shootStats');
     const rows=document.getElementById('shootRows');
+
     if(stats){
+      const editedCount=infos.filter(i=>i.edited).length;
       const cards=[
         ['Çekim Kaydı',sh.length],
         ['Toplam Video',infos.reduce((sum,i)=>sum+i.total,0)],
-        ['Edit Bekleyen',infos.filter(i=>i.status==='bekliyor').length],
-        ['Editleniyor',infos.filter(i=>i.status==='editleniyor').length],
-        ['Editlendi',infos.filter(i=>i.status==='editlendi').length],
-        ['Teslim Edildi',infos.filter(i=>i.status==='teslim_edildi').length]
+        ['Edit Bekleyen',sh.length-editedCount],
+        ['Editlendi',editedCount]
       ];
       stats.innerHTML=cards.map(([l,v])=>`<div class="stat"><div class="label">${l}</div><div class="value shoot-count">${v}</div><div class="foot"><b>${typeof prettyMonth==='function'?prettyMonth(selectedMonth):selectedMonth}</b> ekip verisi</div></div>`).join('');
     }
+
     if(rows){
       rows.innerHTML=sh.map(x=>{
         const i=shootEditInfo(x);
         const cat=x.shoot_category||'firma';
-        const rowClass=i.status==='editlendi'?'edit-done':i.status==='teslim_edildi'?'edit-delivered':'';
+        const rowClass=i.edited?'edit-done':'';
         const buttons=[];
-        if(canEditProgress(x)) buttons.push(`<button class="small-primary" data-shoot-edit-progress-v263="${x.id}">Edit Takibi</button>`);
-        if(canEdit(x)) buttons.push(`<button class="small-primary" data-edit-shoot="${x.id}">Güncelle</button><button class="small-danger" data-delete-shoot="${x.id}">Sil</button>`);
+
+        if(!i.edited){
+          buttons.push(`<button class="small-primary mark-edited-v266" data-shoot-mark-edited-v266="${x.id}">✓ Editlendi</button>`);
+        }else{
+          buttons.push('<span class="badge green">✓ Tamamlandı</span>');
+          if(isAdmin()) buttons.push(`<button class="ghost" data-shoot-reset-edit-v266="${x.id}">Geri Al</button>`);
+        }
+
+        if(canEdit(x)){
+          buttons.push(`<button class="small-primary" data-edit-shoot="${x.id}">Güncelle</button><button class="small-danger" data-delete-shoot="${x.id}">Sil</button>`);
+        }
+
         return `<tr class="${rowClass}">
           <td>${dateLabel(x.shoot_date)}</td>
           <td>${clientCell(x)}</td>
           <td><b>${esc(x.title||'Video Çekimi')}</b><div style="margin-top:5px"><span class="badge ${cat==='takim'?'yellow':'blue'}">${esc(categoryLabel(cat))}</span></div></td>
           <td><span class="badge blue">${i.total} Video</span></td>
-          <td><div class="edit-cell"><div class="edit-top"><span class="badge ${i.cls}">${i.label}</span><b>${i.done}/${i.total}</b></div><div class="edit-track"><div class="edit-fill" style="width:${i.pct}%"></div></div></div></td>
-          <td>${esc(x.editor_id?personLabel(x.editor_id):'Atanmadı')}</td>
+          <td><span class="badge ${i.cls} edit-state-v266">${i.edited?'✓ ':''}${i.label}</span></td>
+          <td>${i.edited?`<span class="edited-by-v266">${esc(x.editor_id?personLabel(x.editor_id):'—')}</span>`:'—'}</td>
           <td>${esc(personLabel(x.responsible_id))}</td>
           <td>${esc(x.notes||'—')}</td>
-          <td><div class="edit-actions">${buttons.join('')||'—'}</div></td>
+          <td><div class="edit-actions">${buttons.join('')}</div></td>
         </tr>`;
       }).join('')||'<tr><td colspan="9" class="empty">Bu ay çekim kaydı yok.</td></tr>';
     }
@@ -224,12 +209,19 @@
   }
 
   document.addEventListener('click',e=>{
-    const b=e.target.closest('[data-shoot-edit-progress-v263]');
-    if(!b) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const x=(state.shoots||[]).find(v=>String(v.id)===String(b.dataset.shootEditProgressV263));
-    if(x) openShootEditProgress(x);
+    const done=e.target.closest('[data-shoot-mark-edited-v266]');
+    if(done){
+      e.preventDefault();e.stopPropagation();
+      const x=(state.shoots||[]).find(v=>String(v.id)===String(done.dataset.shootMarkEditedV266));
+      if(x) markShootEdited(x);
+      return;
+    }
+    const reset=e.target.closest('[data-shoot-reset-edit-v266]');
+    if(reset){
+      e.preventDefault();e.stopPropagation();
+      const x=(state.shoots||[]).find(v=>String(v.id)===String(reset.dataset.shootResetEditV266));
+      if(x) resetShootEdited(x);
+    }
   },true);
 
   openShootModal=openExternalShootModal;
