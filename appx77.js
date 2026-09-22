@@ -80,6 +80,14 @@
         const cells=[...tr.children];const iso=parseRowDate(cells[ix.date]?.textContent);if(!iso)return;
         const rec=recMap.get(iso),manual=manMap.get(iso)||[];
         const normalOt=rec?normalOvertimeMinutes(rec,data.dutyDates):0;
+
+        // Her satırı tarih bazında sıfırdan kur: önceki personel/tarihten kalan DOM değeri taşınmasın.
+        if(cells[ix.ot]){
+          cells[ix.ot].textContent='—';
+          cells[ix.ot].classList.remove('pos','neg');
+        }
+        if(cells[ix.status]) cells[ix.status].textContent='—';
+
         if(normalOt>0){
           if(cells[ix.ot]){cells[ix.ot].textContent=minsText(normalOt);cells[ix.ot].classList.add('pos');}
           if(cells[ix.status])cells[ix.status].innerHTML=`<span class="att-badge-v160 ${rec.overtime_approved?'good':'warn'}">${rec.overtime_approved?'Onaylı':'Onay Bekliyor'}</span>`;
