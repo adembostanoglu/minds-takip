@@ -79,7 +79,10 @@
         <div class="pill-row">${people.length?people.map(x=>`<span class="pill">${escapeHtml(x.p.full_name)} · ${escapeHtml(({ana_sorumlu:'Ana Sorumlu',tasarim:'Tasarım',video:'Video',sosyal_medya:'Sosyal Medya',diger:'Diğer'})[x.a.responsibility])}</span>`).join(''):'<span class="pill">Sorumlu atanmadı</span>'}</div>
       </div>`;
     }).join('');
-    document.getElementById('firmCards').innerHTML=make(activeFirms())||'<div class="empty">Henüz aktif firma yok.</div>';
+    const visibleActiveFirms=isAdmin()
+      ? activeFirms()
+      : activeFirms().filter(f=>state.assignments.some(a=>a.firm_id===f.id&&a.person_id===profile?.id));
+    document.getElementById('firmCards').innerHTML=make(visibleActiveFirms)||'<div class="empty">Sana atanmış aktif firma yok.</div>';
     if(isAdmin()) document.getElementById('passiveFirmCards').innerHTML=make(state.firms.filter(f=>!f.active),true)||'<div class="empty">Pasif firma yok.</div>'; else document.getElementById('passiveFirmCards').innerHTML='';
   }
 
