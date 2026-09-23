@@ -13,6 +13,9 @@
   let busy=false;
   let filter='all';
   let search='';
+  let platformChoice='instagram';
+  let dateChoice=null;
+  let lastDataSignature='';
   const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
   const workFirm=w=>typeof firm==='function'?firm(workFirmId(w)):null;
   const typeText=w=>w.type==='video'?'Video':'Post';
@@ -113,7 +116,8 @@
     cleanSelection();
     const rows=visibleWorks();
     const totalWaiting=eligibleWorks().reduce((n,w)=>n+remainingToShare(w),0);
-    const platform=document.getElementById('qsPlatformV271')?.value||'instagram';
+    if(!dateChoice)dateChoice=quickDate();
+    const platform=platformChoice;
     h.innerHTML=`
       <div class="qs-head-v271">
         <div><h3>⚡ Hızlı Paylaşım Masası</h3><p>Form açmadan paylaşımı kaydet. Kayıt otomatik olarak senin adına ve seçilen tarihe işlenir.</p></div>
@@ -122,7 +126,7 @@
           <select id="qsPlatformV271">
             ${['instagram','facebook','tiktok','youtube','linkedin','diger'].map(p=>`<option value="${p}" ${platform===p?'selected':''}>${typeof platformLabel==='function'?platformLabel(p):p}</option>`).join('')}
           </select>
-          <input id="qsDateV271" class="qs-search-v271" type="date" value="${quickDate()}">
+          <input id="qsDateV271" class="qs-search-v271" type="date" value="${esc(dateChoice||quickDate())}">
         </div>
       </div>
       <div class="qs-toolbar-v271">
@@ -156,9 +160,14 @@
   }
 
   function settings(){
-    const platform=document.getElementById('qsPlatformV271')?.value||'instagram';
-    const date=document.getElementById('qsDateV271')?.value||quickDate();
+    const platform=document.getElementById('qsPlatformV271')?.value||platformChoice||'instagram';
+    const date=document.getElementById('qsDateV271')?.value||dateChoice||quickDate();
+    platformChoice=platform;dateChoice=date;
     return {platform,date};
+  }
+
+  function dataSignature(){
+    return eligibleWorks().map(w=>String(w.id)+':'+remainingToShare(w)).join('|')+'#'+(state.shares||[]).length+'#'+monthKey();
   }
 
   function validateDate(date){
@@ -225,7 +234,9 @@
       if(c.checked)selected.add(id);else selected.delete(id);
       render();return;
     }
-    if(e.target?.id==='monthPicker'){selected.clear();setTimeout(render,180);}
+    if(e.target?.id==='qsPlatformV271'){platformChoice=e.target.value||'instagram';return;}
+    if(e.target?.id==='qsDateV271'){dateChoice=e.target.value||quickDate();return;}
+    if(e.target?.id==='monthPicker'){selected.clear();dateChoice=null;setTimeout(render,180);}
   },true);
 
   document.addEventListener('input',e=>{
@@ -237,16 +248,16 @@
     }
   },true);
 
-  // Mevcut render fonksiyonlarına dokunmadan, onların sonrasında paneli yenile.
-  const observer=new MutationObserver(()=>{
-    if(document.getElementById('shares')?.classList.contains('active-view')){
-      clearTimeout(window.__qsV271Timer);
-      window.__qsV271Timer=setTimeout(render,120);
+  // Mevcut render fonksiyonlarına dokunmaz. Sadece veri gerçekten değiştiyse paneli yeniler.
+  setInterval(()=>{
+    if(!document.getElementById('shares')?.classList.contains('active-view'))return;
+    const sig=dataSignature();
+    if(sig!==lastDataSignature){
+      lastDataSignature=sig;
+      render();
     }
-  });
-  const shares=document.getElementById('shares');
-  if(shares)observer.observe(shares,{childList:true,subtree:true});
+  },2500);
 
   installStyle();
-  setTimeout(render,700);
+  setTimeout(()=>{lastDataSignature=dataSignature();render();},700);
 })();
