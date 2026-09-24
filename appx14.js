@@ -8,7 +8,7 @@
   if(window.__mindsTeamPersonDrilldownV121) return;
   window.__mindsTeamPersonDrilldownV121=true;
 
-  let selectedPersonId=null;
+  let selectedPersonId=window.__mindsSelectedTeamPersonV121||null;
 
   const respLabels={
     ana_sorumlu:'Ana Sorumlu',
@@ -96,6 +96,7 @@
 
   function closeDetail(){
     selectedPersonId=null;
+    window.__mindsSelectedTeamPersonV121=null;
     const panel=document.getElementById('teamPersonDetailV121');
     if(panel){ panel.innerHTML=''; panel.style.display='none'; }
     document.querySelectorAll('#teamPulsePanel .team-pulse-card').forEach(c=>c.classList.remove('selected-person-v121'));
@@ -106,6 +107,7 @@
     const p=personRecord(pid); if(!p) return closeDetail();
     const panel=ensureDetailPanel(); if(!panel) return;
     selectedPersonId=pid;
+    window.__mindsSelectedTeamPersonV121=pid;
 
     const pWorks=monthWorks().filter(w=>w.assigned_to===pid);
     const readyPost=qty(pWorks.filter(w=>w.type==='post'&&workReady(w)));
@@ -253,7 +255,37 @@
     }
   };
 
+  function restoreOpenDetail(){
+    const pid=selectedPersonId||window.__mindsSelectedTeamPersonV121;
+    bindPulseCards();
+    if(!pid)return;
+    const stillExists=activeProfiles().some(p=>p.id===pid&&p.role!=='admin');
+    if(stillExists){
+      selectedPersonId=pid;
+      window.__mindsSelectedTeamPersonV121=pid;
+      renderPersonDetail(pid);
+    }else{
+      closeDetail();
+    }
+  }
+
+  // Ana panel/veri yenilemesi personel detayını kapatamaz.
+  // Kullanıcı yalnızca X'e basarsa selectedPersonId temizlenir.
+  if(typeof renderAll==='function'&&!renderAll.__mindsTeamDetailStableV276){
+    const previousRenderAll=renderAll;
+    const wrappedRenderAll=function(){
+      const out=previousRenderAll.apply(this,arguments);
+      queueMicrotask(restoreOpenDetail);
+      setTimeout(restoreOpenDetail,60);
+      return out;
+    };
+    wrappedRenderAll.__mindsTeamDetailStableV276=true;
+    try{renderAll=wrappedRenderAll;window.renderAll=wrappedRenderAll;}catch(_e){}
+  }
+
+  window.__mindsRestoreTeamPersonDetailV276=restoreOpenDetail;
+
   bindPulseCards();
   if(selectedPersonId) renderPersonDetail(selectedPersonId);
-  setTimeout(bindPulseCards,220);
+  setTimeout(restoreOpenDetail,220);
 })();
