@@ -120,9 +120,17 @@
   function decorate(){
     const section=document.getElementById('attendance'),root=document.getElementById('attendanceRootV160');
     if(!section||!root)return;
+    const admin=typeof isAdmin==='function'&&isAdmin();
+    if(!admin){
+      section.classList.remove('ref-ui-v162');
+      root.querySelector('.att-ref-kpis-v162')?.remove();
+      root.querySelectorAll('.att-rules-ref-v162').forEach(x=>x.classList.remove('att-rules-ref-v162'));
+      root.querySelectorAll('.att-ref-bottom-actions-v162').forEach(x=>x.classList.remove('att-ref-bottom-actions-v162'));
+      return;
+    }
     section.classList.add('ref-ui-v162');
     const grid=root.querySelector('.att-grid-v160');if(!grid)return;
-    if(typeof isAdmin==='function'&&isAdmin()){
+    if(admin){
       const left=grid.children[0],aside=grid.querySelector('aside');
       if(left&&aside){
         const detail=left.querySelector('.att-panel-v160.att-section-gap-v160');
