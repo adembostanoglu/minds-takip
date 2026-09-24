@@ -74,6 +74,8 @@
     if(loadedMonth!==monthStart())loadEntries(true);
   }
 
+  window.__mindsEnsureManualOvertimeV181=ensurePanel;
+
   function renderPanel(){
     const panel=document.getElementById('attManualPanelV181');if(!panel)return;
     const rows=admin()?entries:entries.filter(x=>String(x.person_id)===String(profile.id));
