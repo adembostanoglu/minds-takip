@@ -123,14 +123,20 @@
   }
 
   openShootModal=openSharedShootModal;
-  renderShoots=renderSharedShoots;
+  if(!window.__mindsAuthoritativeShootRendererV274) renderShoots=renderSharedShoots;
 
-  loadShootFirmDirectory().then(()=>{ try{renderSharedShoots();}catch(e){console.warn('Shared shoots initial render',e);} });
+  const renderCurrentShoots=()=>{
+    const renderer=window.__mindsAuthoritativeShootRendererV274||window.renderShoots||renderSharedShoots;
+    if(typeof renderer==='function')renderer();
+  };
+
+  loadShootFirmDirectory().then(()=>{ try{renderCurrentShoots();}catch(e){console.warn('Shared shoots initial render',e);} });
 
   const previousRenderAll=renderAll;
   renderAll=function(){
-    previousRenderAll();
-    renderSharedShoots();
-    loadShootFirmDirectory(true).then(()=>renderSharedShoots()).catch(()=>{});
+    const out=previousRenderAll();
+    renderCurrentShoots();
+    loadShootFirmDirectory(true).then(()=>renderCurrentShoots()).catch(()=>{});
+    return out;
   };
 })();
