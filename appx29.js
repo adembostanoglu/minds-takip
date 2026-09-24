@@ -41,6 +41,58 @@
     return `<div class="firm-cell"><span class="firm-logo logo-placeholder">H</span><div><b>${esc(x.external_client_name||'Harici Müşteri')}</b><div class="muted"><span class="badge yellow">Harici</span> Tek seferlik müşteri / kişi</div></div></div>`;
   }
 
+  function shootEditInfo(x){
+    const total=Math.max(0,Number(x?.video_count||0));
+    const edited=String(x?.edit_status||'bekliyor')==='editlendi'||(total>0&&Number(x?.edited_video_count||0)>=total);
+    return {total,edited,label:edited?'Editlendi':'Edit Bekliyor',cls:edited?'green':'red'};
+  }
+
+  function ensureEditStyles(){
+    if(document.getElementById('shootEditCoreV274'))return;
+    const s=document.createElement('style');s.id='shootEditCoreV274';
+    s.textContent=`
+      #shootRows tr.shoot-edit-done-v274 td{background:rgba(66,174,94,.10)!important}
+      #shootRows tr.shoot-edit-done-v274:hover td{background:rgba(66,174,94,.15)!important}
+      #shootRows .shoot-edit-actions-v274{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+      #shootRows .shoot-mark-done-v274{border-color:#356844!important;background:#17331e!important;color:#91d09c!important;font-weight:900!important}
+      #shootRows .shoot-editor-v274{color:#9ed8a9;font-weight:800}
+      #shootStats{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+      @media(max-width:1000px){#shootStats{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+    `;
+    document.head.appendChild(s);
+  }
+
+  async function markShootEdited(x){
+    if(!x)return;
+    const {data,error}=await sb.rpc('mark_shoot_edited',{p_shoot_id:x.id});
+    if(error){if(typeof toast==='function')toast('Edit durumu kaydedilemedi: '+(error.message||error),true);return;}
+    const updated=Array.isArray(data)?data[0]:data;
+    if(updated)Object.assign(x,updated);
+    else{
+      x.editor_id=profile.id;
+      x.edited_video_count=x.video_count;
+      x.edit_status='editlendi';
+      x.edited_at=new Date().toISOString();
+    }
+    renderExternalShoots();
+    if(typeof toast==='function')toast('Editlendi olarak işaretlendi.');
+  }
+
+  async function resetShootEdited(x){
+    if(!x||!isAdmin())return;
+    const {data,error}=await sb.rpc('reset_shoot_edit',{p_shoot_id:x.id});
+    if(error){if(typeof toast==='function')toast('Edit durumu geri alınamadı: '+(error.message||error),true);return;}
+    const updated=Array.isArray(data)?data[0]:data;
+    if(updated)Object.assign(x,updated);
+    else{
+      x.editor_id=null;
+      x.edited_video_count=0;
+      x.edit_status='bekliyor';
+      x.edited_at=null;
+    }
+    renderExternalShoots();
+  }
+
   function ensureInfo(){
     const note=document.getElementById('sharedShootsInfoV124');
     if(note) note.innerHTML='<b>Ortak Çekim Listesi:</b> Tüm aktif ekip görür. Çekim, kayıtlı firmaya veya tek seferlik harici müşteri/kişiye girilebilir. Harici isim Firmalar listesine eklenmez; yalnızca bu çekim kaydında kalır.';
@@ -48,20 +100,49 @@
 
   function renderExternalShoots(){
     ensureInfo();
+    ensureEditStyles();
     const sh=monthShoots();
-    const clientCount=new Set(sh.map(x=>x.firm_id?`f:${x.firm_id}`:`x:${String(x.external_client_name||'').trim().toLocaleLowerCase('tr-TR')}`).filter(Boolean)).size;
-    const videoCount=sh.reduce((sum,x)=>sum+Number(x.video_count||0),0);
+    const infos=sh.map(shootEditInfo);
     const stats=document.getElementById('shootStats');
     const rows=document.getElementById('shootRows');
+
     if(stats){
-      stats.innerHTML=[['Çekim Kaydı',sh.length],['Çekim Yapılan Firma / Müşteri',clientCount],['Toplam Video İçeriği',videoCount]].map(([l,v])=>`<div class="stat"><div class="label">${l}</div><div class="value shoot-count">${v}</div><div class="foot"><b>${typeof prettyMonth==='function'?prettyMonth(selectedMonth):selectedMonth}</b> ekip verisi</div></div>`).join('');
+      const editedCount=infos.filter(i=>i.edited).length;
+      stats.innerHTML=[
+        ['Çekim Kaydı',sh.length],
+        ['Toplam Video',infos.reduce((sum,i)=>sum+i.total,0)],
+        ['Edit Bekleyen',sh.length-editedCount],
+        ['Editlendi',editedCount]
+      ].map(([l,v])=>`<div class="stat"><div class="label">${l}</div><div class="value shoot-count">${v}</div><div class="foot"><b>${typeof prettyMonth==='function'?prettyMonth(selectedMonth):selectedMonth}</b> ekip verisi</div></div>`).join('');
     }
+
     if(rows){
+      const thead=rows.closest('table')?.querySelector('thead tr');
+      if(thead)thead.innerHTML='<th>Tarih</th><th>Firma</th><th>Çekim</th><th>Video İçeriği</th><th>Edit Durumu</th><th>Editi Yapan</th><th>Çekim Sorumlusu</th><th>Not</th><th>İşlem</th>';
+
       rows.innerHTML=sh.map(x=>{
-        const actions=canEdit(x)?`<div class="row-actions"><button class="small-primary" data-edit-shoot="${x.id}">Güncelle</button><button class="small-danger" data-delete-shoot="${x.id}">Sil</button></div>`:'—';
+        const i=shootEditInfo(x);
         const cat=x.shoot_category||'firma';
-        return `<tr><td>${dateLabel(x.shoot_date)}</td><td>${clientCell(x)}</td><td><b>${esc(x.title||'Video Çekimi')}</b><div style="margin-top:5px"><span class="badge ${cat==='takim'?'yellow':'blue'}">${esc(categoryLabel(cat))}</span></div></td><td><span class="badge blue">${Number(x.video_count||0)} Video</span></td><td>${esc(personLabel(x.responsible_id))}</td><td>${esc(x.notes||'—')}</td><td>${actions}</td></tr>`;
-      }).join('')||'<tr><td colspan="7" class="empty">Bu ay çekim kaydı yok.</td></tr>';
+        const buttons=[];
+        if(!i.edited)buttons.push(`<button class="small-primary shoot-mark-done-v274" data-shoot-mark-edited-v274="${x.id}">✓ Editlendi</button>`);
+        else{
+          buttons.push('<span class="badge green">✓ Editlendi</span>');
+          if(isAdmin())buttons.push(`<button class="ghost" data-shoot-reset-edit-v274="${x.id}">Geri Al</button>`);
+        }
+        if(canEdit(x))buttons.push(`<button class="small-primary" data-edit-shoot="${x.id}">Güncelle</button><button class="small-danger" data-delete-shoot="${x.id}">Sil</button>`);
+
+        return `<tr class="${i.edited?'shoot-edit-done-v274':''}">
+          <td>${dateLabel(x.shoot_date)}</td>
+          <td>${clientCell(x)}</td>
+          <td><b>${esc(x.title||'Video Çekimi')}</b><div style="margin-top:5px"><span class="badge ${cat==='takim'?'yellow':'blue'}">${esc(categoryLabel(cat))}</span></div></td>
+          <td><span class="badge blue">${i.total} Video</span></td>
+          <td><span class="badge ${i.cls}">${i.edited?'✓ ':''}${i.label}</span></td>
+          <td>${i.edited?`<span class="shoot-editor-v274">${esc(x.editor_id?personLabel(x.editor_id):'—')}</span>`:'—'}</td>
+          <td>${esc(personLabel(x.responsible_id))}</td>
+          <td>${esc(x.notes||'—')}</td>
+          <td><div class="shoot-edit-actions-v274">${buttons.join('')}</div></td>
+        </tr>`;
+      }).join('')||'<tr><td colspan="9" class="empty">Bu ay çekim kaydı yok.</td></tr>';
     }
   }
 
@@ -126,11 +207,26 @@
     },0);
   }
 
+  document.addEventListener('click',e=>{
+    const d=e.target.closest('[data-shoot-mark-edited-v274]');
+    if(d){e.preventDefault();e.stopPropagation();const x=state.shoots.find(v=>String(v.id)===String(d.dataset.shootMarkEditedV274));markShootEdited(x);return;}
+    const u=e.target.closest('[data-shoot-reset-edit-v274]');
+    if(u){e.preventDefault();e.stopPropagation();const x=state.shoots.find(v=>String(v.id)===String(u.dataset.shootResetEditV274));resetShootEdited(x);return;}
+    if(e.target.closest('[data-view="shoots"]'))setTimeout(renderExternalShoots,100);
+  },true);
+  document.addEventListener('change',e=>{if(e.target?.id==='monthPicker')setTimeout(renderExternalShoots,120);},true);
+
   openShootModal=openExternalShootModal;
   renderShoots=renderExternalShoots;
   window.openShootModal=openExternalShootModal;
+  window.renderShoots=renderExternalShoots;
+  window.__mindsAuthoritativeShootRendererV274=renderExternalShoots;
 
   loadDirectory().then(()=>renderExternalShoots()).catch(()=>{});
   const previousRenderAll=renderAll;
-  renderAll=function(){previousRenderAll();loadDirectory().then(()=>renderExternalShoots()).catch(()=>renderExternalShoots());};
+  renderAll=function(){
+    const out=previousRenderAll();
+    loadDirectory().then(()=>renderExternalShoots()).catch(()=>renderExternalShoots());
+    return out;
+  };
 })();
