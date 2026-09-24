@@ -226,6 +226,7 @@
   const previousRenderAll=renderAll;
   renderAll=function(){
     const out=previousRenderAll();
+    renderExternalShoots();
     loadDirectory().then(()=>renderExternalShoots()).catch(()=>renderExternalShoots());
     return out;
   };
