@@ -36,7 +36,10 @@
           if(typeof renderStats==='function')renderStats();
           if(typeof renderDashboardFirms==='function')renderDashboardFirms();
         }
-        if(firmsActive&&typeof renderFirms==='function')renderFirms();
+        if(firmsActive){
+          const firmRenderer=window.__mindsAuthoritativeFirmRendererV206||window.renderFirms||(typeof renderFirms==='function'?renderFirms:null);
+          if(typeof firmRenderer==='function')firmRenderer();
+        }
         applyFirmState();
       }catch(e){console.warn('Son render bütünlüğü',e);}
     },0);
