@@ -152,6 +152,7 @@
   }
 
   installStyle();
+  window.__mindsAuthoritativeFirmRendererV206=enhancedRenderFirms;
   window.renderFirms=enhancedRenderFirms;
-  try{renderFirms();}catch(e){console.warn('Firma sorumluluk görünümü hazırlanamadı',e);}
+  try{enhancedRenderFirms();}catch(e){console.warn('Firma sorumluluk görünümü hazırlanamadı',e);}
 })();
