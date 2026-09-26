@@ -105,6 +105,8 @@
     focus.appendChild(clone);
     anchor.insertAdjacentElement('afterend',focus);
     patchRows();
+    try{window.__mindsPatchSaturdayOvertimeV283?.();}catch(_e){}
+    setTimeout(()=>{try{window.__mindsPatchSaturdayOvertimeV283?.();}catch(_e){}},30);
     focus.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
 
