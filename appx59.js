@@ -54,10 +54,10 @@
       #firms .firm-role-count-v206{font-size:10px;font-weight:900;color:#9aa5aa;padding:4px 7px;border-radius:999px;border:1px solid #303a40;background:#11181c}
       #firms .firm-role-grid-v206{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
       #firms .metric-five-v278{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin-top:12px;border-top:1px solid #293238;border-bottom:1px solid #293238}
-      #firms .metric-five-v278 .mini{min-width:0;padding:10px 8px;border-right:1px solid #293238}
+      #firms .metric-five-v278 .mini{min-width:0;padding:13px 11px;border-right:1px solid #293238}
       #firms .metric-five-v278 .mini:last-child{border-right:0}
-      #firms .metric-five-v278 .mini small{display:block;font-size:7.5px;line-height:1.2;color:#7f8b91;white-space:normal;min-height:18px}
-      #firms .metric-five-v278 .mini b{display:block;margin-top:4px;font-size:12px}
+      #firms .metric-five-v278 .mini small{display:block;font-size:10.5px;line-height:1.25;color:#9aa5aa;white-space:normal;min-height:26px;font-weight:800;letter-spacing:.01em}
+      #firms .metric-five-v278 .mini b{display:block;margin-top:6px;font-size:18px;line-height:1;font-weight:950}
       #firms .metric-five-v278 .share-metric b{color:#91d47a}
       #firms .metric-five-v278 .remain-metric b{color:#e7df3f}
       @media(max-width:1250px){#firms .metric-five-v278{grid-template-columns:repeat(5,minmax(72px,1fr));overflow-x:auto}}
