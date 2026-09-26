@@ -79,15 +79,38 @@
         const cells=[...tr.children];const iso=parseRowDate(cells[ix.date]?.textContent);if(!iso)return;
         const rec=recMap.get(iso),manual=manMap.get(iso)||[];
         const normalOt=rec?normalOvertimeMinutes(rec,data.dutyDates):0;
+
+        // Normal otomatik mesai artık yoksa eski renderdan kalan hücreleri temizle.
+        // Manuel ek mesai satırları/aynı tarihli manuel kayıtlar korunur.
+        if(rec && normalOt<=0 && !manual.length && tr.dataset.manualOnlyV182!=='1'){
+          if(cells[ix.ot]){
+            cells[ix.ot].textContent='—';
+            cells[ix.ot].classList.remove('pos');
+          }
+          if(cells[ix.status]){
+            const txt=String(cells[ix.status].textContent||'').trim();
+            if(txt==='Onaylı'||txt==='Onay Bekliyor')cells[ix.status].textContent='—';
+          }
+          if(ix.action>=0&&cells[ix.action]){
+            cells[ix.action].querySelectorAll('[data-v235-normal]').forEach(x=>x.remove());
+            const wrap=cells[ix.action].querySelector('.att-row-actions-v160');
+            if(wrap&&!wrap.children.length)wrap.remove();
+            delete cells[ix.action].dataset.v235Action;
+          }
+        }
+
         if(normalOt>0){
           if(cells[ix.ot]){cells[ix.ot].textContent=minsText(normalOt);cells[ix.ot].classList.add('pos');}
           if(cells[ix.status])cells[ix.status].innerHTML=`<span class="att-badge-v160 ${rec.overtime_approved?'good':'warn'}">${rec.overtime_approved?'Onaylı':'Onay Bekliyor'}</span>`;
           if(ix.action>=0&&cells[ix.action]){
             cells[ix.action].dataset.v235Action='1';
             let wrap=cells[ix.action].querySelector('.att-row-actions-v160');if(!wrap){wrap=document.createElement('div');wrap.className='att-row-actions-v160';cells[ix.action].prepend(wrap);}
-            if(!wrap.querySelector('[data-v235-normal]')){
-              const b=document.createElement('button');b.className='ghost';b.dataset.v235Normal=rec.id;b.dataset.v235Value=rec.overtime_approved?'0':'1';b.textContent=rec.overtime_approved?'Onayı Kaldır':'Mesaiyi Onayla';wrap.prepend(b);
+            let b=wrap.querySelector('[data-v235-normal]');
+            if(!b){
+              b=document.createElement('button');b.className='ghost';b.dataset.v235Normal=rec.id;wrap.prepend(b);
             }
+            b.dataset.v235Value=rec.overtime_approved?'0':'1';
+            b.textContent=rec.overtime_approved?'Onayı Kaldır':'Mesaiyi Onayla';
           }
         }
         if(manual.length&&tr.dataset.manualOnlyV182==='1'){
