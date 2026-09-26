@@ -71,7 +71,7 @@
     document.querySelectorAll('#attendance .att-rule-v160').forEach(card=>{
       if(card.querySelector('b')?.textContent?.trim()!=='Cumartesi')return;
       const p=card.querySelector('p');
-      if(p)p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • Nöbetçi olmayan personelde <strong>14:30 sonrası süre</strong> fazla mesai • <strong>Nöbetçi personelde Cumartesi mesaisi yok</strong>.';
+      if(p)p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • Nöbet bilgisi ayrı takip edilir • Otomatik fazla mesai yalnızca <strong>19:30 ve sonrası çıkışlarda</strong> oluşur ve <strong>18:30’dan itibaren</strong> hesaplanır.';
       let box=card.querySelector('.att-duty-summary-v212');if(!box){box=document.createElement('div');box.className='att-duty-summary-v212';card.appendChild(box);}
       const d=nextSaturday();
       if(isAdminLocal()){
@@ -95,8 +95,9 @@
         const duty=isDuty(pid,date);
         if(!duty){delete tr.dataset.saturdayDutyV212;return;}
         tr.dataset.saturdayDutyV212='1';
-        if(cells[otI]){cells[otI].textContent='—';cells[otI].classList.remove('pos');}
-        if(statusI>=0&&cells[statusI])cells[statusI].innerHTML='<span class="att-badge-v160 blue">Nöbetçi</span>';
+        if(statusI>=0&&cells[statusI]&&['—','-',''].includes(String(cells[statusI].textContent||'').trim())){
+          cells[statusI].innerHTML='<span class="att-badge-v160 blue">Nöbetçi</span>';
+        }
       });
     });
   }
