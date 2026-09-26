@@ -1,4 +1,4 @@
-// V1.21.1 — Personel fazla mesai açıklaması; Cumartesi mesai notu yalnızca 14:30'dan sonraki çıkışlarda açılır.
+// V1.27.8 — Personel fazla mesai açıklaması; Pazartesi-Cumartesi yalnızca 19:30 ve sonrası çıkışlar otomatik mesai sayılır.
 (function bootAttendanceOvertimeNotesV211(){
   if(window.__mindsAttendanceOvertimeNotesV211)return;
   window.__mindsAttendanceOvertimeNotesV211=true;
@@ -22,7 +22,7 @@
     if(!r?.clock_out)return false;
     const d=dow(r.work_date),t=localMinutes(r.clock_out);
     if(d>=1&&d<=5)return t>=1170; // 19:30 ve sonrası
-    if(d===6)return t>870; // Cumartesi yalnızca 14:30 sonrası
+    if(d===6)return t>=1170; // Cumartesi de 19:30 ve sonrası
     return false;
   }
   function trToIso(v){
