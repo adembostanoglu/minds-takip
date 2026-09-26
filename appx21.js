@@ -18,7 +18,7 @@
   load('data-minds-v174-attendance-detail-drawer','appx36.js?v=1740','V1.17.4 attendance personnel detail drawer could not be loaded');
   load('data-minds-v189-attendance-day-manage','appx51.js?v=1890','V1.18.9 attendance day management module could not be loaded');
   load('data-minds-v222-attendance-staff-order','appx52.js?v=2220','V1.22.2 attendance staff order module could not be loaded');
-  load('data-minds-v223-attendance-inline-details','appx53.js?v=2230','V1.22.3 focused inline attendance details module could not be loaded');
+  load('data-minds-v223-attendance-inline-details','appx53.js?v=2830','V1.22.3 focused inline attendance details module could not be loaded');
   load('data-minds-v211-attendance-overtime-notes','appx54.js?v=2810','V1.21.1 overtime work notes module could not be loaded');
   load('data-minds-v228-works-by-person','appx55.js?v=2280','V1.22.8 state-driven grouped work tracking module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
@@ -26,7 +26,7 @@
   load('data-minds-v214-attendance-staff-only','appx41.js?v=2140','V1.21.4 attendance staff-only stabilization module could not be loaded');
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
-  load('data-minds-v211-saturday-overtime','appx44.js?v=2810','V1.21.1 Saturday overtime rule module could not be loaded');
+  load('data-minds-v211-saturday-overtime','appx44.js?v=2830','V1.21.1 Saturday overtime rule module could not be loaded');
   load('data-minds-v181-manual-overtime','appx45.js?v=1810','V1.18.1 manual overtime workflow module could not be loaded');
   load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows module could not be loaded');
   load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
