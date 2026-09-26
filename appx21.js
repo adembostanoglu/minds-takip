@@ -52,7 +52,7 @@
   load('data-minds-v231-share-entry-asli-only','appx73.js?v=2310','V1.23.1 Aslı-only staff share entry guard could not be loaded');
   load('data-minds-v233-social-tracking-firm-continuity','appx75.js?v=2330','V1.23.3 social tracking firm continuity module could not be loaded');
   load('data-minds-v234-attendance-approval-visibility','appx76.js?v=2340','V1.23.4 attendance approval visibility module could not be loaded');
-  load('data-minds-v235-attendance-approval-controls','appx77.js?v=2770','V1.23.5 attendance approval controls module could not be loaded');
+  load('data-minds-v235-attendance-approval-controls','appx77.js?v=2800','V1.23.5 attendance approval controls module could not be loaded');
   load('data-minds-v236-attendance-payroll-refresh','appx78.js?v=2360','V1.23.6 attendance payroll refresh module could not be loaded');
   load('data-minds-v237-mobile-agenda-modal','appx79.js?v=2370','V1.23.7 mobile agenda/modal usability module could not be loaded');
   load('data-minds-v238-admin-work-correction','appx80.js?v=2380','V1.23.8 admin work correction module could not be loaded');
