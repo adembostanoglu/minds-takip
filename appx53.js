@@ -10,6 +10,55 @@
   let patchPending=false;
   const norm=v=>String(v||'').trim().toLocaleLowerCase('tr-TR').replace(/\s+/g,' ');
 
+  function enforceSaturdayOvertimeRule(root=document){
+    root.querySelectorAll?.('table.att-table-v160').forEach(table=>{
+      const heads=[...table.querySelectorAll('thead th')].map(x=>norm(x.textContent));
+      const dateI=heads.indexOf('tarih');
+      const outI=heads.indexOf('çıkış');
+      const otI=heads.indexOf('fazla mesai');
+      const statusI=heads.indexOf('mesai durumu');
+      const actionI=heads.indexOf('işlem');
+      if(dateI<0||outI<0||otI<0)return;
+
+      table.querySelectorAll('tbody tr').forEach(tr=>{
+        if(tr.dataset.manualOnlyV182==='1')return;
+        const cells=[...tr.children];
+        const dm=String(cells[dateI]?.textContent||'').trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+        const tm=String(cells[outI]?.textContent||'').trim().match(/^(\d{1,2}):(\d{2})$/);
+        if(!dm||!tm)return;
+
+        const iso=`${dm[3]}-${dm[2]}-${dm[1]}`;
+        const day=new Date(`${iso}T12:00:00Z`).getUTCDay();
+        if(day!==6)return;
+
+        const outMin=Number(tm[1])*60+Number(tm[2]);
+        if(outMin>=19*60+30)return;
+
+        if(cells[otI]){
+          cells[otI].textContent='—';
+          cells[otI].classList.remove('pos','good','warn');
+        }
+
+        if(statusI>=0&&cells[statusI]){
+          const st=norm(cells[statusI].textContent);
+          if(st==='onay bekliyor'||st==='onaylı')cells[statusI].textContent='—';
+        }
+
+        const actionCell=actionI>=0?cells[actionI]:cells[cells.length-1];
+        if(actionCell){
+          actionCell.querySelectorAll('[data-att-overtime],[data-v235-normal]').forEach(x=>x.remove());
+          actionCell.querySelectorAll('button').forEach(b=>{
+            const bt=norm(b.textContent);
+            if(bt==='mesaiyi onayla'||bt==='onayı kaldır')b.remove();
+          });
+          actionCell.querySelectorAll('.att-row-actions-v160').forEach(w=>{
+            if(!w.children.length)w.remove();
+          });
+        }
+      });
+    });
+  }
+
   function installStyle(){
     if(document.getElementById('attInlineDetailsV195Style'))return;
     const s=document.createElement('style');
@@ -70,6 +119,7 @@
   function patchRows(){
     if(!document.getElementById('attendance')?.classList.contains('active-view'))return;
     markSource();
+    enforceSaturdayOvertimeRule(document.getElementById('attendance'));
     payrollRows().forEach(row=>{
       const btn=row.querySelector('[data-att-detail]'),cell=row.cells[0];
       if(!btn||!cell)return;
@@ -104,9 +154,9 @@
     focus.innerHTML=`<div class="att-person-focus-head-v195"><div class="att-person-focus-title-v195"><b>${rawName}</b><span>Günlük giriş–çıkış, izin, mesai ve ödeme detayları</span></div><button type="button" class="att-person-focus-back-v195" data-att-focus-close="1">← Tüm Personeli Göster</button></div>`;
     focus.appendChild(clone);
     anchor.insertAdjacentElement('afterend',focus);
+    enforceSaturdayOvertimeRule(focus);
     patchRows();
-    try{window.__mindsPatchSaturdayOvertimeV283?.();}catch(_e){}
-    setTimeout(()=>{try{window.__mindsPatchSaturdayOvertimeV283?.();}catch(_e){}},30);
+    setTimeout(()=>enforceSaturdayOvertimeRule(focus),30);
     focus.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
 
