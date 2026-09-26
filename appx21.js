@@ -18,7 +18,7 @@
   load('data-minds-v174-attendance-detail-drawer','appx36.js?v=1740','V1.17.4 attendance personnel detail drawer could not be loaded');
   load('data-minds-v189-attendance-day-manage','appx51.js?v=1890','V1.18.9 attendance day management module could not be loaded');
   load('data-minds-v222-attendance-staff-order','appx52.js?v=2220','V1.22.2 attendance staff order module could not be loaded');
-  load('data-minds-v223-attendance-inline-details','appx53.js?v=2860','V1.22.3 focused inline attendance details module could not be loaded');
+  load('data-minds-v223-attendance-inline-details','appx53.js?v=2870','V1.22.3 focused inline attendance details module could not be loaded');
   load('data-minds-v211-attendance-overtime-notes','appx54.js?v=2850','V1.21.1 overtime work notes module could not be loaded');
   load('data-minds-v228-works-by-person','appx55.js?v=2280','V1.22.8 state-driven grouped work tracking module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
