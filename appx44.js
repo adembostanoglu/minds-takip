@@ -18,7 +18,7 @@
 
   function patchTable(table){
     const heads=[...table.querySelectorAll('thead th')].map(x=>x.textContent.trim().toLocaleLowerCase('tr-TR'));
-    const dateI=heads.indexOf('tarih'),inI=heads.indexOf('giriş'),outI=heads.indexOf('çıkış'),otI=heads.indexOf('fazla mesai'),statusI=heads.indexOf('mesai durumu');
+    const dateI=heads.indexOf('tarih'),inI=heads.indexOf('giriş'),outI=heads.indexOf('çıkış'),otI=heads.indexOf('fazla mesai'),statusI=heads.indexOf('mesai durumu'),actionI=heads.indexOf('işlem');
     if([dateI,inI,outI,otI].some(i=>i<0))return;
     table.querySelectorAll('tbody tr').forEach(tr=>{
       const cells=[...tr.children];if(cells.length<=otI)return;
@@ -29,7 +29,19 @@
       const saturdayBaseline=18*60+30;
       const ot=co>=saturdayTrigger?Math.max(0,co-saturdayBaseline):0;
       cells[otI].classList.remove('pos');
-      if(!ot){cells[otI].textContent='—';return;}
+      if(!ot){
+        cells[otI].textContent='—';
+        if(statusI>=0&&cells[statusI]){
+          const st=String(cells[statusI].textContent||'').trim();
+          if(st==='Onay Bekliyor'||st==='Onaylı')cells[statusI].textContent='—';
+        }
+        if(actionI>=0&&cells[actionI]){
+          cells[actionI].querySelectorAll('[data-att-overtime],[data-v235-normal]').forEach(x=>x.remove());
+          const wrap=cells[actionI].querySelector('.att-row-actions-v160');
+          if(wrap&&!wrap.children.length)wrap.remove();
+        }
+        return;
+      }
       cells[otI].textContent=minsText(ot);cells[otI].classList.add('pos');
       if(statusI>=0&&cells[statusI]&&['—','-',''].includes(cells[statusI].textContent.trim())){
         cells[statusI].innerHTML='<span class="att-badge-v160 warn">Onay Bekliyor</span>';
@@ -47,6 +59,8 @@
     if(e.target.closest('.nav-item[data-view="attendance"], [data-att-detail], [data-att-edit-day], #attPersonSelectV160'))schedulePatch();
   },true);
   document.addEventListener('change',e=>{if(e.target.closest('#monthPicker,#attPersonSelectV160'))schedulePatch();},true);
+  window.__mindsPatchSaturdayOvertimeV283=patchAll;
   window.addEventListener('load',schedulePatch);
+  setInterval(()=>{if(document.getElementById('attendance')?.classList.contains('active-view'))patchAll();},700);
   schedulePatch();
 })();
