@@ -41,7 +41,11 @@
     const t=localMinutes(r.clock_in); return t>=550?Math.max(0,t-510):0;
   }
   function overtimeMinutes(r){
-    if(!r?.clock_out)return 0;const d=dow(r.work_date);if(d<1||d>5)return 0;const t=localMinutes(r.clock_out);return t>=1170?Math.max(0,t-1110):0;
+    if(!r?.clock_out)return 0;
+    const d=dow(r.work_date);
+    if(d<1||d>6)return 0;
+    const t=localMinutes(r.clock_out);
+    return t>=1170?Math.max(0,t-1110):0;
   }
   function personNameLocal(id){return (state.profiles||[]).find(p=>p.id===id)?.full_name||'Personel';}
   function activePeople(){return (state.profiles||[]).filter(p=>p.active);}
