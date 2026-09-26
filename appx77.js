@@ -34,8 +34,7 @@
     if(co===null)return 0;
     if(d>=1&&d<=5)return co>=19*60+30?Math.max(0,co-(18*60+30)):0;
     if(d===6){
-      if(dutyDates.has(r.work_date))return 0;
-      return co>14*60+30?Math.max(0,co-Math.max(ci??0,14*60+30)):0;
+      return co>=19*60+30?Math.max(0,co-(18*60+30)):0;
     }
     return 0;
   }
