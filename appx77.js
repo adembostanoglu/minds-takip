@@ -144,10 +144,18 @@
   async function refresh(force=false){
     if(!admin())return;
     installStyles();
-    const drawer=document.getElementById('attDetailDrawerV166');if(!drawer?.classList.contains('open'))return;
     const pid=selectedPersonId();if(!pid)return;
     const data=await load(pid,force);if(!data)return;
-    renderApprovalBox(drawer,data);patchTable(drawer,pid,data);
+
+    // Her görünümü aynı kaynaktan düzelt: ana detay, inline klon ve varsa çekmece.
+    const attendance=document.getElementById('attendance');
+    if(attendance)patchTable(attendance,pid,data);
+
+    const drawer=document.getElementById('attDetailDrawerV166');
+    if(drawer?.classList.contains('open')){
+      renderApprovalBox(drawer,data);
+      patchTable(drawer,pid,data);
+    }
   }
 
   async function setNormal(id,value){
@@ -171,7 +179,7 @@
 
   function schedule(force=false){[90,220,480,850].forEach(ms=>setTimeout(()=>refresh(force),ms));}
   document.addEventListener('click',e=>{
-    if(e.target.closest('[data-att-detail],.nav-item[data-view="attendance"]'))schedule(false);
+    if(e.target.closest('[data-att-detail],.nav-item[data-view="attendance"],.att-payroll-person-cell-v195,.att-payroll-person-click-v195'))schedule(false);
     const n=e.target.closest('#attDetailDrawerV166 [data-v235-normal]');if(n){e.preventDefault();act(()=>setNormal(n.dataset.v235Normal,n.dataset.v235Value==='1'),'Fazla mesai durumu güncellendi.');return;}
     const mi=e.target.closest('#attDetailDrawerV166 [data-v235-manual-id]');if(mi){e.preventDefault();act(()=>setManualById(mi.dataset.v235ManualId,mi.dataset.v235Value==='1'),'Ek mesai durumu güncellendi.');return;}
     const md=e.target.closest('#attDetailDrawerV166 [data-v235-manual-date]');if(md){e.preventDefault();act(()=>setManualByDate(md.dataset.v235ManualDate,md.dataset.v235Value==='1'),'Ek mesai durumu güncellendi.');}
