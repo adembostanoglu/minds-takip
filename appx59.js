@@ -53,6 +53,14 @@
       #firms .firm-role-title-v206.other .role-dot{background:#87939a}
       #firms .firm-role-count-v206{font-size:10px;font-weight:900;color:#9aa5aa;padding:4px 7px;border-radius:999px;border:1px solid #303a40;background:#11181c}
       #firms .firm-role-grid-v206{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+      #firms .metric-five-v278{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin-top:12px;border-top:1px solid #293238;border-bottom:1px solid #293238}
+      #firms .metric-five-v278 .mini{min-width:0;padding:10px 8px;border-right:1px solid #293238}
+      #firms .metric-five-v278 .mini:last-child{border-right:0}
+      #firms .metric-five-v278 .mini small{display:block;font-size:7.5px;line-height:1.2;color:#7f8b91;white-space:normal;min-height:18px}
+      #firms .metric-five-v278 .mini b{display:block;margin-top:4px;font-size:12px}
+      #firms .metric-five-v278 .share-metric b{color:#91d47a}
+      #firms .metric-five-v278 .remain-metric b{color:#e7df3f}
+      @media(max-width:1250px){#firms .metric-five-v278{grid-template-columns:repeat(5,minmax(72px,1fr));overflow-x:auto}}
       #firms .firm-card-v206-my-role.design{border-color:#5c3f7a}
       #firms .firm-card-v206-my-role.video{border-color:#2d5f87}
       #firms .firm-card-v206-my-role.social{border-color:#2d6845}
@@ -78,7 +86,8 @@
   function cardHtml(f,i,passive=false,myRole=''){
     const m=firmMetrics(f.id),people=assignedPeople(f.id),meta=roleMeta[myRole]||null;
     const roleClass=meta?` firm-card-v206-my-role ${meta.cls}`:'';
-    return `<div class="firm-card ${passive?'passive-card':''}${roleClass}"><div class="firm-card-top"><span class="firm-order">${passive?'PASİF':String(i+1).padStart(2,'0')}</span><div class="card-actions">${isAdminLocal()?`<button class="small-primary" data-edit-firm="${f.id}">Düzenle</button><button class="small-danger" data-toggle-firm="${f.id}" data-active="${f.active}">${f.active?'Pasife Al':'Aktif Et'}</button><button class="small-danger" data-delete-firm="${f.id}">Kalıcı Sil</button>`:''}</div></div><div class="firm-card-head">${firmLogo(f)}<div><h3>${esc(f.name)}</h3><div class="muted">${esc(f.sector||'')}</div></div></div><div class="metric-four"><div class="mini"><small>Post</small><b>${m.post}/${m.pq}</b></div><div class="mini"><small>Video</small><b>${m.video}/${m.vq}</b></div><div class="mini"><small>Paylaşılan</small><b>${m.shared}</b></div><div class="mini"><small>Kalan</small><b>${m.remaining}</b></div></div>${responsibilityHtml(people)}</div>`;
+    const shareRemaining=Math.max(0,Number(m.pq||0)-Number(m.sharedPost||0))+Math.max(0,Number(m.vq||0)-Number(m.sharedVideo||0));
+    return `<div class="firm-card ${passive?'passive-card':''}${roleClass}"><div class="firm-card-top"><span class="firm-order">${passive?'PASİF':String(i+1).padStart(2,'0')}</span><div class="card-actions">${isAdminLocal()?`<button class="small-primary" data-edit-firm="${f.id}">Düzenle</button><button class="small-danger" data-toggle-firm="${f.id}" data-active="${f.active}">${f.active?'Pasife Al':'Aktif Et'}</button><button class="small-danger" data-delete-firm="${f.id}">Kalıcı Sil</button>`:''}</div></div><div class="firm-card-head">${firmLogo(f)}<div><h3>${esc(f.name)}</h3><div class="muted">${esc(f.sector||'')}</div></div></div><div class="metric-five-v278"><div class="mini"><small>Yapılacak Post</small><b>${m.pq}</b></div><div class="mini"><small>Yapılacak Video</small><b>${m.vq}</b></div><div class="mini share-metric"><small>Paylaşılan Post</small><b>${m.sharedPost}</b></div><div class="mini share-metric"><small>Paylaşılan Video</small><b>${m.sharedVideo}</b></div><div class="mini remain-metric"><small>Kalan</small><b>${shareRemaining}</b></div></div>${responsibilityHtml(people)}</div>`;
   }
 
   function adminCards(arr,passive=false){return arr.map((f,i)=>cardHtml(f,i,passive)).join('');}
