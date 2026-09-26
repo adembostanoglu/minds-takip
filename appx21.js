@@ -60,4 +60,5 @@
   load('data-minds-v240-staff-wide-works','appx82.js?v=2400','V1.24.0 staff-wide work tracking layout module could not be loaded');
   load('data-minds-v242-mobile-agenda-labels','appx83.js?v=2420','V1.24.2 readable mobile agenda labels module could not be loaded');
   load('data-minds-v271-quick-share','appx97.js?v=2710','V1.27.1 quick sharing desk could not be loaded');
+  load('data-minds-v284-saturday-overtime-invariant','appx98.js?v=2840','V1.28.4 Saturday overtime invariant module could not be loaded');
 })();
