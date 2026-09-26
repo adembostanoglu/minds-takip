@@ -12,7 +12,7 @@
   load('data-minds-v143-external-shoots','appx29.js?v=1430','V1.14.3 external shoots module could not be loaded');
   load('data-minds-v144-prepared-highlight','appx30.js?v=1440','V1.14.4 prepared column highlight module could not be loaded');
   load('data-minds-v150-agenda','appx31.js?v=1500','V1.15.0 agency agenda module could not be loaded');
-  load('data-minds-v160-attendance-payroll','appx32.js?v=1600','V1.16.0 attendance/payroll module could not be loaded');
+  load('data-minds-v160-attendance-payroll','appx32.js?v=2820','V1.16.0 attendance/payroll module could not be loaded');
   load('data-minds-v161-my-account','appx33.js?v=1610','V1.16.1 account/password module could not be loaded');
   load('data-minds-v162-attendance-reference','appx34.js?v=1630','V1.16.3 premium attendance layout module could not be loaded');
   load('data-minds-v174-attendance-detail-drawer','appx36.js?v=1740','V1.17.4 attendance personnel detail drawer could not be loaded');
@@ -52,7 +52,7 @@
   load('data-minds-v231-share-entry-asli-only','appx73.js?v=2310','V1.23.1 Aslı-only staff share entry guard could not be loaded');
   load('data-minds-v233-social-tracking-firm-continuity','appx75.js?v=2330','V1.23.3 social tracking firm continuity module could not be loaded');
   load('data-minds-v234-attendance-approval-visibility','appx76.js?v=2340','V1.23.4 attendance approval visibility module could not be loaded');
-  load('data-minds-v235-attendance-approval-controls','appx77.js?v=2810','V1.23.5 attendance approval controls module could not be loaded');
+  load('data-minds-v235-attendance-approval-controls','appx77.js?v=2820','V1.23.5 attendance approval controls module could not be loaded');
   load('data-minds-v236-attendance-payroll-refresh','appx78.js?v=2360','V1.23.6 attendance payroll refresh module could not be loaded');
   load('data-minds-v237-mobile-agenda-modal','appx79.js?v=2370','V1.23.7 mobile agenda/modal usability module could not be loaded');
   load('data-minds-v238-admin-work-correction','appx80.js?v=2380','V1.23.8 admin work correction module could not be loaded');
