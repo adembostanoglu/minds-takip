@@ -51,9 +51,76 @@
         #agenda .agenda-month-label-v150{min-width:0!important;font-size:11px!important}
         #agenda #agendaTodayV150{padding:8px 9px!important;font-size:9px!important;white-space:nowrap!important}
         #agenda .agenda-legend-v150{gap:9px!important;padding:8px 2px!important;font-size:8px!important}
+
+        /* Reliable mobile agenda time picker: hour + minute selects. */
+        #modal .agenda-mobile-time-v288{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important}
+        #modal .agenda-mobile-time-v288 select{min-width:0!important;width:100%!important;height:46px!important;font-size:16px!important;padding:0 10px!important}
+        #modal .agenda-mobile-time-v288 button{height:46px!important;min-height:46px!important;padding:0 12px!important;white-space:nowrap!important}
+        #modal input.agenda-time-native-v288{position:absolute!important;opacity:0!important;pointer-events:none!important;width:1px!important;height:1px!important;padding:0!important;margin:0!important}
       }
     `;
     document.head.appendChild(s);
+  }
+
+  function normalizeAgendaTimeInputs(){
+    if(!mobile())return;
+    const form=document.getElementById('modalForm');
+    if(!form)return;
+
+    const makePicker=input=>{
+      if(!input||input.dataset.mobileTimeReadyV288==='1')return;
+      input.dataset.mobileTimeReadyV288='1';
+      input.classList.add('agenda-time-native-v288');
+
+      const wrap=document.createElement('div');
+      wrap.className='agenda-mobile-time-v288';
+
+      const hour=document.createElement('select');
+      hour.setAttribute('aria-label','Saat');
+      hour.innerHTML='<option value="">Saat</option>'+Array.from({length:24},(_,i)=>{
+        const v=String(i).padStart(2,'0');
+        return `<option value="${v}">${v}</option>`;
+      }).join('');
+
+      const minute=document.createElement('select');
+      minute.setAttribute('aria-label','Dakika');
+      minute.innerHTML='<option value="">Dakika</option>'+Array.from({length:60},(_,i)=>{
+        const v=String(i).padStart(2,'0');
+        return `<option value="${v}">${v}</option>`;
+      }).join('');
+
+      const clear=document.createElement('button');
+      clear.type='button';
+      clear.className='ghost';
+      clear.textContent='Temizle';
+
+      const syncFromNative=()=>{
+        const m=String(input.value||'').match(/^(\d{2}):(\d{2})$/);
+        hour.value=m?m[1]:'';
+        minute.value=m?m[2]:'';
+      };
+      const syncToNative=()=>{
+        if(!hour.value&&!minute.value){input.value='';return;}
+        if(!hour.value||!minute.value)return;
+        input.value=`${hour.value}:${minute.value}`;
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+      };
+
+      hour.addEventListener('change',syncToNative);
+      minute.addEventListener('change',syncToNative);
+      clear.addEventListener('click',()=>{
+        hour.value='';minute.value='';input.value='';
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+
+      input.insertAdjacentElement('afterend',wrap);
+      wrap.append(hour,minute,clear);
+      syncFromNative();
+    };
+
+    makePicker(form.querySelector('input[name="start_time"][type="time"]'));
+    makePicker(form.querySelector('input[name="end_time"][type="time"]'));
   }
 
   function normalizeModal(){
@@ -61,6 +128,7 @@
     const form=document.getElementById('modalForm');
     if(!form)return;
     const grid=form.querySelector(':scope > .form-grid');
+    normalizeAgendaTimeInputs();
     const actions=grid?.querySelector('.form-actions');
     if(actions){
       actions.classList.add('mobile-modal-actions-v237');
