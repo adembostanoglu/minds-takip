@@ -54,7 +54,7 @@
   load('data-minds-v234-attendance-approval-visibility','appx76.js?v=2340','V1.23.4 attendance approval visibility module could not be loaded');
   load('data-minds-v235-attendance-approval-controls','appx77.js?v=2850','V1.23.5 attendance approval controls module could not be loaded');
   load('data-minds-v236-attendance-payroll-refresh','appx78.js?v=2360','V1.23.6 attendance payroll refresh module could not be loaded');
-  load('data-minds-v237-mobile-agenda-modal','appx79.js?v=2370','V1.23.7 mobile agenda/modal usability module could not be loaded');
+  load('data-minds-v237-mobile-agenda-modal','appx79.js?v=2880','V1.23.7 mobile agenda/modal usability module could not be loaded');
   load('data-minds-v238-admin-work-correction','appx80.js?v=2380','V1.23.8 admin work correction module could not be loaded');
   load('data-minds-v239-staff-work-correction','appx81.js?v=2390','V1.23.9 safe staff work correction module could not be loaded');
   load('data-minds-v240-staff-wide-works','appx82.js?v=2400','V1.24.0 staff-wide work tracking layout module could not be loaded');
