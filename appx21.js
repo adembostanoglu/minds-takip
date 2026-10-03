@@ -6,7 +6,7 @@
   load('data-minds-v202-staff-device-policy','appx50.js?v=2020','V1.20.2 staff device access policy module could not be loaded');
   load('data-minds-v136-target-actual','appx23.js?v=1360','V1.13.6 target/actual summary module could not be loaded');
   load('data-minds-v140-external-extras','appx24.js?v=1400','V1.14 weighted extra work module could not be loaded');
-  load('data-minds-v241-carryover-history','appx25.js?v=2410','V1.24.1 monthly carryover accordion history module could not be loaded');
+  load('data-minds-v241-carryover-history','appx25.js?v=2900','V1.24.1 monthly carryover accordion history module could not be loaded');
   load('data-minds-v140-shoot-notes','appx26.js?v=1400','V1.14 shoot note module could not be loaded');
   load('data-minds-v218-performance-pilot','appx28.js?v=2720','V1.21.8 performance continuity pilot module could not be loaded');
   load('data-minds-v143-external-shoots','appx29.js?v=2850','V1.14.3 external shoots module could not be loaded');
