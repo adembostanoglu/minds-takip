@@ -52,12 +52,16 @@
 
   function ensurePanel(){
     const dash=document.getElementById('dashboard');if(!dash)return null;
-    if(typeof isAdmin==='function'&&!isAdmin()){
-      document.getElementById('carryoverPanelV138')?.remove();return null;
-    }
     installStyle();
     let panel=document.getElementById('carryoverPanelV138');
-    if(!panel){panel=document.createElement('section');panel.id='carryoverPanelV138';panel.className='panel admin-only carryover-v241';panel.style.margin='12px 0';}
+    if(!panel){
+      panel=document.createElement('section');
+      panel.id='carryoverPanelV138';
+      panel.className='panel carryover-v241';
+      panel.style.margin='12px 0';
+    }
+    // Personel de görür; backend carryover_preview yalnız kendi sorumluluğundaki firmaları döndürür.
+    panel.classList.remove('admin-only');
     panel.classList.add('carryover-v241');
     const stats=document.getElementById('stats');
     if(stats&&stats.nextElementSibling!==panel)stats.insertAdjacentElement('afterend',panel);
@@ -81,7 +85,12 @@
     panel.classList.toggle('is-open',expanded);
 
     const badge=totalRows?`${totalRows} kalem · ${totalQty} içerik`:'✓ Eksik yok';
-    const desc=totalRows?`${visibleGroups.filter(g=>g.rows.length).length} geçmiş ayda kapanmamış paket işi var. Ay ay açıp takip edebilirsin.`:'Seçili aydan önce kapanmamış paket işi bulunmuyor.';
+    const staffView=typeof isAdmin==='function'&&!isAdmin();
+    const desc=totalRows
+      ? (staffView
+          ? `${visibleGroups.filter(g=>g.rows.length).length} geçmiş ayda kendi sorumluluğundaki firmalardan eksik işin var. Ay ay açıp tamamlayabilirsin.`
+          : `${visibleGroups.filter(g=>g.rows.length).length} geçmiş ayda kapanmamış paket işi var. Ay ay açıp takip edebilirsin.`)
+      : (staffView?'Geçmiş aylardan kendi sorumluluğunda kalan eksik içerik yok.':'Seçili aydan önce kapanmamış paket işi bulunmuyor.');
 
     const monthsHtml=visibleGroups.length?visibleGroups.map(g=>{
       const qty=g.rows.reduce((s,r)=>s+Number(r.remaining_qty||0),0),open=openMonths.has(g.source);
