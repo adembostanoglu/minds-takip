@@ -61,4 +61,5 @@
   load('data-minds-v242-mobile-agenda-labels','appx83.js?v=2420','V1.24.2 readable mobile agenda labels module could not be loaded');
   load('data-minds-v271-quick-share','appx97.js?v=2710','V1.27.1 quick sharing desk could not be loaded');
   load('data-minds-v284-saturday-overtime-invariant','appx98.js?v=2840','V1.28.4 Saturday overtime invariant module could not be loaded');
+  load('data-minds-v291-feedback-box','appx99.js?v=2910','V1.29.1 feedback box module could not be loaded');
 })();
