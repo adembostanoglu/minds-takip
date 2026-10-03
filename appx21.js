@@ -41,7 +41,7 @@
   load('data-minds-v225-saturday-duty','appx63.js?v=2850','V1.22.5 Saturday duty assignment compatibility module could not be loaded');
   load('data-minds-v215-extra-assignment-tracking','appx64.js?v=2150','V1.21.5 extra work assignment tracking module could not be loaded');
   load('data-minds-v232-extra-chronological-order','appx74.js?v=2320','V1.23.2 chronological extra-work ordering module could not be loaded');
-  load('data-minds-v216-operations-hub','appx65.js?v=2890','V1.21.6 operations hub module could not be loaded');
+  load('data-minds-v216-operations-hub','appx65.js?v=2910','V1.21.6 operations hub module could not be loaded');
   load('data-minds-v217-content-rhythm','appx66.js?v=2170','V1.21.7 content rhythm module could not be loaded');
   load('data-minds-v219-september-readiness','appx67.js?v=2190','V1.21.9 September readiness and package pace module could not be loaded');
   load('data-minds-v220-mobile-shell','appx68.js?v=2201','V1.22.0 dedicated mobile shell module could not be loaded');
@@ -60,4 +60,5 @@
   load('data-minds-v240-staff-wide-works','appx82.js?v=2400','V1.24.0 staff-wide work tracking layout module could not be loaded');
   load('data-minds-v242-mobile-agenda-labels','appx83.js?v=2420','V1.24.2 readable mobile agenda labels module could not be loaded');
   load('data-minds-v271-quick-share','appx97.js?v=2850','V1.27.1 quick sharing desk could not be loaded');
+  load('data-minds-v291-feedback-box','appx99.js?v=2910','V1.29.1 feedback box module could not be loaded');
 })();
