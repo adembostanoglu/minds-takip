@@ -12,6 +12,9 @@
   let notificationChannel=null;
   let lastGeneratedAt=0;
   let attentionBusy=false;
+  let openAttendanceQueue=[];
+  let openAttendanceIndex=0;
+  let openAttendanceBusy=false;
 
   function installStyles(){
     if(document.getElementById('opsHubV216Style'))return;
@@ -35,6 +38,121 @@
     try{return new Intl.DateTimeFormat('tr-TR',{timeZone:'Europe/Istanbul',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(v));}catch(_e){return String(v);}
   }
   function notificationIcon(type){return ({task:'✦',review:'◎',success:'✓',warning:'!',danger:'!',shoot:'◉',duty:'◷',info:'i'})[type]||'•';}
+
+  function istanbulDateISO(){
+    try{
+      const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+      const o=Object.fromEntries(parts.map(x=>[x.type,x.value]));
+      return `${o.year}-${o.month}-${o.day}`;
+    }catch(_e){return new Date().toISOString().slice(0,10);}
+  }
+  function trDate(v){
+    const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m?`${m[3]}.${m[2]}.${m[1]}`:String(v||'');
+  }
+  const waitFor=(fn,timeout=5200,step=70)=>new Promise(resolve=>{
+    const start=Date.now();
+    const tick=()=>{
+      let value=null;
+      try{value=fn();}catch(_e){}
+      if(value)return resolve(value);
+      if(Date.now()-start>=timeout)return resolve(null);
+      setTimeout(tick,step);
+    };
+    tick();
+  });
+
+  async function loadOpenAttendanceQueue(){
+    const {data,error}=await sb.from('attendance_records')
+      .select('id,person_id,work_date,clock_in,clock_out')
+      .lt('work_date',istanbulDateISO())
+      .not('clock_in','is',null)
+      .is('clock_out',null)
+      .order('work_date',{ascending:true});
+    if(error)throw error;
+    openAttendanceQueue=(data||[]).map(r=>({
+      ...r,
+      full_name:(state.profiles||[]).find(p=>p.id===r.person_id)?.full_name||'Personel'
+    }));
+    if(openAttendanceIndex>=openAttendanceQueue.length)openAttendanceIndex=0;
+    return openAttendanceQueue;
+  }
+
+  function injectOpenAttendanceNavigator(rec){
+    const form=document.getElementById('modalForm');
+    const title=document.getElementById('modalTitle');
+    if(!form||!title||!title.textContent.includes('Mesai Kaydı Düzenle'))return;
+    form.querySelector('[data-open-att-nav-v289]')?.remove();
+
+    const total=openAttendanceQueue.length;
+    const box=document.createElement('div');
+    box.dataset.openAttNavV289='1';
+    box.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 11px;border:1px solid #6d3734;border-radius:9px;background:#251515;color:#f0d1ce;font-size:10px';
+    box.innerHTML=`<div><b style="color:#ffaaa4">Açık mesai kaydı ${openAttendanceIndex+1}/${total}</b><div style="margin-top:3px;color:#c8a9a6">${esc(rec.full_name)} · ${esc(trDate(rec.work_date))} · çıkış saati eksik</div></div>${total>1?'<button type="button" class="ghost" data-open-att-next-v289="1">Sonraki Açık Kayıt →</button>':''}`;
+    form.prepend(box);
+  }
+
+  async function openAttendanceQueueAt(index){
+    if(openAttendanceBusy||!openAttendanceQueue.length)return;
+    openAttendanceBusy=true;
+    try{
+      openAttendanceIndex=((index%openAttendanceQueue.length)+openAttendanceQueue.length)%openAttendanceQueue.length;
+      const rec=openAttendanceQueue[openAttendanceIndex];
+      const month=String(rec.work_date).slice(0,7)+'-01';
+
+      try{selectedMonth=month;}catch(_e){}
+      const picker=document.getElementById('monthPicker');
+      if(picker){
+        if(![...picker.options].some(o=>o.value===month)){
+          const opt=document.createElement('option');
+          opt.value=month;opt.textContent=month;picker.appendChild(opt);
+        }
+        picker.value=month;
+        picker.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+
+      navigate('attendance');
+
+      const detailBtn=await waitFor(()=>document.querySelector(`#attendance [data-att-detail="${CSS.escape(rec.person_id)}"]`));
+      if(!detailBtn)throw new Error('Personel detayı bulunamadı.');
+      detailBtn.click();
+
+      const editBtn=await waitFor(()=>{
+        const sel=[...document.querySelectorAll('#attendance #attPersonSelectV160')].find(x=>!x.closest('#attDetailDrawerV166'));
+        if(sel&&sel.value!==rec.person_id)return null;
+        const panel=sel?.closest('.att-panel-v160')||document.getElementById('attendance');
+        return panel?.querySelector(`[data-att-edit-day="${CSS.escape(rec.work_date)}"]`)||null;
+      });
+      if(!editBtn)throw new Error('Açık mesai günü bulunamadı.');
+      editBtn.click();
+
+      const modalReady=await waitFor(()=>document.getElementById('modalTitle')?.textContent.includes('Mesai Kaydı Düzenle')&&document.getElementById('modalForm'));
+      if(!modalReady)throw new Error('Mesai düzenleme penceresi açılamadı.');
+      injectOpenAttendanceNavigator(rec);
+    }catch(e){
+      console.warn('Açık mesai kaydına gidilemedi',e);
+      if(typeof toast==='function')toast(e.message||'Açık mesai kaydı açılamadı.',true);
+    }finally{
+      openAttendanceBusy=false;
+    }
+  }
+
+  async function openAttendanceHealthFlow(){
+    if(openAttendanceBusy)return;
+    try{
+      const rows=await loadOpenAttendanceQueue();
+      if(!rows.length){
+        if(typeof toast==='function')toast('Açık kalmış mesai kaydı bulunmuyor.');
+        refreshAttention();
+        return;
+      }
+      openAttendanceIndex=0;
+      await openAttendanceQueueAt(0);
+    }catch(e){
+      console.warn('Açık mesai kayıtları alınamadı',e);
+      if(typeof toast==='function')toast('Açık mesai kayıtları alınamadı.',true);
+    }
+  }
 
   function ensureNotificationUi(){
     const actions=document.querySelector('.top-actions');if(!actions)return;
@@ -104,7 +222,7 @@
     try{
       const {data,error}=await sb.rpc('operations_attention_preview',{p_month:selectedMonth});if(error)throw error;
       const rows=data||[],attention=rows.filter(x=>x.kind==='attention'),health=rows.filter(x=>x.kind==='health');
-      host.innerHTML=`<div class="ops-att-head-v216"><div><h3>⚡ Dikkat Gerekenler</h3><p>Şu anda müdahale veya kontrol gerektiren konular.</p></div><button class="ops-att-refresh-v216" type="button" data-ops-att-refresh="1">Yenile</button></div><div class="ops-att-body-v216"><div class="ops-att-grid-v216">${attention.length?attention.map(x=>`<div class="ops-att-item-v216 ${severityClass(x.severity)}" data-ops-open-view="${esc(x.view_name||'')}" title="İlgili bölüme git"><div class="top"><b>${esc(x.title)}</b><span class="count">${Number(x.item_count||0)}</span></div><p>${esc(x.detail||'')}</p></div>`).join(''):'<div class="ops-health-ok-v216">Şu anda acil müdahale gerektiren kayıt görünmüyor.</div>'}</div><div class="ops-health-v216"><div class="ops-health-title-v216">◉ Sistem Sağlığı</div>${health.length?`<div class="ops-health-list-v216">${health.map(x=>`<span class="ops-health-chip-v216 ${x.severity==='danger'?'danger':''}" data-ops-open-view="${esc(x.view_name||'')}">${esc(x.title)} · ${Number(x.item_count||0)}</span>`).join('')}</div>`:'<div class="ops-health-ok-v216">Kontroller temiz: açık kalmış kritik kayıt veya belirgin veri tutarsızlığı görünmüyor.</div>'}</div></div>`;
+      host.innerHTML=`<div class="ops-att-head-v216"><div><h3>⚡ Dikkat Gerekenler</h3><p>Şu anda müdahale veya kontrol gerektiren konular.</p></div><button class="ops-att-refresh-v216" type="button" data-ops-att-refresh="1">Yenile</button></div><div class="ops-att-body-v216"><div class="ops-att-grid-v216">${attention.length?attention.map(x=>`<div class="ops-att-item-v216 ${severityClass(x.severity)}" data-ops-open-view="${esc(x.view_name||'')}" title="İlgili bölüme git"><div class="top"><b>${esc(x.title)}</b><span class="count">${Number(x.item_count||0)}</span></div><p>${esc(x.detail||'')}</p></div>`).join(''):'<div class="ops-health-ok-v216">Şu anda acil müdahale gerektiren kayıt görünmüyor.</div>'}</div><div class="ops-health-v216"><div class="ops-health-title-v216">◉ Sistem Sağlığı</div>${health.length?`<div class="ops-health-list-v216">${health.map(x=>`<span class="ops-health-chip-v216 ${x.severity==='danger'?'danger':''}" data-ops-open-view="${esc(x.view_name||'')}" ${x.title==='Açık kalmış mesai kaydı'?'data-open-attendance-health-v289="1" title="Tıklayarak açık mesai kaydını düzelt"':''}>${esc(x.title)} · ${Number(x.item_count||0)}</span>`).join('')}</div>`:'<div class="ops-health-ok-v216">Kontroller temiz: açık kalmış kritik kayıt veya belirgin veri tutarsızlığı görünmüyor.</div>'}</div></div>`;
     }catch(e){console.warn('Operasyon özeti yüklenemedi',e);host.querySelector('.ops-att-body-v216').innerHTML='<div class="ops-health-chip-v216 danger">Operasyon özeti alınamadı. Yenile ile tekrar deneyebilirsin.</div>';}
     finally{attentionBusy=false;}
   }
@@ -149,6 +267,8 @@
     if(!e.target.closest('#opsNotifyPanelV216'))document.getElementById('opsNotifyPanelV216')?.classList.remove('open');
     if(e.target.closest('[data-ops-read-all]')){e.preventDefault();await markAllRead();return;}
     const n=e.target.closest('[data-ops-notification]');if(n){e.preventDefault();await markRead(n.dataset.opsNotification);const rec=notifications.find(x=>x.id===n.dataset.opsNotification);document.getElementById('opsNotifyPanelV216')?.classList.remove('open');navigate(n.dataset.opsView,rec?.record_id);return;}
+    const openAtt=e.target.closest('[data-open-attendance-health-v289]');if(openAtt){e.preventDefault();e.stopPropagation();await openAttendanceHealthFlow();return;}
+    const nextOpen=e.target.closest('[data-open-att-next-v289]');if(nextOpen){e.preventDefault();e.stopPropagation();if(typeof closeModal==='function')closeModal();setTimeout(()=>openAttendanceQueueAt(openAttendanceIndex+1),90);return;}
     const av=e.target.closest('[data-ops-open-view]');if(av){navigate(av.dataset.opsOpenView);return;}
     if(e.target.closest('[data-ops-att-refresh]')){refreshAttention();return;}
     const hb=e.target.closest('[data-extra-history-v216]');if(hb){e.preventDefault();e.stopPropagation();showExtraHistory(hb.dataset.extraHistoryV216);return;}
