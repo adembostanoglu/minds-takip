@@ -196,6 +196,7 @@
   }
   function navigate(view,recordId){
     if(!view)return;
+    if(view==='feedback'&&recordId)window.__mindsFeedbackFocusId=recordId;
     const nav=document.querySelector(`.nav-item[data-view="${CSS.escape(view)}"]`);
     if(nav)nav.click();else if(typeof setView==='function'&&document.getElementById(view))setView(view);
     if(view==='extras'&&recordId)setTimeout(()=>document.querySelector(`#extras [data-extra-task-id="${CSS.escape(recordId)}"]`)?.scrollIntoView({behavior:'smooth',block:'center'}),180);
