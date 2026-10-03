@@ -80,7 +80,6 @@
       nav.innerHTML='💬 <span>Dilek / Öneri / Şikayet</span>';
       const activity=navHost.querySelector('.nav-item[data-view="activity"]');
       navHost.insertBefore(nav,activity||null);
-      nav.addEventListener('click',openView);
     }
 
     let section=document.getElementById('feedback');
