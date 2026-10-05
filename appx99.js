@@ -217,8 +217,21 @@
     });
   }
 
-  function openManage(id){
+  async function openManage(id){
     const r=rows.find(x=>String(x.id)===String(id));if(!r)return;
+
+    // "Yeni" yalnızca yönetici tarafından henüz açılmamış kayıt demektir.
+    if(r.status==='new'){
+      try{
+        const {error}=await sb.rpc('feedback_admin_mark_reviewing',{p_feedback_id:r.id});
+        if(error)throw error;
+        r.status='reviewing';
+        render();
+      }catch(e){
+        console.warn('Geri bildirim inceleniyor durumuna alınamadı',e);
+      }
+    }
+
     const tm=typeMeta[r.feedback_type]||typeMeta.oneri;
     openModal('Geri Bildirimi İncele',`<div class="form-grid">
       <div class="field full"><div class="info-banner"><b>${esc(tm.label)} · ${esc(r.subject)}</b><br>${esc(r.author_name||'—')} · ${esc(categoryMeta[r.category]||r.category)} · ${esc(fmtDate(r.created_at))}</div></div>
