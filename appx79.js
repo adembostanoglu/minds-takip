@@ -77,6 +77,7 @@
 
       const hour=document.createElement('select');
       hour.setAttribute('aria-label','Saat');
+      hour.dataset.agendaMobileHourV292=input.name;
       hour.innerHTML='<option value="">Saat</option>'+Array.from({length:24},(_,i)=>{
         const v=String(i).padStart(2,'0');
         return `<option value="${v}">${v}</option>`;
@@ -84,6 +85,7 @@
 
       const minute=document.createElement('select');
       minute.setAttribute('aria-label','Dakika');
+      minute.dataset.agendaMobileMinuteV292=input.name;
       minute.innerHTML='<option value="">Dakika</option>'+Array.from({length:60},(_,i)=>{
         const v=String(i).padStart(2,'0');
         return `<option value="${v}">${v}</option>`;
@@ -100,9 +102,15 @@
         minute.value=m?m[2]:'';
       };
       const syncToNative=()=>{
-        if(!hour.value&&!minute.value){input.value='';return;}
+        if(!hour.value&&!minute.value){
+          input.value='';
+          input.removeAttribute('value');
+          return;
+        }
+        if(hour.value&&!minute.value)minute.value='00';
         if(!hour.value||!minute.value)return;
         input.value=`${hour.value}:${minute.value}`;
+        input.setAttribute('value',input.value);
         input.dispatchEvent(new Event('input',{bubbles:true}));
         input.dispatchEvent(new Event('change',{bubbles:true}));
       };
@@ -110,7 +118,7 @@
       hour.addEventListener('change',syncToNative);
       minute.addEventListener('change',syncToNative);
       clear.addEventListener('click',()=>{
-        hour.value='';minute.value='';input.value='';
+        hour.value='';minute.value='';input.value='';input.removeAttribute('value');
         input.dispatchEvent(new Event('change',{bubbles:true}));
       });
 
@@ -121,6 +129,30 @@
 
     makePicker(form.querySelector('input[name="start_time"][type="time"]'));
     makePicker(form.querySelector('input[name="end_time"][type="time"]'));
+  }
+
+  function forceSyncAgendaTimeInputsV292(){
+    if(!mobile())return;
+    const form=document.getElementById('modalForm');
+    if(!form)return;
+
+    ['start_time','end_time'].forEach(name=>{
+      const input=form.querySelector(`input[name="${name}"][type="time"]`);
+      const hour=form.querySelector(`select[data-agenda-mobile-hour-v292="${name}"]`);
+      const minute=form.querySelector(`select[data-agenda-mobile-minute-v292="${name}"]`);
+      if(!input||!hour||!minute)return;
+
+      if(!hour.value&&!minute.value){
+        input.value='';
+        input.removeAttribute('value');
+        return;
+      }
+      if(hour.value&&!minute.value)minute.value='00';
+      if(!hour.value||!minute.value)return;
+
+      input.value=`${hour.value}:${minute.value}`;
+      input.setAttribute('value',input.value);
+    });
   }
 
   function normalizeModal(){
@@ -158,6 +190,12 @@
 
   function boot(){
     installStyles();
+    if(!window.__mindsAgendaTimeSubmitGuardV292){
+      window.__mindsAgendaTimeSubmitGuardV292=true;
+      document.addEventListener('submit',e=>{
+        if(e.target?.id==='modalForm')forceSyncAgendaTimeInputsV292();
+      },true);
+    }
     if(patchOpenModal())return;
     let tries=0;
     const retry=()=>{
