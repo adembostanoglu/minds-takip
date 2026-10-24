@@ -38,7 +38,7 @@
   load('data-minds-v207-admin-social-nav','appx60.js?v=2070','V1.20.7 admin-only social media navigation module could not be loaded');
   load('data-minds-v208-package-quota-guard','appx61.js?v=2080','V1.20.8 package quota warning module could not be loaded');
   load('data-minds-v209-dashboard-targets','appx62.js?v=2090','V1.20.9 dashboard monthly target KPI module could not be loaded');
-  load('data-minds-v225-saturday-duty','appx63.js?v=2850','V1.22.5 Saturday duty assignment compatibility module could not be loaded');
+  load('data-minds-v225-saturday-duty','appx63.js?v=2940','V1.22.5 Saturday duty assignment compatibility module could not be loaded');
   load('data-minds-v215-extra-assignment-tracking','appx64.js?v=2150','V1.21.5 extra work assignment tracking module could not be loaded');
   load('data-minds-v232-extra-chronological-order','appx74.js?v=2320','V1.23.2 chronological extra-work ordering module could not be loaded');
   load('data-minds-v216-operations-hub','appx65.js?v=2910','V1.21.6 operations hub module could not be loaded');
