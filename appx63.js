@@ -114,29 +114,34 @@
     const b=document.createElement('button');b.type='button';b.id='attSaturdayDutyBtnV212';b.className='ghost';b.textContent='📅 Cumartesi Nöbeti';b.addEventListener('click',openDutyModal);host.appendChild(b);
   }
 
-  async function syncModalChecks(date){
+  async function syncModalSelection(date){
     const form=document.getElementById('modalForm');if(!form)return;
-    form.querySelectorAll('input[name="person_ids"]').forEach(x=>x.checked=false);
+    form.querySelectorAll('input[name="person_id"]').forEach(x=>x.checked=false);
     if(!isSaturdayIso(date))return;
-    const {data,error}=await sb.from('attendance_saturday_duty').select('person_id').eq('duty_date',date);if(error)return;
-    const ids=new Set((data||[]).map(x=>x.person_id));form.querySelectorAll('input[name="person_ids"]').forEach(x=>x.checked=ids.has(x.value));
+    const {data,error}=await sb.from('attendance_saturday_duty').select('person_id').eq('duty_date',date).order('created_at',{ascending:true});if(error)return;
+    const selected=data?.[0]?.person_id||null;
+    if(selected){
+      const input=form.querySelector(`input[name="person_id"][value="${CSS.escape(selected)}"]`);
+      if(input)input.checked=true;
+    }
   }
 
   function openDutyModal(){
     if(!isAdminLocal()||typeof openModal!=='function')return;
     const people=activeStaff();const def=nextSaturday();
-    openModal('Cumartesi Nöbeti',`<div class="form-grid"><div class="field full"><label>Cumartesi Tarihi</label><input type="date" name="duty_date" value="${def}" required><div class="att-form-note-v160">Nöbetçi olarak işaretlenen personelin bu Cumartesi kaydı normal nöbet olarak görünür; Cumartesi mesaisi oluşturulmaz.</div></div><div class="field full"><label>Nöbetçiler</label><div class="att-duty-checks-v212">${people.map(p=>`<label class="att-duty-check-v212"><input type="checkbox" name="person_ids" value="${esc(p.id)}"><span>${esc(p.full_name)}</span></label>`).join('')}</div></div><div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button type="submit" class="primary">Nöbeti Kaydet</button></div></div>`,async fd=>{
+    openModal('Cumartesi Nöbeti',`<div class="form-grid"><div class="field full"><label>Cumartesi Tarihi</label><input type="date" name="duty_date" value="${def}" required><div class="att-form-note-v160">Her Cumartesi yalnızca <b>1 kişi</b> nöbetçi olur. Nöbetçi personelin kaydı normal nöbet olarak görünür; Cumartesi mesaisi oluşturulmaz.</div></div><div class="field full"><label>Nöbetçi</label><div class="att-duty-checks-v212">${people.map(p=>`<label class="att-duty-check-v212"><input type="radio" name="person_id" value="${esc(p.id)}" required><span>${esc(p.full_name)}</span></label>`).join('')}</div></div><div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button type="submit" class="primary">Nöbeti Kaydet</button></div></div>`,async fd=>{
       const date=String(fd.get('duty_date')||'');if(!isSaturdayIso(date)){if(typeof toast==='function')toast('Nöbet tarihi Cumartesi olmalı.',true);throw new Error('Nöbet tarihi Cumartesi olmalı');}
-      const ids=fd.getAll('person_ids').map(String);
+      const personId=String(fd.get('person_id')||'').trim();
+      if(!personId){if(typeof toast==='function')toast('Bir nöbetçi seçmelisin.',true);throw new Error('Bir nöbetçi seçmelisin');}
       const del=await sb.from('attendance_saturday_duty').delete().eq('duty_date',date);if(del.error)throw del.error;
       const creator=typeof profile!=='undefined'?profile?.id:null;
-      if(ids.length){const ins=await sb.from('attendance_saturday_duty').insert(ids.map(person_id=>({person_id,duty_date:date,note:'Cumartesi nöbeti',created_by:creator||null})));if(ins.error)throw ins.error;}
-      if(typeof toast==='function')toast(ids.length?`${dateTR(date)} nöbeti kaydedildi.`:`${dateTR(date)} nöbet ataması temizlendi.`);
+      const ins=await sb.from('attendance_saturday_duty').insert({person_id:personId,duty_date:date,note:'Cumartesi nöbeti',created_by:creator||null});if(ins.error)throw ins.error;
+      if(typeof toast==='function')toast(`${dateTR(date)} nöbeti kaydedildi.`);
       await loadDuty(true);setTimeout(()=>document.querySelector('.nav-item[data-view="attendance"]')?.click(),180);
     });
     setTimeout(()=>{
       const input=document.querySelector('#modalForm input[name="duty_date"]');if(!input)return;
-      syncModalChecks(input.value);input.addEventListener('change',()=>syncModalChecks(input.value));
+      syncModalSelection(input.value);input.addEventListener('change',()=>syncModalSelection(input.value));
     },30);
   }
 
