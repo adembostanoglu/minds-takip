@@ -12,7 +12,7 @@
   load('data-minds-v143-external-shoots','appx29.js?v=2850','V1.14.3 external shoots module could not be loaded');
   load('data-minds-v144-prepared-highlight','appx30.js?v=1440','V1.14.4 prepared column highlight module could not be loaded');
   load('data-minds-v150-agenda','appx31.js?v=1500','V1.15.0 agency agenda module could not be loaded');
-  load('data-minds-v160-attendance-payroll','appx32.js?v=2850','V1.16.0 attendance/payroll module could not be loaded');
+  load('data-minds-v160-attendance-payroll','appx32.js?v=2950','V1.16.0 attendance/payroll module could not be loaded');
   load('data-minds-v161-my-account','appx33.js?v=1610','V1.16.1 account/password module could not be loaded');
   load('data-minds-v162-attendance-reference','appx34.js?v=2850','V1.16.3 premium attendance layout module could not be loaded');
   load('data-minds-v174-attendance-detail-drawer','appx36.js?v=1740','V1.17.4 attendance personnel detail drawer could not be loaded');
