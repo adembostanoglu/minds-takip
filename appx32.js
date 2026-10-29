@@ -36,7 +36,7 @@
   function statusFor(pid,date){return dayStatuses.find(x=>x.person_id===pid&&x.status_date===date);}
   function lateMinutes(r){
     if(!r?.clock_in||r.mode==='field')return 0;
-    const ds=statusFor(r.person_id,r.work_date); if(ds&&ds.status!=='absent')return 0;
+    const ds=statusFor(r.person_id,r.work_date); if(ds&&ds.status!=='absent'&&Number(ds.day_fraction||1)>=1)return 0;
     const d=dow(r.work_date); if(d===0)return 0;
     const t=localMinutes(r.clock_in); return t>=550?Math.max(0,t-510):0;
   }
