@@ -130,3 +130,112 @@
 
   try{renderShares();}catch(e){console.warn('[Onaylı paylaşım kuyruğu]',e);}
 })();
+
+
+// MINDS_INSTAGRAM_CONNECT_V1
+(function bootInstagramConnections(){
+  if(window.__mindsInstagramConnectionsV1) return;
+  if(typeof sb==='undefined' || typeof isAdmin!=='function' || !profile){
+    setTimeout(bootInstagramConnections,180); return;
+  }
+  if(!isAdmin()) return;
+  window.__mindsInstagramConnectionsV1=true;
+
+  let overlay=null;
+  const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
+
+  function installStyle(){
+    if(document.getElementById('mindsInstagramConnectionsStyle')) return;
+    const s=document.createElement('style');
+    s.id='mindsInstagramConnectionsStyle';
+    s.textContent=`
+      #mindsIgOpen{position:fixed;right:18px;bottom:18px;z-index:99999;border:1px solid #dfe33b;border-radius:12px;padding:11px 14px;background:#ecec45;color:#111;font:800 13px Inter,system-ui;box-shadow:0 12px 30px rgba(0,0,0,.38);cursor:pointer}
+      #mindsIgOverlay{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.74);display:flex;align-items:center;justify-content:center;padding:20px}
+      #mindsIgModal{width:min(760px,96vw);max-height:88vh;overflow:hidden;display:flex;flex-direction:column;border-radius:18px;background:#0f1518;border:1px solid #2b363b;color:#eef2f3;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+      #mindsIgHead{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #273136}
+      #mindsIgHead h3{margin:0;font-size:18px} #mindsIgHead p{margin:4px 0 0;color:#8f9ba1;font-size:12px}
+      #mindsIgClose{border:1px solid #354147;background:#20282c;color:#fff;border-radius:10px;padding:8px 11px;cursor:pointer}
+      #mindsIgList{overflow:auto;padding:8px 14px 16px}
+      .minds-ig-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 8px;border-bottom:1px solid #222c30}
+      .minds-ig-row b{display:block;font-size:14px}.minds-ig-row small{display:block;margin-top:4px;color:#8e9aa0}.minds-ig-row small.ok{color:#ecec45}
+      .minds-ig-connect{border:0;border-radius:10px;padding:9px 12px;cursor:pointer;background:#ecec45;color:#111;font:800 12px Inter,system-ui;white-space:nowrap}
+      .minds-ig-connect.secondary{background:#273136;color:#e8edef;border:1px solid #3a464c}
+      .minds-ig-connect:disabled{opacity:.55;cursor:wait}
+    `;
+    document.head.appendChild(s);
+  }
+
+  async function loadRows(){
+    const list=document.getElementById('mindsIgList');
+    if(!list)return;
+    list.innerHTML='<div style="padding:22px;color:#8f9aa0">Yükleniyor…</div>';
+
+    const [firmsRes,statusRes]=await Promise.all([
+      sb.from('firms').select('id,name,active').eq('active',true).order('name'),
+      sb.from('instagram_connection_status').select('firm_id,instagram_username,instagram_name,status,connected_at')
+    ]);
+
+    if(firmsRes.error){
+      list.innerHTML='<div style="padding:22px;color:#ff9a9a">Firmalar alınamadı: '+esc(firmsRes.error.message)+'</div>';
+      return;
+    }
+
+    const statusMap=new Map((statusRes.data||[]).map(x=>[x.firm_id,x]));
+    list.innerHTML=(firmsRes.data||[]).map(f=>{
+      const st=statusMap.get(f.id);
+      const connected=st?.status==='connected';
+      const label=connected?'@'+esc(st.instagram_username||st.instagram_name||'Instagram'):'Bağlı değil';
+      return '<div class="minds-ig-row"><div><b>'+esc(f.name)+'</b><small class="'+(connected?'ok':'')+'">'+label+'</small></div><button class="minds-ig-connect '+(connected?'secondary':'')+'" data-firm-id="'+esc(f.id)+'">'+(connected?'Yeniden Bağla':'Instagram Bağla')+'</button></div>';
+    }).join('');
+
+    list.querySelectorAll('.minds-ig-connect').forEach(btn=>{
+      btn.addEventListener('click',async()=>{
+        const popup=window.open('about:blank','mindsInstagramConnect','width=680,height=780,resizable=yes,scrollbars=yes');
+        if(!popup){ if(typeof toast==='function')toast('Tarayıcı açılır pencereyi engelledi.',true); return; }
+        popup.document.write('<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;background:#0d1114;color:#fff;padding:30px">Meta bağlantısı hazırlanıyor…</body>');
+        const old=btn.textContent; btn.disabled=true; btn.textContent='Hazırlanıyor…';
+        try{
+          const {data,error}=await sb.functions.invoke('meta-instagram-oauth-start',{body:{firm_id:btn.dataset.firmId}});
+          if(error||!data?.authorize_url) throw new Error(error?.message||data?.error||'Bağlantı URL’si alınamadı.');
+          popup.location.href=data.authorize_url;
+        }catch(e){
+          try{popup.close()}catch(_){}
+          if(typeof toast==='function')toast('Bağlantı başlatılamadı: '+(e?.message||e),true);
+        }finally{
+          btn.disabled=false;btn.textContent=old;
+        }
+      });
+    });
+  }
+
+  function buildModal(){
+    if(overlay)return overlay;
+    installStyle();
+    overlay=document.createElement('div');
+    overlay.id='mindsIgOverlay';
+    overlay.style.display='none';
+    overlay.innerHTML='<div id="mindsIgModal"><div id="mindsIgHead"><div><h3>Instagram Bağlantıları</h3><p>Firma başına tek seferlik Meta izni</p></div><button id="mindsIgClose">Kapat</button></div><div id="mindsIgList"></div></div>';
+    document.body.appendChild(overlay);
+    document.getElementById('mindsIgClose').onclick=()=>overlay.style.display='none';
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.style.display='none'});
+    return overlay;
+  }
+
+  installStyle();
+  const btn=document.createElement('button');
+  btn.id='mindsIgOpen';
+  btn.textContent='Instagram Bağlantıları';
+  btn.addEventListener('click',async()=>{
+    buildModal();
+    overlay.style.display='flex';
+    await loadRows();
+  });
+  document.body.appendChild(btn);
+
+  window.addEventListener('message',async e=>{
+    if(e?.data?.type==='minds-instagram-connected'){
+      if(typeof toast==='function')toast('Instagram hesabı bağlandı ✓');
+      if(overlay&&overlay.style.display!=='none')await loadRows();
+    }
+  });
+})();
