@@ -13,7 +13,10 @@
   const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
   const monthKey=()=>String(typeof selectedMonth!=='undefined'?selectedMonth:'').slice(0,10);
   const formatDateSafe=v=>v?(typeof formatDate==='function'?formatDate(v):String(v).slice(0,10)):'—';
-  const monthFirms=()=>typeof selectedMonthFirms==='function'?selectedMonthFirms():((state?.firms||[]).filter(f=>f.active));
+  const monthFirms=()=>{
+    const source=typeof selectedMonthFirms==='function'?selectedMonthFirms():(state?.firms||[]);
+    return (source||[]).filter(f=>f.active===true);
+  };
   const currentPackage=f=>{
     const fm=(state?.months||[]).find(m=>m.firm_id===f.id&&m.month===monthKey());
     return {post:Number(fm?.post_quota??f.default_post_quota??0),video:Number(fm?.video_quota??f.default_video_quota??0)};
