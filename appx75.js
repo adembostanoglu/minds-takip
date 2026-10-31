@@ -17,14 +17,10 @@
   function socialFirmsForSelectedMonth(){
     const target=monthPart(typeof selectedMonth!=='undefined'?selectedMonth:'');
     return sortFirms((state.firms||[]).filter(f=>{
+      if(f.active!==true)return false;
       const created=monthPart(f.created_at);
       if(target&&created&&created>target)return false;
-
-      const deactivated=monthPart(f.deactivated_at);
-      if(target&&deactivated&&deactivated<target)return false;
-
-      if(f.active)return true;
-      return !!deactivated&&(!target||target<=deactivated);
+      return true;
     }));
   }
 
