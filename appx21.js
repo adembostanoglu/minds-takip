@@ -22,7 +22,7 @@
   load('data-minds-v211-attendance-overtime-notes','appx54.js?v=2850','V1.21.1 overtime work notes module could not be loaded');
   load('data-minds-v228-works-by-person','appx55.js?v=2280','V1.22.8 state-driven grouped work tracking module could not be loaded');
   load('data-minds-v168-firm-package-completion','appx38.js?v=1680','V1.16.8 firm package completion module could not be loaded');
-  load('data-minds-v177-social-media-tracking','appx39.js?v=1770','V1.17.7 social media tracking module could not be loaded');
+  load('data-minds-v177-social-media-tracking','appx39.js?v=2960','V1.17.7 social media tracking module could not be loaded');
   load('data-minds-v214-attendance-staff-only','appx41.js?v=2140','V1.21.4 attendance staff-only stabilization module could not be loaded');
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
@@ -50,7 +50,7 @@
   load('data-minds-v229-work-modal-production-scope','appx72.js?v=2290','V1.22.9 production-role package firm scope module could not be loaded');
   load('data-minds-v230-render-integrity','appx71.js?v=2850','V1.23.0 final firm/dashboard render integrity module could not be loaded');
   load('data-minds-v231-share-entry-asli-only','appx73.js?v=2310','V1.23.1 Aslı-only staff share entry guard could not be loaded');
-  load('data-minds-v233-social-tracking-firm-continuity','appx75.js?v=2330','V1.23.3 social tracking firm continuity module could not be loaded');
+  load('data-minds-v233-social-tracking-firm-continuity','appx75.js?v=2960','V1.23.3 social tracking firm continuity module could not be loaded');
   load('data-minds-v234-attendance-approval-visibility','appx76.js?v=2340','V1.23.4 attendance approval visibility module could not be loaded');
   load('data-minds-v235-attendance-approval-controls','appx77.js?v=2850','V1.23.5 attendance approval controls module could not be loaded');
   load('data-minds-v236-attendance-payroll-refresh','appx78.js?v=2360','V1.23.6 attendance payroll refresh module could not be loaded');
