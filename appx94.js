@@ -38,11 +38,11 @@
       #firms .metric-five-v278 .ready-post-v256 small{color:#d8f4ff!important}
       #firms .metric-five-v278 .ready-post-v256 b{color:#ffffff!important}
       #firms .metric-five-v278 .ready-video-v256{
-        background:linear-gradient(145deg,#5a2d73,#3c204f)!important;
-        box-shadow:inset 0 0 0 1px #8550a2,0 0 14px rgba(170,95,215,.10)!important;
+        background:linear-gradient(145deg,#E4E251,#b9b83f)!important;
+        box-shadow:inset 0 0 0 1px #f0ef78,0 0 14px rgba(228,226,81,.12)!important;
       }
-      #firms .metric-five-v278 .ready-video-v256 small{color:#f0dcff!important}
-      #firms .metric-five-v278 .ready-video-v256 b{color:#ffffff!important}
+      #firms .metric-five-v278 .ready-video-v256 small{color:#24251f!important}
+      #firms .metric-five-v278 .ready-video-v256 b{color:#11120f!important}
       #firms .metric-five-v278 .share-metric b{color:#91d47a!important}
       #firms .metric-five-v278 .remain-metric b{color:#e7df3f!important}
       @media(max-width:1280px){
