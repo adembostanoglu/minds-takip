@@ -32,11 +32,11 @@
         margin-top:5px!important;
       }
       #firms .metric-five-v278 .ready-post-v256{
-        background:linear-gradient(145deg,#15506b,#103a4f)!important;
-        box-shadow:inset 0 0 0 1px #287ba0,0 0 14px rgba(53,170,220,.10)!important;
+        background:linear-gradient(145deg,#E4E251,#b9b83f)!important;
+        box-shadow:inset 0 0 0 1px #f0ef78,0 0 14px rgba(228,226,81,.12)!important;
       }
-      #firms .metric-five-v278 .ready-post-v256 small{color:#d8f4ff!important}
-      #firms .metric-five-v278 .ready-post-v256 b{color:#ffffff!important}
+      #firms .metric-five-v278 .ready-post-v256 small{color:#24251f!important}
+      #firms .metric-five-v278 .ready-post-v256 b{color:#11120f!important}
       #firms .metric-five-v278 .ready-video-v256{
         background:linear-gradient(145deg,#E4E251,#b9b83f)!important;
         box-shadow:inset 0 0 0 1px #f0ef78,0 0 14px rgba(228,226,81,.12)!important;
