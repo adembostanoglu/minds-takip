@@ -62,7 +62,7 @@
             <button id="annualLeaveAddV255" class="primary">+ İzin Gir</button>
           </div>
         </div>
-        <div class="info-banner"><b>Takip mantığı:</b> Yıllık hak + devir − kullanılan gün = kalan izin. Hak miktarını yönetici belirler; sistem yasal gün sayısı varsaymaz.</div>
+        <div class="info-banner"><b>Takip mantığı:</b> Yıllık hak + devir − kullanılan gün = kalan izin. Yıllık izin kaydı oluşturulduğunda ilgili çalışma günleri Mesai / Puantaj ekranına otomatik <b>Ücretli İzin</b> olarak işlenir; düzenleme ve silme işlemleri de puantajla senkron gider.</div>
         <div id="annualLeaveCardsV255"></div>
         <section class="panel">
           <div class="panel-head"><div><h3>İzin Geçmişi</h3><p>Seçili yıldaki tüm yıllık izin kullanımları</p></div></div>
@@ -161,7 +161,7 @@
       <div class="field full"><label>Personel</label><select name="person" required>${people.map(p=>`<option value="${p.id}" ${String(p.id)===String(selected)?'selected':''}>${esc(p.full_name)}</option>`).join('')}</select></div>
       <div class="field"><label>Başlangıç Tarihi</label><input name="start" type="date" min="${yearStart(year)}" max="${yearEnd(year)}" value="${row?.start_date||defDate}" required></div>
       <div class="field"><label>Bitiş Tarihi</label><input name="end" type="date" min="${yearStart(year)}" max="${yearEnd(year)}" value="${row?.end_date||defDate}" required></div>
-      <div class="field full"><label>Kullanılan İzin (gün)</label><input name="days" type="number" min="0.5" step="0.5" value="${Number(row?.days_used||1)}" required><div class="field-help">Örn. yarım gün = 0,5 · bir gün = 1 · iki gün = 2. Hafta sonu/tatil hesabını senin girdiğin gün sayısı belirler.</div></div>
+      <div class="field full"><label>Kullanılan İzin (gün)</label><input name="days" type="number" min="0.5" step="0.5" value="${Number(row?.days_used||1)}" required><div class="field-help">Örn. yarım gün = 0,5 · bir gün = 1 · iki gün = 2. Puantaja otomatik işlenir. Pzt–Cuma çalışma günü sayılır; Cumartesi yalnızca o personelin nöbetiyse sayılır, Pazar ve resmî tatil ezilmez.</div></div>
       <div class="field full"><label>Not</label><textarea name="note" rows="3" placeholder="Örn. yıllık izin / şehir dışı">${esc(row?.note||'')}</textarea></div>
       <div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">Kaydet</button></div>
     </div>`,async fd=>{
