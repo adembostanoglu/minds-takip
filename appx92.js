@@ -239,3 +239,50 @@
     }
   });
 })();
+
+
+// V1.25.4 — Açık kalan sekmede takvim ayı değişince seçili ayı güvenli biçimde yeni aya taşır.
+(function bootMonthRolloverGuardV254(){
+  if(window.__mindsMonthRolloverGuardV254)return;
+  if(typeof monthISO!=='function'||typeof loadData!=='function'||typeof selectedMonth==='undefined'){
+    setTimeout(bootMonthRolloverGuardV254,180);return;
+  }
+  window.__mindsMonthRolloverGuardV254=true;
+
+  let calendarMonth=monthISO();
+  let checking=false;
+
+  async function checkMonthRollover(){
+    if(checking)return;
+    const nowMonth=monthISO();
+    if(nowMonth===calendarMonth)return;
+
+    const previousCalendarMonth=calendarMonth;
+    calendarMonth=nowMonth;
+
+    // Kullanıcı ay değişiminden önce güncel ayı görüntülüyorsa yeni aya geçir.
+    // Tarihçe/arşiv için bilinçli olarak daha eski bir ay seçilmişse seçimi bozma.
+    if(String(selectedMonth)!==String(previousCalendarMonth))return;
+
+    checking=true;
+    try{
+      selectedMonth=nowMonth;
+      const picker=document.getElementById('monthPicker');
+      if(typeof isAdmin==='function'&&isAdmin()&&typeof sb!=='undefined'){
+        try{await sb.rpc('ensure_month',{target_month:nowMonth});}catch(_e){}
+      }
+      await loadData();
+      if(picker)picker.value=nowMonth;
+      if(typeof toast==='function'&&typeof prettyMonth==='function')toast('Yeni aya geçildi: '+prettyMonth(nowMonth));
+    }catch(e){
+      console.warn('[Ay geçişi]',e);
+    }finally{
+      checking=false;
+    }
+  }
+
+  setInterval(checkMonthRollover,60000);
+  window.addEventListener('focus',checkMonthRollover);
+  window.addEventListener('pageshow',checkMonthRollover);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkMonthRollover();});
+})();
