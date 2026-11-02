@@ -31,7 +31,12 @@
         font-size:17px!important;
         margin-top:5px!important;
       }
-      #firms .metric-five-v278 .ready-metric-v256 b{color:#83c0ea!important}
+      #firms .metric-five-v278 .ready-post-v256{background:linear-gradient(145deg,#102c3a,#0d2029)!important;box-shadow:inset 0 0 0 1px rgba(79,190,235,.16)}
+      #firms .metric-five-v278 .ready-post-v256 small{color:#8fd5f1!important}
+      #firms .metric-five-v278 .ready-post-v256 b{color:#bfeaff!important}
+      #firms .metric-five-v278 .ready-video-v256{background:linear-gradient(145deg,#2a1838,#1c1227)!important;box-shadow:inset 0 0 0 1px rgba(184,118,229,.16)}
+      #firms .metric-five-v278 .ready-video-v256 small{color:#d3a8ee!important}
+      #firms .metric-five-v278 .ready-video-v256 b{color:#ead2fb!important}
       #firms .metric-five-v278 .share-metric b{color:#91d47a!important}
       #firms .metric-five-v278 .remain-metric b{color:#e7df3f!important}
       @media(max-width:1280px){
@@ -68,8 +73,8 @@
     grid.innerHTML=`
       <div class="mini"><small>Yapılacak Post</small><b>${targetPost}</b></div>
       <div class="mini"><small>Yapılacak Video</small><b>${targetVideo}</b></div>
-      <div class="mini ready-metric-v256"><small>Hazır Post</small><b>${readyPost}</b></div>
-      <div class="mini ready-metric-v256"><small>Hazır Video</small><b>${readyVideo}</b></div>
+      <div class="mini ready-post-v256"><small>Hazır Post</small><b>${readyPost}</b></div>
+      <div class="mini ready-video-v256"><small>Hazır Video</small><b>${readyVideo}</b></div>
       <div class="mini share-metric"><small>Paylaşılan Post</small><b>${sharedPost}</b></div>
       <div class="mini share-metric"><small>Paylaşılan Video</small><b>${sharedVideo}</b></div>
       <div class="mini remain-metric"><small>Kalan</small><b>${remaining}</b></div>
