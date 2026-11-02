@@ -79,8 +79,8 @@
     grid.innerHTML=`
       <div class="mini"><small>Yapılacak Post</small><b>${targetPost}</b></div>
       <div class="mini"><small>Yapılacak Video</small><b>${targetVideo}</b></div>
-      <div class="mini ready-post-v256"><small>Hazır Post</small><b>${readyPost}</b></div>
-      <div class="mini ready-video-v256"><small>Hazır Video</small><b>${readyVideo}</b></div>
+      <div class="mini ${readyPost>0?'ready-post-v256':''}"><small>Hazır Post</small><b>${readyPost}</b></div>
+      <div class="mini ${readyVideo>0?'ready-video-v256':''}"><small>Hazır Video</small><b>${readyVideo}</b></div>
       <div class="mini share-metric"><small>Paylaşılan Post</small><b>${sharedPost}</b></div>
       <div class="mini share-metric"><small>Paylaşılan Video</small><b>${sharedVideo}</b></div>
       <div class="mini remain-metric"><small>Kalan</small><b>${remaining}</b></div>
