@@ -4,11 +4,11 @@
   window.__mindsTeamFirmsTitleGuardV259=true;
 
   function apply(){
-    const nav=document.querySelector('.nav-item[data-view="teamFirms"]');
+    const nav=document.querySelector('.nav-item[data-view="assignmentOverview"]');
     const span=nav?.querySelector('span');
     if(span&&span.textContent!=='Ekip Firmalar')span.textContent='Ekip Firmalar';
 
-    const section=document.getElementById('teamFirms');
+    const section=document.getElementById('assignmentOverview');
     const h2=section?.querySelector('.tf-head-v258 h2, .dist-head-v257 h2, h2');
     if(h2&&h2.textContent!=='Ekip Firmalar')h2.textContent='Ekip Firmalar';
 
@@ -24,7 +24,7 @@
   obs.observe(document.body,{childList:true,subtree:true,characterData:true});
 
   document.addEventListener('click',e=>{
-    if(e.target.closest('[data-view="teamFirms"]'))setTimeout(apply,0);
+    if(e.target.closest('[data-view="assignmentOverview"]'))setTimeout(apply,0);
   },true);
   window.addEventListener('pageshow',apply);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply();});
