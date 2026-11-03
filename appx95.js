@@ -132,7 +132,6 @@
   }
 
   function render(){
-    ensureUi();
     const host=document.getElementById('firmDistributionPeopleV257'),sum=document.getElementById('firmDistributionSummaryV257');
     if(!host||!sum)return;
     const people=activeStaff(),activeCount=(state.firms||[]).filter(f=>f.active).length;
@@ -195,12 +194,12 @@
     let section=document.getElementById('assignmentOverview');
     if(!section){
       section=document.createElement('section');section.id='assignmentOverview';section.className='view';
+      section.innerHTML=`
+        <div class="tf-head-v258"><h2>Ekip Firmalar</h2><p>Kimin hangi firmadan ve hangi görev türünden sorumlu olduğunu tek ekranda gör.</p></div>
+        <div id="firmDistributionSummaryV257" class="tf-top-v258"></div>
+        <div id="firmDistributionPeopleV257" class="tf-people-v258"></div>`;
       document.querySelector('main.main')?.appendChild(section);
     }
-    section.innerHTML=`
-      <div class="tf-head-v258"><h2>Ekip Firmalar</h2><p>Kimin hangi firmadan ve hangi görev türünden sorumlu olduğunu tek ekranda gör.</p></div>
-      <div id="firmDistributionSummaryV257" class="tf-top-v258"></div>
-      <div id="firmDistributionPeopleV257" class="tf-people-v258"></div>`;
   }
 
   const prevRenderAll=typeof renderAll==='function'?renderAll:null;
