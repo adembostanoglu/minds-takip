@@ -38,7 +38,7 @@
       #assignmentOverview .tf-person-head-v258{padding:14px 15px 12px;border-bottom:1px solid #283238;background:linear-gradient(180deg,#151d21,#11181c)}
       #assignmentOverview .tf-person-title-v258{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
       #assignmentOverview .tf-person-title-v258 h3{margin:0;font-size:15px;color:#f3f6f7}
-      #assignmentOverview .tf-person-count-v261{color:#E4E251;font-size:11px;font-weight:900}
+      #assignmentOverview .tf-person-count-v261{display:inline-flex;align-items:center;margin-left:7px;padding:3px 7px;border-radius:999px;background:#E4E251;color:#171912;font-size:10px;font-weight:950;vertical-align:middle}
       #assignmentOverview .tf-person-title-v258 p{margin:4px 0 0;color:#829097;font-size:9px}
       #assignmentOverview .tf-total-v258{min-width:52px;text-align:center;border:1px solid #66651d;background:#20210f;border-radius:9px;padding:6px 8px}
       #assignmentOverview .tf-total-v258 small{display:block;font-size:7px;color:#a8a75c;text-transform:uppercase}
@@ -52,7 +52,8 @@
       #assignmentOverview .tf-kpi-v258.social b{color:#E4E251}
 
       #assignmentOverview .tf-list-v258{padding:8px}
-      #assignmentOverview .tf-row-v258{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-bottom-color:#222c31;border-radius:9px}
+      #assignmentOverview .tf-row-v258{display:grid;grid-template-columns:24px 38px minmax(0,1fr);align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-bottom-color:#222c31;border-radius:9px}
+      #assignmentOverview .tf-row-no-v261{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:#171f23;border:1px solid #303b40;color:#E4E251;font-size:8.5px;font-weight:950}
       #assignmentOverview .tf-row-v258:last-child{border-bottom-color:transparent}
       #assignmentOverview .tf-row-v258:hover{background:#121a1e;border-color:#2b373d}
       #assignmentOverview .tf-logo-v258{width:36px;height:36px;display:flex;align-items:center;justify-content:center}
@@ -74,14 +75,14 @@
       #assignmentOverview .tf-role-head-v261 span{font-size:8px;color:#829097}
       #assignmentOverview .tf-role-head-v261.design b{color:#d3a8ee}
       #assignmentOverview .tf-role-head-v261.video b{color:#8fd5f1}
-      #assignmentOverview .tf-inline-count-v261{font-size:10px;color:#E4E251;margin-left:3px}
+      #assignmentOverview .tf-inline-count-v261{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:#E4E251;color:#171912;font-size:10px;font-weight:950;margin-left:5px}
       #assignmentOverview .tf-role-section-v261 .tf-list-v258{padding:4px 8px 7px}
       #assignmentOverview .tf-empty-v258{padding:22px;text-align:center;color:#718087;font-size:10px}
 
       @media(max-width:1100px){#assignmentOverview .tf-people-v258{grid-template-columns:1fr}}
       @media(max-width:760px){
         #assignmentOverview .tf-top-v258{grid-template-columns:repeat(2,1fr)}
-        #assignmentOverview .tf-row-v258{grid-template-columns:36px minmax(0,1fr)}
+        #assignmentOverview .tf-row-v258{grid-template-columns:24px 36px minmax(0,1fr)}
         #assignmentOverview .tf-badges-v258{grid-column:2;justify-content:flex-start;max-width:none}
       }
     `;document.head.appendChild(s);
@@ -126,8 +127,9 @@
     return `<span class="firm-logo logo-placeholder">${esc(initials)}</span>`;
   }
 
-  function rowHtml(f){
+  function rowHtml(f,index){
     return `<div class="tf-row-v258">
+      <div class="tf-row-no-v261">${index+1}</div>
       <div class="tf-logo-v258">${logoHtml(f)}</div>
       <div class="tf-name-v258"><b>${esc(f.name)}</b><span>${esc(f.sector||'Sektör belirtilmedi')}</span></div>
     </div>`;
@@ -141,7 +143,7 @@
     const cls=isVideo?'video':'design';
     return `<section class="tf-role-section-v261">
       <div class="tf-role-head-v261 ${cls}"><b>${label} <strong class="tf-inline-count-v261">(${firms.length})</strong></b><span>${firms.length} firma</span></div>
-      <div class="tf-list-v258">${firms.map(rowHtml).join('')}</div>
+      <div class="tf-list-v258">${firms.map((f,i)=>rowHtml(f,i)).join('')}</div>
     </section>`;
   }
 
