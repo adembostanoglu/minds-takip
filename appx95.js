@@ -52,7 +52,7 @@
       #assignmentOverview .tf-kpi-v258.social b{color:#E4E251}
 
       #assignmentOverview .tf-list-v258{padding:8px}
-      #assignmentOverview .tf-row-v258{display:grid;grid-template-columns:24px 38px minmax(0,1fr);align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-bottom-color:#222c31;border-radius:9px}
+      #assignmentOverview .tf-row-v258{display:grid;grid-template-columns:24px 38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-bottom-color:#222c31;border-radius:9px}
       #assignmentOverview .tf-row-no-v261{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:#171f23;border:1px solid #303b40;color:#E4E251;font-size:8.5px;font-weight:950}
       #assignmentOverview .tf-row-v258:last-child{border-bottom-color:transparent}
       #assignmentOverview .tf-row-v258:hover{background:#121a1e;border-color:#2b373d}
@@ -62,6 +62,9 @@
       #assignmentOverview .tf-name-v258{min-width:0}
       #assignmentOverview .tf-name-v258 b{display:block;color:#eef2f3;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       #assignmentOverview .tf-name-v258 span{display:block;color:#78868c;font-size:8.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #assignmentOverview .tf-quota-v262{display:inline-flex;align-items:center;justify-content:center;min-width:58px;padding:5px 8px;border-radius:8px;background:#151d21;border:1px solid #303a40;font-size:8.5px;font-weight:950;white-space:nowrap}
+      #assignmentOverview .tf-quota-v262.design{color:#d3a8ee}
+      #assignmentOverview .tf-quota-v262.video{color:#8fd5f1}
       #assignmentOverview .tf-badges-v258{display:flex;justify-content:flex-end;gap:5px;flex-wrap:wrap;max-width:250px}
       #assignmentOverview .tf-badge-v258{display:inline-flex;align-items:center;border-radius:999px;padding:4px 7px;font-size:7.5px;font-weight:900;white-space:nowrap;border:1px solid #354047}
       #assignmentOverview .tf-badge-v258.design{background:#241a31;border-color:#65468a;color:#d1a5fa}
@@ -77,12 +80,20 @@
       #assignmentOverview .tf-role-head-v261.video b{color:#8fd5f1}
       #assignmentOverview .tf-inline-count-v261{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:#E4E251;color:#171912;font-size:10px;font-weight:950;margin-left:5px}
       #assignmentOverview .tf-role-section-v261 .tf-list-v258{padding:4px 8px 7px}
+      #assignmentOverview .tf-role-total-v262{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-top:1px solid #273137;background:#11181c}
+      #assignmentOverview .tf-role-total-v262 span{color:#829097;font-size:8px;font-weight:800}
+      #assignmentOverview .tf-role-total-v262 b{font-size:10px}
+      #assignmentOverview .tf-role-total-v262.design b{color:#d3a8ee}
+      #assignmentOverview .tf-role-total-v262.video b{color:#8fd5f1}
+      #assignmentOverview .tf-person-workload-v262{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 14px 13px;border-top:1px solid #273137;background:#10171b}
+      #assignmentOverview .tf-person-workload-v262 span{color:#839097;font-size:8.5px;font-weight:800}
+      #assignmentOverview .tf-person-workload-v262 b{color:#E4E251;font-size:11px}
       #assignmentOverview .tf-empty-v258{padding:22px;text-align:center;color:#718087;font-size:10px}
 
       @media(max-width:1100px){#assignmentOverview .tf-people-v258{grid-template-columns:1fr}}
       @media(max-width:760px){
         #assignmentOverview .tf-top-v258{grid-template-columns:repeat(2,1fr)}
-        #assignmentOverview .tf-row-v258{grid-template-columns:24px 36px minmax(0,1fr)}
+        #assignmentOverview .tf-row-v258{grid-template-columns:24px 36px minmax(0,1fr) auto}
         #assignmentOverview .tf-badges-v258{grid-column:2;justify-content:flex-start;max-width:none}
       }
     `;document.head.appendChild(s);
@@ -119,6 +130,14 @@
     return out.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'tr'));
   }
 
+  function packageForFirm(f){
+    const fm=(state.months||[]).find(m=>String(m.firm_id)===String(f.id)&&m.month===selectedMonth);
+    return {
+      post:Number(fm?.post_quota??f.default_post_quota??0)||0,
+      video:Number(fm?.video_quota??f.default_video_quota??0)||0
+    };
+  }
+
   function logoHtml(f){
     try{
       if(typeof firmLogo==='function')return firmLogo(f);
@@ -127,11 +146,15 @@
     return `<span class="firm-logo logo-placeholder">${esc(initials)}</span>`;
   }
 
-  function rowHtml(f,index){
+  function rowHtml(f,index,role){
+    const pkg=packageForFirm(f);
+    const isVideo=role==='video';
+    const qty=isVideo?pkg.video:pkg.post;
     return `<div class="tf-row-v258">
       <div class="tf-row-no-v261">${index+1}</div>
       <div class="tf-logo-v258">${logoHtml(f)}</div>
       <div class="tf-name-v258"><b>${esc(f.name)}</b><span>${esc(f.sector||'Sektör belirtilmedi')}</span></div>
+      <div class="tf-quota-v262 ${isVideo?'video':'design'}">${qty} ${isVideo?'Video':'Post'}</div>
     </div>`;
   }
 
@@ -141,9 +164,14 @@
     const isVideo=role==='video';
     const label=isVideo?'Video Firmaları':'Post / Tasarım Firmaları';
     const cls=isVideo?'video':'design';
+    const total=firms.reduce((sum,f)=>{
+      const pkg=packageForFirm(f);
+      return sum+(isVideo?pkg.video:pkg.post);
+    },0);
     return `<section class="tf-role-section-v261">
       <div class="tf-role-head-v261 ${cls}"><b>${label} <strong class="tf-inline-count-v261">(${firms.length})</strong></b><span>${firms.length} firma</span></div>
-      <div class="tf-list-v258">${firms.map((f,i)=>rowHtml(f,i)).join('')}</div>
+      <div class="tf-list-v258">${firms.map((f,i)=>rowHtml(f,i,role)).join('')}</div>
+      <div class="tf-role-total-v262 ${cls}"><span>Liste toplamı</span><b>${total} ${isVideo?'Video':'Post'}</b></div>
     </section>`;
   }
 
@@ -170,6 +198,8 @@
       const unique=new Set([
         ...assignmentsFor(p.id).filter(a=>a.responsibility==='tasarim'||a.responsibility==='video').map(a=>String(a.firm_id))
       ]).size;
+      const postWorkload=firmsForRole(p.id,'tasarim').reduce((sum,f)=>sum+packageForFirm(f).post,0);
+      const videoWorkload=firmsForRole(p.id,'video').reduce((sum,f)=>sum+packageForFirm(f).video,0);
 
       return `<article class="tf-person-v258">
         <div class="tf-person-head-v258">
@@ -184,6 +214,7 @@
         </div>
         ${roleSectionHtml(p.id,'tasarim')}
         ${roleSectionHtml(p.id,'video')}
+        <div class="tf-person-workload-v262"><span>Toplam üretim yükü</span><b>${postWorkload} Post · ${videoWorkload} Video</b></div>
       </article>`;
     }).join('')||'<div class="tf-empty-v258">Post / Tasarım veya Video ataması olan personel yok.</div>';
   }
