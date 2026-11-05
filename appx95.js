@@ -205,12 +205,13 @@
     if(!nav){
       nav=document.createElement('button');
       nav.className='nav-item admin-nav';nav.dataset.view='assignmentOverview';
-      const team=document.querySelector('.nav-item[data-view="team"]');
-      if(team)team.insertAdjacentElement('afterend',nav);
-      else document.querySelector('.sidebar nav')?.appendChild(nav);
+      document.querySelector('.sidebar nav')?.appendChild(nav);
       nav.addEventListener('click',e=>{e.preventDefault();showView();});
+    } else {
+      document.querySelector('.sidebar nav')?.appendChild(nav);
     }
     nav.innerHTML='▦ <span>Ekip Firmalar</span>';
+
 
     let section=document.getElementById('assignmentOverview');
     if(!section){
