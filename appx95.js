@@ -38,6 +38,7 @@
       #assignmentOverview .tf-person-head-v258{padding:14px 15px 12px;border-bottom:1px solid #283238;background:linear-gradient(180deg,#151d21,#11181c)}
       #assignmentOverview .tf-person-title-v258{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
       #assignmentOverview .tf-person-title-v258 h3{margin:0;font-size:15px;color:#f3f6f7}
+      #assignmentOverview .tf-person-count-v261{color:#E4E251;font-size:11px;font-weight:900}
       #assignmentOverview .tf-person-title-v258 p{margin:4px 0 0;color:#829097;font-size:9px}
       #assignmentOverview .tf-total-v258{min-width:52px;text-align:center;border:1px solid #66651d;background:#20210f;border-radius:9px;padding:6px 8px}
       #assignmentOverview .tf-total-v258 small{display:block;font-size:7px;color:#a8a75c;text-transform:uppercase}
@@ -73,6 +74,7 @@
       #assignmentOverview .tf-role-head-v261 span{font-size:8px;color:#829097}
       #assignmentOverview .tf-role-head-v261.design b{color:#d3a8ee}
       #assignmentOverview .tf-role-head-v261.video b{color:#8fd5f1}
+      #assignmentOverview .tf-inline-count-v261{font-size:10px;color:#E4E251;margin-left:3px}
       #assignmentOverview .tf-role-section-v261 .tf-list-v258{padding:4px 8px 7px}
       #assignmentOverview .tf-empty-v258{padding:22px;text-align:center;color:#718087;font-size:10px}
 
@@ -138,7 +140,7 @@
     const label=isVideo?'Video Firmaları':'Post / Tasarım Firmaları';
     const cls=isVideo?'video':'design';
     return `<section class="tf-role-section-v261">
-      <div class="tf-role-head-v261 ${cls}"><b>${label}</b><span>${firms.length} firma</span></div>
+      <div class="tf-role-head-v261 ${cls}"><b>${label} <strong class="tf-inline-count-v261">(${firms.length})</strong></b><span>${firms.length} firma</span></div>
       <div class="tf-list-v258">${firms.map(rowHtml).join('')}</div>
     </section>`;
   }
@@ -170,7 +172,7 @@
       return `<article class="tf-person-v258">
         <div class="tf-person-head-v258">
           <div class="tf-person-title-v258">
-            <div><h3>${esc(p.full_name)}</h3><p>${esc(p.job_title||'Personel')} · üretim sorumluluğundaki firmalar</p></div>
+            <div><h3>${esc(p.full_name)} <span class="tf-person-count-v261">· ${unique} firma</span></h3><p>${esc(p.job_title||'Personel')} · üretim sorumluluğundaki firmalar</p></div>
             <div class="tf-total-v258"><small>Firma</small><b>${unique}</b></div>
           </div>
           <div class="tf-kpis-v258">
