@@ -25,7 +25,7 @@
       #assignmentOverview .tf-head-v258{margin-bottom:15px}
       #assignmentOverview .tf-head-v258 h2{margin:0;font-size:20px}
       #assignmentOverview .tf-head-v258 p{margin:5px 0 0;color:#849198;font-size:10px}
-      #assignmentOverview .tf-top-v258{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 16px}
+      #assignmentOverview .tf-top-v258{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 16px}
       #assignmentOverview .tf-top-card-v258{border:1px solid #29343a;border-radius:11px;background:#10171b;padding:11px 13px}
       #assignmentOverview .tf-top-card-v258 small{display:block;color:#829097;font-size:8px;text-transform:uppercase;letter-spacing:.35px}
       #assignmentOverview .tf-top-card-v258 b{display:block;margin-top:4px;font-size:19px;color:#eef2f3}
@@ -42,7 +42,7 @@
       #assignmentOverview .tf-total-v258{min-width:52px;text-align:center;border:1px solid #66651d;background:#20210f;border-radius:9px;padding:6px 8px}
       #assignmentOverview .tf-total-v258 small{display:block;font-size:7px;color:#a8a75c;text-transform:uppercase}
       #assignmentOverview .tf-total-v258 b{display:block;margin-top:1px;color:#E4E251;font-size:18px}
-      #assignmentOverview .tf-kpis-v258{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
+      #assignmentOverview .tf-kpis-v258{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}
       #assignmentOverview .tf-kpi-v258{border:1px solid #2a3439;border-radius:8px;background:#0e1518;padding:7px 9px}
       #assignmentOverview .tf-kpi-v258 small{display:block;color:#7f8d93;font-size:7.5px}
       #assignmentOverview .tf-kpi-v258 b{display:block;margin-top:3px;font-size:14px}
@@ -67,6 +67,13 @@
       #assignmentOverview .tf-badge-v258.social{background:#24250e;border-color:#69691e;color:#E4E251}
       #assignmentOverview .tf-badge-v258.lead{background:#2c2a0e;border-color:#66611f;color:#f3eb3f}
       #assignmentOverview .tf-badge-v258.other{background:#1a2024;border-color:#3b464c;color:#c0c8cc}
+      #assignmentOverview .tf-role-section-v261{margin:8px;border:1px solid #273137;border-radius:10px;overflow:hidden;background:#0c1215}
+      #assignmentOverview .tf-role-head-v261{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-bottom:1px solid #263036}
+      #assignmentOverview .tf-role-head-v261 b{font-size:9.5px}
+      #assignmentOverview .tf-role-head-v261 span{font-size:8px;color:#829097}
+      #assignmentOverview .tf-role-head-v261.design b{color:#d3a8ee}
+      #assignmentOverview .tf-role-head-v261.video b{color:#8fd5f1}
+      #assignmentOverview .tf-role-section-v261 .tf-list-v258{padding:4px 8px 7px}
       #assignmentOverview .tf-empty-v258{padding:22px;text-align:center;color:#718087;font-size:10px}
 
       @media(max-width:1100px){#assignmentOverview .tf-people-v258{grid-template-columns:1fr}}
@@ -97,14 +104,16 @@
     return new Set(assignmentsFor(pid).filter(a=>a.responsibility===role).map(a=>String(a.firm_id))).size;
   }
 
-  function firmRows(pid){
-    const fm=activeFirmMap(),group=new Map();
-    assignmentsFor(pid).forEach(a=>{
-      const id=String(a.firm_id),f=fm.get(id);if(!f)return;
-      if(!group.has(id))group.set(id,{firm:f,roles:new Set()});
-      group.get(id).roles.add(a.responsibility||'diger');
+  function firmsForRole(pid,role){
+    const fm=activeFirmMap(),seen=new Set(),out=[];
+    assignmentsFor(pid).filter(a=>a.responsibility===role).forEach(a=>{
+      const id=String(a.firm_id);
+      if(seen.has(id))return;
+      seen.add(id);
+      const f=fm.get(id);
+      if(f)out.push(f);
     });
-    return [...group.values()].sort((a,b)=>String(a.firm.name||'').localeCompare(String(b.firm.name||''),'tr'));
+    return out.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'tr'));
   }
 
   function logoHtml(f){
@@ -115,56 +124,64 @@
     return `<span class="firm-logo logo-placeholder">${esc(initials)}</span>`;
   }
 
-  function badgesHtml(roles){
-    return roleOrder.filter(r=>roles.has(r)).map(r=>{
-      const m=roleMeta[r]||roleMeta.diger;
-      return `<span class="tf-badge-v258 ${m.cls}">${esc(m.label)}</span>`;
-    }).join('');
-  }
-
-  function rowHtml(item){
-    const f=item.firm;
+  function rowHtml(f){
     return `<div class="tf-row-v258">
       <div class="tf-logo-v258">${logoHtml(f)}</div>
       <div class="tf-name-v258"><b>${esc(f.name)}</b><span>${esc(f.sector||'Sektör belirtilmedi')}</span></div>
-      <div class="tf-badges-v258">${badgesHtml(item.roles)}</div>
     </div>`;
+  }
+
+  function roleSectionHtml(pid,role){
+    const firms=firmsForRole(pid,role);
+    if(!firms.length)return '';
+    const isVideo=role==='video';
+    const label=isVideo?'Video Firmaları':'Post / Tasarım Firmaları';
+    const cls=isVideo?'video':'design';
+    return `<section class="tf-role-section-v261">
+      <div class="tf-role-head-v261 ${cls}"><b>${label}</b><span>${firms.length} firma</span></div>
+      <div class="tf-list-v258">${firms.map(rowHtml).join('')}</div>
+    </section>`;
   }
 
   function render(){
     const host=document.getElementById('firmDistributionPeopleV257'),sum=document.getElementById('firmDistributionSummaryV257');
     if(!host||!sum)return;
-    const people=activeStaff(),activeCount=(state.firms||[]).filter(f=>f.active).length;
+
+    const allPeople=activeStaff();
+    const people=allPeople.filter(p=>roleCount(p.id,'tasarim')>0||roleCount(p.id,'video')>0);
+    const activeCount=(state.firms||[]).filter(f=>f.active).length;
     const totalPost=people.reduce((n,p)=>n+roleCount(p.id,'tasarim'),0);
     const totalVideo=people.reduce((n,p)=>n+roleCount(p.id,'video'),0);
-    const totalSocial=people.reduce((n,p)=>n+roleCount(p.id,'sosyal_medya'),0);
 
     sum.className='tf-top-v258';
     sum.innerHTML=`
       <div class="tf-top-card-v258"><small>Aktif Firma</small><b>${activeCount}</b></div>
       <div class="tf-top-card-v258 design"><small>Post / Tasarım Ataması</small><b>${totalPost}</b></div>
-      <div class="tf-top-card-v258 video"><small>Video Ataması</small><b>${totalVideo}</b></div>
-      <div class="tf-top-card-v258 social"><small>Sosyal Medya Ataması</small><b>${totalSocial}</b></div>`;
+      <div class="tf-top-card-v258 video"><small>Video Ataması</small><b>${totalVideo}</b></div>`;
 
     host.className='tf-people-v258';
     host.innerHTML=people.map(p=>{
-      const rows=firmRows(p.id);
-      const post=roleCount(p.id,'tasarim'),video=roleCount(p.id,'video'),social=roleCount(p.id,'sosyal_medya');
+      const post=roleCount(p.id,'tasarim');
+      const video=roleCount(p.id,'video');
+      const unique=new Set([
+        ...assignmentsFor(p.id).filter(a=>a.responsibility==='tasarim'||a.responsibility==='video').map(a=>String(a.firm_id))
+      ]).size;
+
       return `<article class="tf-person-v258">
         <div class="tf-person-head-v258">
           <div class="tf-person-title-v258">
-            <div><h3>${esc(p.full_name)}</h3><p>${esc(p.job_title||'Personel')} · sorumlu olduğu aktif firmalar</p></div>
-            <div class="tf-total-v258"><small>Firma</small><b>${rows.length}</b></div>
+            <div><h3>${esc(p.full_name)}</h3><p>${esc(p.job_title||'Personel')} · üretim sorumluluğundaki firmalar</p></div>
+            <div class="tf-total-v258"><small>Firma</small><b>${unique}</b></div>
           </div>
           <div class="tf-kpis-v258">
             <div class="tf-kpi-v258 design"><small>Post / Tasarım</small><b>${post}</b></div>
             <div class="tf-kpi-v258 video"><small>Video</small><b>${video}</b></div>
-            <div class="tf-kpi-v258 social"><small>Sosyal Medya</small><b>${social}</b></div>
           </div>
         </div>
-        <div class="tf-list-v258">${rows.length?rows.map(rowHtml).join(''):'<div class="tf-empty-v258">Aktif firma ataması yok.</div>'}</div>
+        ${roleSectionHtml(p.id,'tasarim')}
+        ${roleSectionHtml(p.id,'video')}
       </article>`;
-    }).join('')||'<div class="tf-empty-v258">Aktif personel yok.</div>';
+    }).join('')||'<div class="tf-empty-v258">Post / Tasarım veya Video ataması olan personel yok.</div>';
   }
 
   function showView(){
@@ -174,7 +191,7 @@
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view==='assignmentOverview'));
     const t=document.getElementById('pageTitle'),s=document.getElementById('pageSub');
     if(t)t.textContent='Ekip Firmalar';
-    if(s)s.textContent='Personel bazında firma, post, video ve sosyal medya sorumlulukları.';
+    if(s)s.textContent='Personel bazında Post / Tasarım ve Video firma sorumlulukları.';
     render();
   }
 
@@ -195,7 +212,7 @@
     if(!section){
       section=document.createElement('section');section.id='assignmentOverview';section.className='view';
       section.innerHTML=`
-        <div class="tf-head-v258"><h2>Ekip Firmalar</h2><p>Kimin hangi firmadan ve hangi görev türünden sorumlu olduğunu tek ekranda gör.</p></div>
+        <div class="tf-head-v258"><h2>Ekip Firmalar</h2><p>Post / Tasarım ve Video firmalarını personel bazında ayrı listelerde gör.</p></div>
         <div id="firmDistributionSummaryV257" class="tf-top-v258"></div>
         <div id="firmDistributionPeopleV257" class="tf-people-v258"></div>`;
       document.querySelector('main.main')?.appendChild(section);
