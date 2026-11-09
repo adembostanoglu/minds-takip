@@ -71,7 +71,7 @@
     document.querySelectorAll('#attendance .att-rule-v160').forEach(card=>{
       if(card.querySelector('b')?.textContent?.trim()!=='Cumartesi')return;
       const p=card.querySelector('p');
-      if(p)p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • Nöbet bilgisi ayrı takip edilir • Otomatik fazla mesai yalnızca <strong>19:30 ve sonrası çıkışlarda</strong> oluşur ve <strong>18:30’dan itibaren</strong> hesaplanır.';
+      if(p)p.innerHTML='<strong>Cumartesi yalnızca nöbetçi personel için normal çalışma günüdür.</strong> Nöbetçi olmayan personelde geç kalma / erken çıkış eksi yazmaz. Nöbetçi personelin normal çalışma saati <strong>09:00–18:30</strong>; 18:30 sonrası fazla mesai kuralı ayrıca uygulanır.';
       let box=card.querySelector('.att-duty-summary-v212');if(!box){box=document.createElement('div');box.className='att-duty-summary-v212';card.appendChild(box);}
       const d=nextSaturday();
       if(isAdminLocal()){
@@ -87,12 +87,21 @@
   function patchTables(){
     document.querySelectorAll('#attendance .att-table-v160,#attDetailDrawerV166 .att-table-v160').forEach(table=>{
       const heads=[...table.querySelectorAll('thead th')].map(x=>String(x.textContent||'').trim().toLocaleLowerCase('tr-TR'));
-      const dateI=heads.indexOf('tarih'),otI=heads.indexOf('fazla mesai'),statusI=heads.indexOf('mesai durumu');
+      const dateI=heads.indexOf('tarih'),lateI=heads.indexOf('geç'),otI=heads.indexOf('fazla mesai'),statusI=heads.indexOf('mesai durumu');
       if(dateI<0||otI<0)return;
       const pid=personForTable(table);if(!pid)return;
       table.querySelectorAll('tbody tr').forEach(tr=>{
         const cells=[...tr.children],date=trToIso(cells[dateI]?.textContent);
+        const saturday=isSaturdayIso(date);
         const duty=isDuty(pid,date);
+        if(saturday&&!duty){
+          delete tr.dataset.saturdayDutyV212;
+          if(lateI>=0&&cells[lateI]){
+            cells[lateI].textContent='—';
+            cells[lateI].classList.remove('neg');
+          }
+          return;
+        }
         if(!duty){delete tr.dataset.saturdayDutyV212;return;}
         tr.dataset.saturdayDutyV212='1';
         if(statusI>=0&&cells[statusI]&&['—','-',''].includes(String(cells[statusI].textContent||'').trim())){
