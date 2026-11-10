@@ -12,7 +12,7 @@
       const title=card.querySelector('b')?.textContent?.trim();
       if(title!=='Cumartesi')return;
       const p=card.querySelector('p');if(!p)return;
-      p.innerHTML='<strong>09:00–13:30</strong> normal çalışma • Otomatik fazla mesai yalnızca <strong>19:30 ve sonrası çıkışlarda</strong> oluşur; süre <strong>18:30’dan itibaren</strong> hesaplanır. Ara mola yok.';
+      p.innerHTML='Cumartesi yalnızca <strong>nöbetçi personelde</strong> otomatik mesai oluşur. Nöbetçi için çıkış <strong>19:30 ve sonrasıysa</strong> fazla mesai <strong>18:30’dan itibaren</strong> hesaplanır. Nöbetçi olmayan personel öğlen çıkabilir; erken çıkış / eksik çalışma yazılmaz.';
     });
   }
 
@@ -23,11 +23,12 @@
     table.querySelectorAll('tbody tr').forEach(tr=>{
       const cells=[...tr.children];if(cells.length<=otI)return;
       const date=cells[dateI]?.textContent.trim();if(!isSaturday(date))return;
+      const isDuty=tr.dataset.saturdayDutyV212==='1';
       const ci=parseTime(cells[inI]?.textContent.trim()),co=parseTime(cells[outI]?.textContent.trim());
       if(ci===null||co===null)return;
       const saturdayTrigger=19*60+30;
       const saturdayBaseline=18*60+30;
-      const ot=co>=saturdayTrigger?Math.max(0,co-saturdayBaseline):0;
+      const ot=isDuty&&co>=saturdayTrigger?Math.max(0,co-saturdayBaseline):0;
       cells[otI].classList.remove('pos');
       if(!ot){
         cells[otI].textContent='—';
