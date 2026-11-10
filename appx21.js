@@ -29,7 +29,7 @@
   load('data-minds-v211-saturday-overtime','appx44.js?v=2850','V1.21.1 Saturday overtime rule module could not be loaded');
   load('data-minds-v181-manual-overtime','appx45.js?v=2850','V1.18.1 manual overtime workflow module could not be loaded');
   load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows module could not be loaded');
-  load('data-minds-v184-weekly-rest','appx47.js?v=1840','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
+  load('data-minds-v184-weekly-rest','appx47.js?v=1841','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state module could not be loaded');
   load('data-minds-v186-agenda-firm-names','appx49.js?v=1860','V1.18.6 staff agenda firm names module could not be loaded');
   load('data-minds-v224-sidebar-integrity','appx56.js?v=2240','V1.22.4 sidebar icon and label integrity module could not be loaded');
