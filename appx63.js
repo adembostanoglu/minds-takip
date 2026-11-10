@@ -71,7 +71,7 @@
     document.querySelectorAll('#attendance .att-rule-v160').forEach(card=>{
       if(card.querySelector('b')?.textContent?.trim()!=='Cumartesi')return;
       const p=card.querySelector('p');
-      if(p)p.innerHTML='<strong>Cumartesi yalnızca nöbetçi personel için normal çalışma günüdür.</strong> Nöbetçi olmayan personelde geç kalma / erken çıkış eksi yazmaz. Nöbetçi personelin normal çalışma saati <strong>09:00–18:30</strong>; 18:30 sonrası fazla mesai kuralı ayrıca uygulanır.';
+      if(p)p.innerHTML='<strong>Cumartesi yalnızca nöbetçi personel için normal çalışma günüdür.</strong> Nöbetçi olmayan personel öğlen çıkabilir; geç kalma / erken çıkış / eksik çalışma yazılmaz. Nöbetçi personelde otomatik fazla mesai yalnızca <strong>19:30 ve sonrası çıkışlarda</strong> oluşur ve süre <strong>18:30’dan itibaren</strong> hesaplanır.';
       let box=card.querySelector('.att-duty-summary-v212');if(!box){box=document.createElement('div');box.className='att-duty-summary-v212';card.appendChild(box);}
       const d=nextSaturday();
       if(isAdminLocal()){
