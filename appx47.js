@@ -53,7 +53,7 @@
     document.querySelectorAll('#attendance .att-rule-v160').forEach(card=>{
       if(card.querySelector('b')?.textContent?.trim()!=='Pazar')return;
       const p=card.querySelector('p');if(!p)return;
-      p.innerHTML='Hafta tatili hakkı yalnızca <strong>45 saat rakamına</strong> bağlı değildir; Pazartesi–Cumartesi için belirlenmiş normal çalışma planının tamamlanması veya kanunen çalışılmış sayılan izin/rapor günleri esas alınır. Mevcut planın net haftalık hedefi sistemde otomatik hesaplanır. Hedef tamamlanmışsa Pazar çalışması <strong>otomatik hafta tatili çalışması</strong> sayılır ve +1,5 yevmiye eklenir. Hedef tamamlanmamışsa hafta tatili primi verilmez; ancak toplam fiili çalışma 45 saati aşmışsa yalnız aşan bölüm <strong>%50 zamlı fazla çalışma</strong> olarak hesaplanır.';
+      p.innerHTML='Hafta tatili hakkı, tatilden önceki <strong>belirlenmiş iş günlerinde çalışılmış olması</strong> ve kanunen çalışılmış sayılan izin / rapor / resmî tatil halleri esas alınarak belirlenir. Hafta tatili gününde çalışma yapılırsa fiilen çalışılan süre <strong>normal saatlik ücretin %50 artırılmış tutarıyla</strong> ödenir. Bu çalışma denkleştirmeyle sıfırlanmaz.';
     });
   }
 
@@ -65,16 +65,16 @@
       const cells=[...tr.children];if(cells.length<=statusI)return;
       const iso=dateIso(cells[dateI]?.textContent);if(!isSunday(iso))return;
       const r=byPersonDate(pid,iso);if(!r)return;
-      const target=Number(r.scheduled_target_minutes||0),credit=Number(r.credited_minutes||0),worked=Number(r.sunday_work_minutes||0),over45=Number(r.excess_45_minutes||0),amount=Number(r.total_amount||0);
+      const worked=Number(r.sunday_work_minutes||0),over45=Number(r.excess_45_minutes||0),amount=Number(r.total_amount||0);
       if(r.qualified){
-        cells[otI].innerHTML=`<span class="att-weekrest-v184 ok">Hafta Tatili • Otomatik</span><span class="att-weekrest-sub-v184">Pazar çalışma: ${minsText(worked)}</span><span class="att-weekrest-sub-v184">Hafta planı: ${minsText(credit)} / ${minsText(target)}</span><span class="att-weekrest-pay-v184">+${money(amount)} hakediş</span>`;
-        cells[statusI].innerHTML='<span class="att-weekrest-v184 ok">Otomatik Hak Kazandı</span>';
+        cells[otI].innerHTML=`<span class="att-weekrest-v184 ok">Hafta Tatili Çalışması</span><span class="att-weekrest-sub-v184">Çalışılan süre: ${minsText(worked)}</span><span class="att-weekrest-sub-v184">%50 artırımlı ücret</span><span class="att-weekrest-pay-v184">+${money(amount)} hakediş</span>`;
+        cells[statusI].innerHTML='<span class="att-weekrest-v184 ok">Hafta Tatili Hakkı Var</span>';
       }else if(over45>0){
-        cells[otI].innerHTML=`<span class="att-weekrest-v184 blue">Pazar Çalışması</span><span class="att-weekrest-sub-v184">Hafta planı: ${minsText(credit)} / ${minsText(target)}</span><span class="att-weekrest-sub-v184">45 saati aşan: ${minsText(over45)}</span><span class="att-weekrest-pay-v184">+${money(amount)} fazla çalışma</span>`;
+        cells[otI].innerHTML=`<span class="att-weekrest-v184 blue">Pazar Çalışması</span><span class="att-weekrest-sub-v184">45 saati aşan: ${minsText(over45)}</span><span class="att-weekrest-pay-v184">+${money(amount)} fazla çalışma</span>`;
         cells[statusI].innerHTML='<span class="att-weekrest-v184 blue">45 Saat Aşımı</span>';
       }else{
-        cells[otI].innerHTML=`<span class="att-weekrest-v184 muted">Pazar Çalışması</span><span class="att-weekrest-sub-v184">Hafta planı: ${minsText(credit)} / ${minsText(target)} • tamamlanmadı</span><span class="att-weekrest-sub-v184">45 saat aşımı da oluşmadı.</span>`;
-        cells[statusI].innerHTML='<span class="att-weekrest-v184 muted">Hafta Tatili Primi Yok</span>';
+        cells[otI].innerHTML=`<span class="att-weekrest-v184 muted">Pazar Çalışması</span><span class="att-weekrest-sub-v184">Hafta tatili hakkı oluşmadı ve 45 saat aşımı yok.</span>`;
+        cells[statusI].innerHTML='<span class="att-weekrest-v184 muted">Hafta Tatili Hakkı Yok</span>';
       }
     });
   }
