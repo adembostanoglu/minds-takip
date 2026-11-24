@@ -12,6 +12,7 @@
     extras:{label:'Ekstra İşler',color:'#9a5be8',icon:'✦'},
     shoots:{label:'Çekimler',color:'#ee8a24',icon:'◉'},
     agenda:{label:'Ajanda',color:'#29c1d0',icon:'▤'},
+    assignmentOverview:{label:'Ekip Firmalar',color:'#E4E251',icon:'▦'},
     attendance:{label:'Mesai',color:'#e75269',icon:'◷'},
     team:{label:'Ekip',color:'#4f9fca',icon:'♙'},
     activity:{label:'Günlük Hareketler',color:'#2ec19c',icon:'◴'},
@@ -24,7 +25,7 @@
 
   const viewMap={
     dashboard:'dashboard',firms:'firms',social:'social',social_media:'social',socialmedia:'social',socialmediatrack:'social',
-    works:'works',tasks:'works',shares:'shares',extras:'extras',shoots:'shoots',agenda:'agenda',agendav150:'agenda',attendance:'attendance',
+    works:'works',tasks:'works',shares:'shares',extras:'extras',shoots:'shoots',agenda:'agenda',agendav150:'agenda',assignmentoverview:'assignmentOverview',attendance:'attendance',
     team:'team',activity:'activity',reports:'reports',performance:'performance',archive:'archive',account:'account',settings:'settings'
   };
 
