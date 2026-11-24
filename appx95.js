@@ -230,18 +230,25 @@
     render();
   }
 
+  function placeNavUnderAgenda(nav){
+    const sidebar=document.querySelector('.sidebar nav');if(!sidebar||!nav)return;
+    const agenda=sidebar.querySelector('.nav-item[data-view="agenda"]');
+    if(agenda){agenda.insertAdjacentElement('afterend',nav);return;}
+    const shoots=sidebar.querySelector('.nav-item[data-view="shoots"]');
+    if(shoots){shoots.insertAdjacentElement('afterend',nav);return;}
+    sidebar.appendChild(nav);
+  }
+
   function ensureUi(){
     installStyle();
     let nav=document.querySelector('.nav-item[data-view="assignmentOverview"]');
     if(!nav){
       nav=document.createElement('button');
       nav.className='nav-item admin-nav';nav.dataset.view='assignmentOverview';
-      document.querySelector('.sidebar nav')?.appendChild(nav);
       nav.addEventListener('click',e=>{e.preventDefault();showView();});
-    } else {
-      document.querySelector('.sidebar nav')?.appendChild(nav);
     }
     nav.innerHTML='▦ <span>Ekip Firmalar</span>';
+    placeNavUnderAgenda(nav);
 
 
     let section=document.getElementById('assignmentOverview');
