@@ -57,11 +57,11 @@
   function patchHeader(){
     const section=document.getElementById('extras');if(!section)return;
     const h=section.querySelector('.section-actions h2'),p=section.querySelector('.section-actions p'),b=document.getElementById('addExtraBtn');
-    if(h)h.textContent=isAdminLocal()?'Ekstra İşler':'Ekstra Görevlerim';
-    if(p)p.textContent=isAdminLocal()?'Ekibe görev ata, teslim tarihini ve ilerleme durumunu takip et.':'Sana atanmış ekstra görevleri başlat, tamamla ve yöneticinin kontrolüne gönder.';
-    if(b)b.textContent=isAdminLocal()?'+ Ekstra İş Ver':'+ Ekstra İş Bildir';
-    const nav=document.querySelector('.nav-item[data-view="extras"] span');if(nav&&!isAdminLocal())nav.textContent='Ekstra Görevlerim';
-    const info=section.querySelector('.info-banner');if(info)info.innerHTML=isAdminLocal()?'<b>Görev akışı:</b> Bekliyor → Devam Ediyor → Kontrol Bekliyor → Tamamlandı. Yalnızca yönetici onayından geçen tamamlanmış işler performansa katkı verir.':'<b>Görev akışı:</b> Sana verilen işi Başladım ile aç, bitirince Tamamladım diyerek yöneticinin kontrolüne gönder.';
+    if(h)h.textContent='Ekstra İşler';
+    if(p)p.textContent='Ekstra işler İş Takibi ekranında paket işlerle birlikte görünür.';
+    if(b)b.textContent='+ Ekstra İş';
+    const nav=document.querySelector('.nav-item[data-view="extras"] span');if(nav)nav.textContent='Ekstra İşler';
+    const info=section.querySelector('.info-banner');if(info)info.innerHTML='<b>Görev akışı:</b> Bekliyor → Devam Ediyor → Tamamlandı. Yönetici onayı gerekmez.';
   }
 
   function ensureKpis(rows){
@@ -132,17 +132,17 @@
       <div class="field"><label>${admin?'Atama Tarihi':'Yapıldığı Tarih'}</label><input name="date" type="date" required value="${defaultDate}"></div>
       <div class="field full"><label>${admin?'Teslim Tarihi':'Teslim / Bildirim Tarihi'}</label><input name="due_date" type="date" required value="${defaultDue}"><div class="field-help">Teslim tarihi geçerse görev otomatik GECİKTİ olarak işaretlenir.</div></div>
       <div class="field full"><label>Not / Açıklama</label><textarea name="notes" rows="3">${esc(x?.notes||'')}</textarea></div>
-      <div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">${x?'Kaydet':(admin?'Görevi Ata':'Kontrole Gönder')}</button></div></div>`,async fd=>{
+      <div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">${x?'Kaydet':(admin?'Görevi Ata':'Kaydet')}</button></div></div>`,async fd=>{
         const targetMode=String(fd.get('target_mode')||'registered'),fid=String(fd.get('firm')||'').trim()||null,external=String(fd.get('external_client')||'').trim(),extraType=String(fd.get('extra_type')||'diger'),personId=String(fd.get('person')||'').trim(),date=String(fd.get('date')||''),due=String(fd.get('due_date')||'');
         if(targetMode==='registered'&&!fid)throw new Error('Kayıtlı firma seçmelisin.');if(targetMode==='external'&&external.length<2)throw new Error('Harici müşteri / kişi adını yazmalısın.');if(!personId)throw new Error('Sorumlu personel seçmelisin.');if(typeof assertSelectedMonthDate==='function'){assertSelectedMonthDate(date,admin?'Atama tarihi':'İş tarihi');assertSelectedMonthDate(due,'Teslim tarihi');}if(due<date)throw new Error('Teslim tarihi atama tarihinden önce olamaz.');const q=Number(fd.get('qty'));if(!Number.isInteger(q)||q<1)throw new Error('Adet en az 1 olmalı.');
         const payload={month:selectedMonth,kind:targetMode==='agency'?'ajans':'firma',firm_id:targetMode==='registered'?fid:null,external_client_name:targetMode==='external'?external:null,extra_work_type:extraType,title:String(fd.get('title')||'').trim(),quantity:q,person_id:personId,work_date:date,due_date:due,notes:String(fd.get('notes')||'').trim()||null};
-        if(x){const {error}=await sb.from('extra_works').update(payload).eq('id',x.id);if(error)throw error;}else{payload.source=admin?'admin':'staff';payload.created_by=profile.id;payload.task_status=admin?'waiting':'review';if(!admin){payload.started_at=new Date().toISOString();payload.submitted_at=new Date().toISOString();}const {error}=await sb.from('extra_works').insert(payload);if(error)throw error;}
+        if(x){const {error}=await sb.from('extra_works').update(payload).eq('id',x.id);if(error)throw error;}else{payload.source=admin?'admin':'staff';payload.created_by=profile.id;payload.task_status=admin?'waiting':'completed';if(!admin){payload.started_at=new Date().toISOString();payload.submitted_at=new Date().toISOString();payload.completed_at=new Date().toISOString();}const {error}=await sb.from('extra_works').insert(payload);if(error)throw error;}
       });
     setTimeout(()=>{const modeSel=document.getElementById('extraTargetModeV215'),reg=document.getElementById('extraRegisteredFirmV215'),ext=document.getElementById('extraExternalClientV215');const sync=()=>{const v=modeSel?.value||'registered';if(reg)reg.style.display=v==='registered'?'':'none';if(ext)ext.style.display=v==='external'?'':'none';};modeSel?.addEventListener('change',sync);sync();},0);
   }
 
   async function rpc(name,args){const {error}=await sb.rpc(name,args);if(error)throw error;await loadData();}
-  function submitTask(id){const x=(state.extras||[]).find(v=>v.id===id);if(!x)return;openModal('Ekstra Görevi Tamamla',`<div class="form-grid"><div class="field full"><div class="info-banner"><b>${esc(x.title)}</b><br>Görevi kontrol için yöneticiye gönderiyorsun.</div></div><div class="field full"><label>Teslim Notu</label><textarea name="note" rows="4" maxlength="500" placeholder="Ne yaptığını / teslim detayını kısaca yaz.">${esc(x.completion_note||'')}</textarea></div><div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">Kontrole Gönder</button></div></div>`,async fd=>{const {error}=await sb.rpc('extra_work_submit',{p_extra_id:id,p_note:String(fd.get('note')||'').trim()||null});if(error)throw error;});}
+  function submitTask(id){const x=(state.extras||[]).find(v=>v.id===id);if(!x)return;openModal('Ekstra İşi Tamamla',`<div class="form-grid"><div class="field full"><div class="info-banner"><b>${esc(x.title)}</b><br>İşi tamamlandı olarak kaydediyorsun.</div></div><div class="field full"><label>Teslim Notu</label><textarea name="note" rows="4" maxlength="500" placeholder="Ne yaptığını / teslim detayını kısaca yaz.">${esc(x.completion_note||'')}</textarea></div><div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">Tamamlandı Yap</button></div></div>`,async fd=>{const {error}=await sb.rpc('extra_work_submit',{p_extra_id:id,p_note:String(fd.get('note')||'').trim()||null});if(error)throw error;});}
 
   document.addEventListener('click',async e=>{
     const start=e.target.closest('[data-extra-start-v215]');if(start){e.preventDefault();try{await rpc('extra_work_start',{p_extra_id:start.dataset.extraStartV215});toast('Görev Devam Ediyor durumuna alındı.');}catch(err){toast(friendlyError(err),true);}return;}
