@@ -33,8 +33,14 @@
       #assignmentOverview .tf-top-card-v258.video b{color:#8fd5f1}
       #assignmentOverview .tf-top-card-v258.social b{color:#E4E251}
 
-      #assignmentOverview .tf-people-v258{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+      #assignmentOverview .tf-people-v258{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
       #assignmentOverview .tf-person-v258{border:1px solid #2b363c;border-radius:14px;background:#0e1417;overflow:hidden}
+      #assignmentOverview .tf-person-columns-v303{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px}
+      #assignmentOverview .tf-person-columns-v303 .tf-role-section-v261{margin:0;display:flex;flex-direction:column;min-width:0}
+      #assignmentOverview .tf-person-columns-v303 .tf-list-v258{flex:1;max-height:390px;overflow:auto;scrollbar-width:thin;scrollbar-color:#39444a transparent}
+      #assignmentOverview .tf-person-columns-v303 .tf-list-v258::-webkit-scrollbar{width:6px}
+      #assignmentOverview .tf-person-columns-v303 .tf-list-v258::-webkit-scrollbar-thumb{background:#39444a;border-radius:8px}
+      #assignmentOverview .tf-role-empty-v303{display:flex;align-items:center;justify-content:center;min-height:104px;margin:8px;border:1px dashed #303a40;border-radius:9px;background:#0f1518;color:#6f7d83;font-size:9px;text-align:center}
       #assignmentOverview .tf-person-head-v258{padding:14px 15px 12px;border-bottom:1px solid #283238;background:linear-gradient(180deg,#151d21,#11181c)}
       #assignmentOverview .tf-person-title-v258{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
       #assignmentOverview .tf-person-title-v258 h3{margin:0;font-size:15px;color:#f3f6f7}
@@ -85,16 +91,21 @@
       #assignmentOverview .tf-role-total-v262 b{font-size:10px}
       #assignmentOverview .tf-role-total-v262.design b{color:#d3a8ee}
       #assignmentOverview .tf-role-total-v262.video b{color:#8fd5f1}
-      #assignmentOverview .tf-person-workload-v262{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 14px 13px;border-top:1px solid #273137;background:#10171b}
+      #assignmentOverview .tf-person-workload-v262{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px 13px;border-top:1px solid #273137;background:#10171b}
       #assignmentOverview .tf-person-workload-v262 span{color:#839097;font-size:8.5px;font-weight:800}
       #assignmentOverview .tf-person-workload-v262 b{color:#E4E251;font-size:11px}
       #assignmentOverview .tf-empty-v258{padding:22px;text-align:center;color:#718087;font-size:10px}
 
-      @media(max-width:1100px){#assignmentOverview .tf-people-v258{grid-template-columns:1fr}}
+      @media(max-width:1100px){
+        #assignmentOverview .tf-person-columns-v303{grid-template-columns:1fr}
+        #assignmentOverview .tf-person-columns-v303 .tf-list-v258{max-height:none}
+      }
       @media(max-width:760px){
         #assignmentOverview .tf-top-v258{grid-template-columns:repeat(2,1fr)}
         #assignmentOverview .tf-row-v258{grid-template-columns:24px 36px minmax(0,1fr) auto}
         #assignmentOverview .tf-badges-v258{grid-column:2;justify-content:flex-start;max-width:none}
+        #assignmentOverview .tf-person-title-v258{align-items:center}
+        #assignmentOverview .tf-total-v258{display:none}
       }
     `;document.head.appendChild(s);
   }
@@ -160,7 +171,6 @@
 
   function roleSectionHtml(pid,role){
     const firms=firmsForRole(pid,role);
-    if(!firms.length)return '';
     const isVideo=role==='video';
     const label=isVideo?'Video Firmaları':'Post / Tasarım Firmaları';
     const cls=isVideo?'video':'design';
@@ -170,8 +180,10 @@
     },0);
     return `<section class="tf-role-section-v261">
       <div class="tf-role-head-v261 ${cls}"><b>${label} <strong class="tf-inline-count-v261">(${firms.length})</strong></b><span>${firms.length} firma</span></div>
-      <div class="tf-list-v258">${firms.map((f,i)=>rowHtml(f,i,role)).join('')}</div>
-      <div class="tf-role-total-v262 ${cls}"><span>Liste toplamı</span><b>${total} ${isVideo?'Video':'Post'}</b></div>
+      ${firms.length
+        ? `<div class="tf-list-v258">${firms.map((f,i)=>rowHtml(f,i,role)).join('')}</div>`
+        : `<div class="tf-role-empty-v303">${isVideo?'Video firması atanmadı.':'Post / Tasarım firması atanmadı.'}</div>`}
+      <div class="tf-role-total-v262 ${cls}"><span>Toplam üretim</span><b>${total} ${isVideo?'Video':'Post'}</b></div>
     </section>`;
   }
 
@@ -212,9 +224,11 @@
             <div class="tf-kpi-v258 video"><small>Video</small><b>${video}</b></div>
           </div>
         </div>
-        ${roleSectionHtml(p.id,'tasarim')}
-        ${roleSectionHtml(p.id,'video')}
-        <div class="tf-person-workload-v262"><span>Toplam üretim yükü</span><b>${postWorkload} Post · ${videoWorkload} Video</b></div>
+        <div class="tf-person-columns-v303">
+          ${roleSectionHtml(p.id,'tasarim')}
+          ${roleSectionHtml(p.id,'video')}
+        </div>
+        <div class="tf-person-workload-v262"><span>Aylık toplam üretim yükü</span><b>${postWorkload} Post · ${videoWorkload} Video</b></div>
       </article>`;
     }).join('')||'<div class="tf-empty-v258">Post / Tasarım veya Video ataması olan personel yok.</div>';
   }
