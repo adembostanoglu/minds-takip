@@ -159,8 +159,7 @@
       extraBtn.classList.remove('admin-only');
       if(packageBtn&&extraBtn.parentElement!==packageBtn.parentElement)packageBtn.insertAdjacentElement('afterend',extraBtn);
     }
-    var extraNav=document.querySelector('.nav-item[data-view="extras"]');
-    if(extraNav)extraNav.style.display='none';
+    document.querySelectorAll('.sidebar .nav-item[data-view="extras"]').forEach(function(extraNav){extraNav.remove();});
     var extraSection=document.getElementById('extras');
     if(extraSection)extraSection.dataset.mergedIntoWorks='1';
   }
