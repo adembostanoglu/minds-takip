@@ -120,6 +120,7 @@
   function openExtraModalV215(x=null){
     if(x&&!canEditMeta(x))return toast('Bu görevin ayrıntılarını düzenleme yetkin yok.',true);
     const admin=isAdminLocal(),available=typeof activeFirms==='function'?activeFirms():(state.firms||[]).filter(f=>f.active),mode=x?.kind==='ajans'?'agency':x?.external_client_name?'external':'registered',selectedPerson=x?.person_id||profile?.id,selectedType=x?.extra_work_type||'diger';
+    const selectedStatus=x?.task_status==='review'?'completed':(x?.task_status||(admin?'waiting':'completed'));
     const defaultDate=x?.work_date||(typeof defaultDateForSelectedMonth==='function'?defaultDateForSelectedMonth():today()),defaultDue=x?.due_date||defaultDate;
     openModal(x?'Ekstra Görevi Düzenle':(admin?'Ekstra İş Ver':'Ekstra İş Bildir'),`<div class="form-grid">
       <div class="field full"><label>İş Kimin İçin?</label><select name="target_mode" id="extraTargetModeV215"><option value="registered" ${mode==='registered'?'selected':''}>Kayıtlı Firma</option><option value="external" ${mode==='external'?'selected':''}>Harici Müşteri / Kişi</option><option value="agency" ${mode==='agency'?'selected':''}>Ajans İçi</option></select></div>
@@ -127,16 +128,26 @@
       <div class="field full" id="extraExternalClientV215"><label>Harici Müşteri / Kişi Adı</label><input name="external_client" maxlength="120" value="${esc(x?.external_client_name||'')}"></div>
       ${admin?`<div class="field full"><label>Sorumlu Personel</label><select name="person" required><option value="">Sorumlu seç</option>${activeStaff().map(p=>`<option value="${p.id}" ${p.id===selectedPerson?'selected':''}>${esc(p.full_name)}</option>`).join('')}</select><div class="field-help">Görev kaydedildiği anda personelin Ekstra Görevlerim ekranına düşer.</div></div>`:`<input type="hidden" name="person" value="${profile.id}">`}
       <div class="field full"><label>Ekstra İş Türü</label><select name="extra_type">${Object.entries(typeMeta).map(([k,v])=>`<option value="${k}" ${k===selectedType?'selected':''}>${esc(v[0])} · ${esc(v[1])}</option>`).join('')}</select></div>
+      <div class="field full"><label>Durum</label><select name="task_status"><option value="waiting" ${selectedStatus==='waiting'?'selected':''}>Bekliyor</option><option value="in_progress" ${selectedStatus==='in_progress'?'selected':''}>Devam Ediyor</option><option value="completed" ${selectedStatus==='completed'?'selected':''}>Tamamlandı</option></select></div>
       <div class="field full"><label>Görev / Yapılacak İş</label><input name="title" required value="${esc(x?.title||'')}" placeholder="Örn. Reels edit / katalog tasarımı"></div>
       <div class="field"><label>Adet</label><input name="qty" type="number" min="1" step="1" required value="${x?.quantity??1}"></div>
       <div class="field"><label>${admin?'Atama Tarihi':'Yapıldığı Tarih'}</label><input name="date" type="date" required value="${defaultDate}"></div>
       <div class="field full"><label>${admin?'Teslim Tarihi':'Teslim / Bildirim Tarihi'}</label><input name="due_date" type="date" required value="${defaultDue}"><div class="field-help">Teslim tarihi geçerse görev otomatik GECİKTİ olarak işaretlenir.</div></div>
       <div class="field full"><label>Not / Açıklama</label><textarea name="notes" rows="3">${esc(x?.notes||'')}</textarea></div>
       <div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button class="primary" type="submit">${x?'Kaydet':(admin?'Görevi Ata':'Kaydet')}</button></div></div>`,async fd=>{
-        const targetMode=String(fd.get('target_mode')||'registered'),fid=String(fd.get('firm')||'').trim()||null,external=String(fd.get('external_client')||'').trim(),extraType=String(fd.get('extra_type')||'diger'),personId=String(fd.get('person')||'').trim(),date=String(fd.get('date')||''),due=String(fd.get('due_date')||'');
+        const targetMode=String(fd.get('target_mode')||'registered'),fid=String(fd.get('firm')||'').trim()||null,external=String(fd.get('external_client')||'').trim(),extraType=String(fd.get('extra_type')||'diger'),taskStatus=String(fd.get('task_status')||'completed'),personId=String(fd.get('person')||'').trim(),date=String(fd.get('date')||''),due=String(fd.get('due_date')||'');
         if(targetMode==='registered'&&!fid)throw new Error('Kayıtlı firma seçmelisin.');if(targetMode==='external'&&external.length<2)throw new Error('Harici müşteri / kişi adını yazmalısın.');if(!personId)throw new Error('Sorumlu personel seçmelisin.');if(typeof assertSelectedMonthDate==='function'){assertSelectedMonthDate(date,admin?'Atama tarihi':'İş tarihi');assertSelectedMonthDate(due,'Teslim tarihi');}if(due<date)throw new Error('Teslim tarihi atama tarihinden önce olamaz.');const q=Number(fd.get('qty'));if(!Number.isInteger(q)||q<1)throw new Error('Adet en az 1 olmalı.');
-        const payload={month:selectedMonth,kind:targetMode==='agency'?'ajans':'firma',firm_id:targetMode==='registered'?fid:null,external_client_name:targetMode==='external'?external:null,extra_work_type:extraType,title:String(fd.get('title')||'').trim(),quantity:q,person_id:personId,work_date:date,due_date:due,notes:String(fd.get('notes')||'').trim()||null};
-        if(x){const {error}=await sb.from('extra_works').update(payload).eq('id',x.id);if(error)throw error;}else{payload.source=admin?'admin':'staff';payload.created_by=profile.id;payload.task_status=admin?'waiting':'completed';if(!admin){payload.started_at=new Date().toISOString();payload.submitted_at=new Date().toISOString();payload.completed_at=new Date().toISOString();}const {error}=await sb.from('extra_works').insert(payload);if(error)throw error;}
+        if(!['waiting','in_progress','completed'].includes(taskStatus))throw new Error('Geçerli bir durum seçmelisin.');
+        const nowIso=new Date().toISOString();
+        const payload={month:selectedMonth,kind:targetMode==='agency'?'ajans':'firma',firm_id:targetMode==='registered'?fid:null,external_client_name:targetMode==='external'?external:null,extra_work_type:extraType,title:String(fd.get('title')||'').trim(),quantity:q,person_id:personId,work_date:date,due_date:due,notes:String(fd.get('notes')||'').trim()||null,task_status:taskStatus};
+        if(taskStatus==='waiting'){
+          payload.started_at=null;payload.submitted_at=null;payload.completed_at=null;payload.completion_note=null;
+        }else if(taskStatus==='in_progress'){
+          payload.started_at=x?.started_at||nowIso;payload.submitted_at=null;payload.completed_at=null;payload.completion_note=null;
+        }else{
+          payload.started_at=x?.started_at||nowIso;payload.submitted_at=x?.submitted_at||nowIso;payload.completed_at=x?.task_status==='completed'&&x?.completed_at?x.completed_at:nowIso;
+        }
+        if(x){const {error}=await sb.from('extra_works').update(payload).eq('id',x.id);if(error)throw error;}else{payload.source=admin?'admin':'staff';payload.created_by=profile.id;const {error}=await sb.from('extra_works').insert(payload);if(error)throw error;}
       });
     setTimeout(()=>{const modeSel=document.getElementById('extraTargetModeV215'),reg=document.getElementById('extraRegisteredFirmV215'),ext=document.getElementById('extraExternalClientV215');const sync=()=>{const v=modeSel?.value||'registered';if(reg)reg.style.display=v==='registered'?'':'none';if(ext)ext.style.display=v==='external'?'':'none';};modeSel?.addEventListener('change',sync);sync();},0);
   }
