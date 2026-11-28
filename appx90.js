@@ -138,10 +138,12 @@
     const {error}=await sb.from('attendance_overtime_entries').update(payload).eq('person_id',pid).eq('work_date',date);
     if(error)throw error;
     if(typeof toast==='function')toast(value?'Ek mesai onaylandı.':'Ek mesai onayı kaldırıldı.');
+    document.dispatchEvent(new CustomEvent('minds:attendance-payroll-refresh'));
     loadedMonth='';
     const picker=document.getElementById('monthPicker');
     if(picker)picker.dispatchEvent(new Event('change',{bubbles:true}));
     setTimeout(()=>load(true),180);
+    setTimeout(()=>document.dispatchEvent(new CustomEvent('minds:attendance-payroll-refresh')),320);
   }
 
   document.addEventListener('click',e=>{
