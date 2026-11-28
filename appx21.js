@@ -33,7 +33,7 @@
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state module could not be loaded');
   load('data-minds-v186-agenda-firm-names','appx49.js?v=1860','V1.18.6 staff agenda firm names module could not be loaded');
   load('data-minds-v224-sidebar-integrity','appx56.js?v=2241','V1.22.4 sidebar icon and label integrity module could not be loaded');
-  load('data-minds-v199-intraday-leave','appx57.js?v=3080','V1.19.9 intraday leave workflow module could not be loaded');
+  load('data-minds-v199-intraday-leave','appx57.js?v=3090','V1.19.9 intraday leave workflow module could not be loaded');
   load('data-minds-v206-firm-responsibilities','appx59.js?v=2850','V1.20.6 complete firm responsibility and staff role grouping module could not be loaded');
   load('data-minds-v207-admin-social-nav','appx60.js?v=2070','V1.20.7 admin-only social media navigation module could not be loaded');
   load('data-minds-v208-package-quota-guard','appx61.js?v=2080','V1.20.8 package quota warning module could not be loaded');
