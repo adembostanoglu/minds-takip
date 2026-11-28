@@ -6,7 +6,7 @@
   if(window.__mindsAttendancePayrollV160) return;
   window.__mindsAttendancePayrollV160=true;
 
-  let settings=null,records=[],dayStatuses=[],adjustments=[],salaryRates=[],payroll=[],saturdayDutyRows=[];
+  let settings=null,records=[],dayStatuses=[],adjustments=[],salaryRates=[],payroll=[];
   let loading=false, selectedPersonId=null, attendanceChannel=null;
   const TZ='Europe/Istanbul';
   const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
@@ -33,29 +33,19 @@
   function minsText(v){const n=Math.max(0,Math.round(Number(v||0)));const h=Math.floor(n/60),m=n%60;if(!h)return `${m} dk`;if(!m)return `${h} sa`;return `${h} sa ${m} dk`;}
   function dow(date){return new Date(`${date}T12:00:00Z`).getUTCDay();}
   function localMinutes(ts){if(!ts)return null;const p=tzParts(ts);return Number(p.hour)*60+Number(p.minute);}
-  function timeValueMinutes(v,fallback=0){if(v==null)return fallback;const p=String(v).split(':').map(Number);return Number.isFinite(p[0])&&Number.isFinite(p[1])?p[0]*60+p[1]:fallback;}
-  function isSaturdayDuty(pid,date){return saturdayDutyRows.some(x=>String(x.person_id)===String(pid)&&x.duty_date===date);}
   function statusFor(pid,date){return dayStatuses.find(x=>x.person_id===pid&&x.status_date===date);}
   function lateMinutes(r){
     if(!r?.clock_in||r.mode==='field')return 0;
     const ds=statusFor(r.person_id,r.work_date); if(ds&&ds.status!=='absent'&&Number(ds.day_fraction||1)>=1)return 0;
-    const d=dow(r.work_date);
-    if(d===0)return 0;
-    if(d===6&&!isSaturdayDuty(r.person_id,r.work_date))return 0;
+    const d=dow(r.work_date); if(d===0)return 0;
     const t=localMinutes(r.clock_in); return t>=550?Math.max(0,t-510):0;
   }
   function overtimeMinutes(r){
     if(!r?.clock_out)return 0;
-    const d=dow(r.work_date),t=localMinutes(r.clock_out);if(t==null)return 0;
-    const trigger=timeValueMinutes(settings?.weekday_overtime_trigger,19*60+30);
-    const baseline=timeValueMinutes(settings?.weekday_overtime_baseline,18*60+30);
-    if(d>=1&&d<=5)return t>=trigger?Math.max(0,t-baseline):0;
-    if(d===6){
-      if(isSaturdayDuty(r.person_id,r.work_date))return t>=trigger?Math.max(0,t-baseline):0;
-      const saturdayEnd=timeValueMinutes(settings?.saturday_end,13*60+30);
-      return t>saturdayEnd?Math.max(0,t-saturdayEnd):0;
-    }
-    return 0;
+    const d=dow(r.work_date);
+    if(d<1||d>5)return 0;
+    const t=localMinutes(r.clock_out);
+    return t>=1170?Math.max(0,t-1110):0;
   }
   function personNameLocal(id){return (state.profiles||[]).find(p=>p.id===id)?.full_name||'Personel';}
   function activePeople(){return (state.profiles||[]).filter(p=>p.active);}
@@ -107,12 +97,11 @@
         sb.from('attendance_day_status').select('*').gte('status_date',start).lt('status_date',end).order('status_date',{ascending:false}),
         sb.from('payroll_adjustments').select('*').eq('month',start).order('created_at',{ascending:false}),
         sb.from('salary_rates').select('*').lte('effective_from',monthEnd()).order('effective_from',{ascending:false}),
-        sb.from('attendance_saturday_duty').select('person_id,duty_date').gte('duty_date',start).lt('duty_date',end),
         sb.rpc('payroll_preview',{p_month:start,p_person_id:null})
       ];
-      const [a,b,c,d,e,f,g]=await Promise.all(req);
-      [a,b,c,d,e,f,g].forEach(r=>{if(r.error)throw r.error;});
-      settings=a.data;records=b.data||[];dayStatuses=c.data||[];adjustments=d.data||[];salaryRates=e.data||[];saturdayDutyRows=f.data||[];payroll=g.data||[];
+      const [a,b,c,d,e,f]=await Promise.all(req);
+      [a,b,c,d,e,f].forEach(r=>{if(r.error)throw r.error;});
+      settings=a.data;records=b.data||[];dayStatuses=c.data||[];adjustments=d.data||[];salaryRates=e.data||[];payroll=f.data||[];
       if(!selectedPersonId||!(state.profiles||[]).some(p=>p.id===selectedPersonId&&p.active)){
         selectedPersonId=isAdmin()?((state.profiles||[]).find(p=>p.active&&p.role!=='admin')?.id||profile.id):profile.id;
       }
@@ -124,7 +113,7 @@
   function subscribeAttendance(){
     if(attendanceChannel)return;
     attendanceChannel=sb.channel('minds-attendance-v160');
-    ['attendance_records','attendance_day_status','payroll_adjustments','salary_rates','attendance_saturday_duty'].forEach(table=>attendanceChannel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
+    ['attendance_records','attendance_day_status','payroll_adjustments','salary_rates'].forEach(table=>attendanceChannel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
       if(document.getElementById('attendance')?.classList.contains('active-view'))setTimeout(loadAttendance,120);
     }));
     attendanceChannel.subscribe();
