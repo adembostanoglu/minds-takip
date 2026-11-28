@@ -143,7 +143,21 @@
     section.innerHTML=`<div class="att-intraday-head-v199"><div class="att-intraday-title-v199"><b>Saatlik İzinler</b><span>Bu ay toplam ${esc(minsText(total))} · Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</span></div>${canAdd?`<button type="button" class="att-intraday-add-v199" data-att-intraday-add="${pid}">+ Saatlik İzin Ekle</button>`:''}</div><div class="att-intraday-list-v199">${rows}</div>`;
   }
 
-  function patchDetailSections(){detailHosts().forEach(x=>renderSection(x.body,x.pid));}
+  function patchDetailSummary(body,pid){
+    if(!body||!pid)return;
+    const summary=body.querySelector('.att-detail-summary-v160');if(!summary)return;
+    summary.querySelector('.att-intraday-summary-v306')?.remove();
+    const mine=entries.filter(x=>String(x.person_id)===String(pid)&&x.end_at);
+    const paid=mine.filter(x=>x.leave_type==='paid').reduce((s,x)=>s+durationMinutes(x,false),0);
+    const unpaid=mine.filter(x=>x.leave_type==='unpaid').reduce((s,x)=>s+durationMinutes(x,false),0);
+    const total=paid+unpaid;
+    const card=document.createElement('div');
+    card.className='att-detail-item-v160 att-intraday-summary-v306';
+    card.innerHTML=`<small>Saatlik İzin</small><b>${esc(minsText(total))}</b><span style="display:block;margin-top:3px;font-size:7.5px;color:#849197">Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</span>`;
+    summary.appendChild(card);
+  }
+
+  function patchDetailSections(){detailHosts().forEach(x=>{renderSection(x.body,x.pid);patchDetailSummary(x.body,x.pid);});}
 
   function patchTodayCard(){
     if(isAdminLocal())return;
