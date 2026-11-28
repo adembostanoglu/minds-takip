@@ -102,7 +102,10 @@
   async function approve(pid,date,value){
     const payload={approved:value,approved_by:value?profile.id:null,approved_at:value?new Date().toISOString():null,updated_at:new Date().toISOString()};
     const {error}=await sb.from('attendance_overtime_entries').update(payload).eq('person_id',pid).eq('work_date',date);if(error)throw error;
-    if(typeof toast==='function')toast(value?'Ek mesai onaylandı.':'Ek mesai onayı kaldırıldı.');month='';schedule(true);
+    if(typeof toast==='function')toast(value?'Ek mesai onaylandı.':'Ek mesai onayı kaldırıldı.');
+    document.dispatchEvent(new CustomEvent('minds:attendance-payroll-refresh'));
+    month='';schedule(true);
+    setTimeout(()=>document.dispatchEvent(new CustomEvent('minds:attendance-payroll-refresh')),320);
   }
 
   document.addEventListener('click',e=>{
