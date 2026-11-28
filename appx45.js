@@ -141,7 +141,7 @@
       table.querySelectorAll('tbody tr').forEach(tr=>{
         const cells=[...tr.children];if(cells.length<=otI)return;
         cells[otI].querySelectorAll('.att-manual-overtime-v181').forEach(x=>x.remove());
-        const t=cells[dateI]?.textContent.trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(!t)return;
+        const t=cells[dateI]?.textContent.trim().match(/(\d{2})\.(\d{2})\.(\d{4})/);if(!t)return;
         const iso=`${t[3]}-${t[2]}-${t[1]}`;
         const arr=entries.filter(x=>String(x.person_id)===String(pid)&&x.work_date===iso);if(!arr.length)return;
         const total=arr.reduce((s,x)=>s+duration(x),0),allApproved=arr.every(x=>x.approved);
