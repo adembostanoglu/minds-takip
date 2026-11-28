@@ -114,7 +114,9 @@
     const payload={approved:value,approved_by:value?profile.id:null,approved_at:value?new Date().toISOString():null,updated_at:new Date().toISOString()};
     const {error}=await sb.from('attendance_overtime_entries').update(payload).eq('id',id);if(error){if(typeof toast==='function')toast(error.message,true);return;}
     if(typeof toast==='function')toast(value?'Ek mesai onaylandı.':'Ek mesai onayı kaldırıldı.');
+    document.dispatchEvent(new CustomEvent('minds:attendance-payroll-refresh'));
     loadedMonth='';await loadEntries(true);triggerAttendanceRefresh();
+    setTimeout(()=>document.dispatchEvent(new CustomEvent('minds:attendance-payroll-refresh')),250);
   }
 
   async function remove(id){
