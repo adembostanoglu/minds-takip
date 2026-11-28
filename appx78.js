@@ -50,8 +50,9 @@
     }catch(e){console.warn('Hakediş anlık yenileme',e);}
   }
 
-  function schedule(){[260,650,1100].forEach(ms=>setTimeout(refreshPayroll,ms));}
+  function schedule(){[180,420,850,1400].forEach(ms=>setTimeout(refreshPayroll,ms));}
   document.addEventListener('click',e=>{
-    if(e.target.closest('#attDetailDrawerV166 [data-v235-normal],#attDetailDrawerV166 [data-v235-manual-id],#attDetailDrawerV166 [data-v235-manual-date]'))schedule();
+    if(e.target.closest('[data-manual-approve-v181],[data-manual-day-v249],#attDetailDrawerV166 [data-v235-normal],#attDetailDrawerV166 [data-v235-manual-id],#attDetailDrawerV166 [data-v235-manual-date]'))schedule();
   },true);
+  document.addEventListener('minds:attendance-payroll-refresh',()=>schedule());
 })();
