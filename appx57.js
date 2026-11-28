@@ -41,11 +41,17 @@
       #attendance .att-intraday-start-v199{border:1px solid #5b5520!important;background:#29270c!important;color:#eee52b!important}
       #attendance .att-intraday-end-v199{border:1px solid #276a52!important;background:#123526!important;color:#8fe0b6!important}
       #attendance #attClockOutV160.att-intraday-disabled-v199{opacity:.42!important;cursor:not-allowed!important;filter:saturate(.5)}
-      #attendance .att-intraday-day-v199,#attDetailDrawerV166 .att-intraday-day-v199{margin-top:5px;display:grid;gap:4px;white-space:normal!important}
-      #attendance .att-intraday-chip-v199,#attDetailDrawerV166 .att-intraday-chip-v199{display:inline-flex;align-items:center;gap:5px;max-width:100%;width:max-content;padding:4px 6px;border-radius:7px;border:1px solid #3b454a;background:#171e22;color:#cfd7da;font-size:8.2px;font-weight:750;line-height:1.35;white-space:normal!important}
-      #attendance .att-intraday-chip-v199.paid,#attDetailDrawerV166 .att-intraday-chip-v199.paid{border-color:#315e48;background:#142a20;color:#8dd3a8}
-      #attendance .att-intraday-chip-v199.unpaid,#attDetailDrawerV166 .att-intraday-chip-v199.unpaid{border-color:#6b4b27;background:#2d2113;color:#e7bc72}
-      #attendance .att-intraday-chip-v199.open,#attDetailDrawerV166 .att-intraday-chip-v199.open{box-shadow:0 0 0 1px rgba(238,229,43,.15);border-color:#696323;color:#eee572}
+      #attendance th.att-hourly-leave-head-v308,#attDetailDrawerV166 th.att-hourly-leave-head-v308{min-width:112px}
+      #attendance td.att-hourly-leave-cell-v308,#attDetailDrawerV166 td.att-hourly-leave-cell-v308{min-width:112px;vertical-align:middle}
+      .att-hourly-leave-list-v308{display:grid;gap:4px;min-width:0}
+      .att-hourly-leave-v308{display:grid;gap:2px;padding:5px 6px;border-radius:7px;border:1px solid #354148;background:#151d21;line-height:1.2;min-width:0}
+      .att-hourly-leave-v308 b{font-size:8.3px;color:#eef2f3;white-space:nowrap}
+      .att-hourly-leave-v308 span{font-size:7.5px;font-weight:800;color:#9eabb0;white-space:nowrap}
+      .att-hourly-leave-v308 small{display:block;font-size:7px;color:#7f8d93;white-space:normal;overflow-wrap:anywhere}
+      .att-hourly-leave-v308.paid{border-color:#315e48;background:#14261d}.att-hourly-leave-v308.paid span{color:#8fd0a8}
+      .att-hourly-leave-v308.unpaid{border-color:#6a4b2a;background:#2a2015}.att-hourly-leave-v308.unpaid span{color:#e2b875}
+      .att-hourly-leave-v308.open{border-color:#696323;background:#28260e}.att-hourly-leave-v308.open span{color:#eee572}
+      .att-leave-status-v308{display:inline-flex;margin-top:3px;padding:3px 6px;border-radius:999px;border:1px solid #315e48;background:#14261d;color:#8fd0a8;font-size:7.2px;font-weight:850;white-space:nowrap}
       .att-weekday-v305{display:inline-block;margin-left:3px;color:#8f9da3;font-size:7.5px;font-weight:850;white-space:nowrap}
       #attendance .att-intraday-section-v199{margin:12px 0;border:1px solid #2d383e;border-radius:11px;background:#0f1619;overflow:hidden}
       #attendance .att-intraday-head-v199{padding:11px 12px;border-bottom:1px solid #273137;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#12191d}
@@ -80,7 +86,7 @@
     const drawer=table.closest('#attDetailDrawerV166');
     if(drawer)return drawer.querySelector('[data-original-id="attPersonSelectV160"]')?.value||drawer.querySelector('select')?.value||'';
     const panel=table.closest('.att-panel-v160');
-    return panel?.querySelector('#attPersonSelectV160')?.value||'';
+    return panel?.querySelector('#attPersonSelectV160')?.value||(!isAdminLocal()?String(profile.id||''):'');
   }
 
   function dailyStatusIndex(table){
@@ -91,24 +97,68 @@
 
   function patchDailyTables(){
     document.querySelectorAll('#attendance table.att-table-v160,#attDetailDrawerV166 table.att-table-v160').forEach(table=>{
-      const first=String(table.querySelector('thead th')?.textContent||'').trim().toLocaleLowerCase('tr-TR');if(first!=='tarih')return;
-      const pid=personForTable(table);if(!pid)return;const idx=dailyStatusIndex(table);
+      const headRow=table.querySelector('thead tr');if(!headRow)return;
+      let heads=[...headRow.children];
+      const first=String(heads[0]?.textContent||'').trim().toLocaleLowerCase('tr-TR');if(first!=='tarih')return;
+      const pid=personForTable(table);if(!pid)return;
+
+      // Dedicated hourly-leave column: directly after Fazla Mesai.
+      let leaveI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='saatlik izin');
+      if(leaveI<0){
+        const otI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='fazla mesai');
+        const th=document.createElement('th');th.className='att-hourly-leave-head-v308';th.textContent='Saatlik İzin';
+        if(otI>=0&&heads[otI]?.nextSibling)headRow.insertBefore(th,heads[otI].nextSibling);else headRow.appendChild(th);
+        heads=[...headRow.children];
+        leaveI=heads.indexOf(th);
+      }else{
+        heads[leaveI].classList.add('att-hourly-leave-head-v308');
+      }
+
+      let statusI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='mesai durumu');
+      if(statusI<0)statusI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='durum');
+
       [...table.querySelectorAll('tbody tr')].forEach(tr=>{
+        // Base render can recreate rows without our extra cell; normalize each row to header count.
+        if(tr.cells.length<heads.length){
+          const td=document.createElement('td');
+          if(leaveI<tr.cells.length)tr.insertBefore(td,tr.cells[leaveI]);else tr.appendChild(td);
+        }
         const dateCell=tr.cells?.[0];
         const date=trToIso(dateCell?.textContent);if(!date)return;
+
         if(dateCell){
           dateCell.querySelector('.att-weekday-v305')?.remove();
           const day=document.createElement('span');day.className='att-weekday-v305';day.textContent='· '+weekdayShort(date);dateCell.appendChild(day);
         }
-        const cell=tr.cells?.[idx];if(!cell)return;
-        cell.querySelector('.att-intraday-day-v199')?.remove();
-        const dayEntries=entries.filter(x=>String(x.person_id)===String(pid)&&x.work_date===date);if(!dayEntries.length)return;
-        const host=document.createElement('div');host.className='att-intraday-day-v199';
-        dayEntries.sort((x,y)=>new Date(x.start_at)-new Date(y.start_at)).forEach(x=>{
-          const chip=document.createElement('div');chip.className=`att-intraday-chip-v199 ${x.leave_type}${x.end_at?'':' open'}`;
-          chip.innerHTML=`⏱ Saatlik İzin · ${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'devam ediyor'} · ${esc(minsText(durationMinutes(x)))} · ${esc(typeLabel(x.leave_type))}${x.note?` · ${esc(x.note)}`:''}`;
-          host.appendChild(chip);
-        });cell.appendChild(host);
+
+        // Remove the old long green inline leave display from any cell.
+        tr.querySelectorAll('.att-intraday-day-v199,.att-intraday-chip-v199').forEach(x=>x.remove());
+        tr.querySelectorAll('.att-leave-status-v308').forEach(x=>x.remove());
+
+        const leaveCell=tr.cells?.[leaveI];if(!leaveCell)return;
+        leaveCell.classList.add('att-hourly-leave-cell-v308');
+        leaveCell.innerHTML='—';
+
+        const dayEntries=entries
+          .filter(x=>String(x.person_id)===String(pid)&&x.work_date===date)
+          .sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
+        if(!dayEntries.length)return;
+
+        const list=document.createElement('div');list.className='att-hourly-leave-list-v308';
+        dayEntries.forEach(x=>{
+          const item=document.createElement('div');
+          item.className=`att-hourly-leave-v308 ${x.leave_type}${x.end_at?'':' open'}`;
+          item.innerHTML=`<b>${esc(timeTR(x.start_at))} – ${x.end_at?esc(timeTR(x.end_at)):'Devam ediyor'}</b><span>${esc(minsText(durationMinutes(x)))} · ${esc(typeLabel(x.leave_type))}</span>${x.note?`<small>${esc(x.note)}</small>`:''}`;
+          list.appendChild(item);
+        });
+        leaveCell.innerHTML='';leaveCell.appendChild(list);
+
+        if(statusI>=0&&tr.cells?.[statusI]){
+          const total=dayEntries.reduce((s,x)=>s+durationMinutes(x),0);
+          const badge=document.createElement('span');badge.className='att-leave-status-v308';
+          badge.textContent='İzinli · '+minsText(total);
+          tr.cells[statusI].appendChild(badge);
+        }
       });
     });
   }
