@@ -193,7 +193,7 @@
 
   function patch(){
     if(!document.getElementById('attendance')?.classList.contains('active-view'))return;
-    installStyle();ensureAdminButton();patchRules();patchTables();patchToday();
+    installStyle();ensureAdminButton();patchRules();patchToday();
   }
   function schedulePatch(){[70,220,650,1200].forEach(ms=>setTimeout(patch,ms));}
 
