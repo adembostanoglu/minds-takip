@@ -14,7 +14,7 @@
   const monthKey=()=>String(typeof selectedMonth!=='undefined'?selectedMonth:'').slice(0,7);
   const monthStart=()=>monthKey()+'-01';
   const nextMonth=()=>{const [y,m]=monthKey().split('-').map(Number);return `${m===12?y+1:y}-${String(m===12?1:m+1).padStart(2,'0')}-01`;};
-  const parseRowDate=text=>{const m=String(text||'').trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);return m?`${m[3]}-${m[2]}-${m[1]}`:'';};
+  const parseRowDate=text=>{const m=String(text||'').trim().match(/(\d{2})\.(\d{2})\.(\d{4})/);return m?`${m[3]}-${m[2]}-${m[1]}`:'';};
 
   function installStyle(){
     if(document.getElementById('inlineManualOvertimeApprovalV249Style'))return;
