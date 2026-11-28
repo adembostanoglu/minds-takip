@@ -5,6 +5,7 @@
 
   let dutyRows=[];
   let attendanceRows=[];
+  let saturdayEndMinutes=13*60+30;
   let loading=false;
   const TZ='Europe/Istanbul';
   const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');
@@ -19,7 +20,12 @@
   function dateTR(v){if(!v)return '—';const [y,m,d]=v.split('-');return `${d}.${m}.${y}`;}
   function localMinutes(ts){if(!ts)return null;const p=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(ts));const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return Number(o.hour)*60+Number(o.minute);}
   function recordFor(pid,date){return attendanceRows.find(x=>String(x.person_id)===String(pid)&&x.work_date===date);}
-  function saturdayOvertime(rec){if(!rec?.clock_out)return 0;const co=localMinutes(rec.clock_out);return co!==null&&co>=19*60+30?Math.max(0,co-(18*60+30)):0;}
+  function saturdayOvertime(rec,duty){
+    if(!rec?.clock_out)return 0;
+    const co=localMinutes(rec.clock_out);if(co===null)return 0;
+    if(duty)return co>=19*60+30?Math.max(0,co-(18*60+30)):0;
+    return co>saturdayEndMinutes?Math.max(0,co-saturdayEndMinutes):0;
+  }
   function nextSaturday(){const d=new Date(`${todayIso()}T12:00:00Z`);const day=d.getUTCDay();const add=day===6?0:(6-day+7)%7;d.setUTCDate(d.getUTCDate()+add);return d.toISOString().slice(0,10);}
   function activeStaff(){return (typeof state!=='undefined'?state.profiles:[]).filter(p=>p.active&&String(p.role||'').toLowerCase()!=='admin');}
   function personName(id){return (typeof state!=='undefined'?state.profiles:[]).find(p=>p.id===id)?.full_name||'Personel';}
@@ -65,12 +71,17 @@
     loading=true;
     try{
       const start=shiftMonth(m,-1),end=shiftMonth(m,3);
-      const [duty,att]=await Promise.all([
+      const [duty,att,settings]=await Promise.all([
         sb.from('attendance_saturday_duty').select('id,person_id,duty_date,note').gte('duty_date',start).lt('duty_date',end).order('duty_date',{ascending:true}),
-        sb.from('attendance_records').select('id,person_id,work_date,clock_in,clock_out,overtime_approved').gte('work_date',start).lt('work_date',end)
+        sb.from('attendance_records').select('id,person_id,work_date,clock_in,clock_out,overtime_approved').gte('work_date',start).lt('work_date',end),
+        sb.from('attendance_settings').select('saturday_end').eq('id',1).single()
       ]);
       if(duty.error)throw duty.error;if(att.error)throw att.error;
       dutyRows=duty.data||[];attendanceRows=att.data||[];
+      if(!settings.error&&settings.data?.saturday_end){
+        const parts=String(settings.data.saturday_end).split(':').map(Number);
+        if(Number.isFinite(parts[0])&&Number.isFinite(parts[1]))saturdayEndMinutes=parts[0]*60+parts[1];
+      }
     }catch(e){console.warn('Cumartesi nöbetleri yüklenemedi',e);}finally{loading=false;}
     schedulePatch();
   }
@@ -79,7 +90,7 @@
     document.querySelectorAll('#attendance .att-rule-v160').forEach(card=>{
       if(card.querySelector('b')?.textContent?.trim()!=='Cumartesi')return;
       const p=card.querySelector('p');
-      if(p)p.innerHTML='<strong>Cumartesi yalnızca nöbetçi personel için normal çalışma günüdür.</strong> Nöbetçi olmayan personel öğlen çıkabilir; geç kalma / erken çıkış / eksik çalışma yazılmaz. Nöbetçi personelde otomatik fazla mesai yalnızca <strong>19:30 ve sonrası çıkışlarda</strong> oluşur ve süre <strong>18:30’dan itibaren</strong> hesaplanır.';
+      if(p)p.innerHTML='<strong>Cumartesi nöbetçi olmayan personel 13:30’da çıkabilir; geç kalma / erken çıkış / eksik çalışma yazılmaz.</strong> Nöbetçi olmayan personel 13:30’dan sonra kalırsa kalan süre fazla mesai olur. Nöbetçi personelde otomatik fazla mesai yalnızca <strong>19:30 ve sonrası çıkışlarda</strong> oluşur ve süre <strong>18:30’dan itibaren</strong> hesaplanır.';
       let box=card.querySelector('.att-duty-summary-v212');if(!box){box=document.createElement('div');box.className='att-duty-summary-v212';card.appendChild(box);}
       const d=nextSaturday();
       if(isAdminLocal()){
@@ -106,16 +117,27 @@
         if(!duty){
           delete tr.dataset.saturdayDutyV212;
           if(lateI>=0&&cells[lateI]){cells[lateI].textContent='—';cells[lateI].classList.remove('neg');}
-          if(cells[otI]){cells[otI].textContent='—';cells[otI].classList.remove('pos','att-duty-ot-v248');}
-          if(statusI>=0&&cells[statusI])cells[statusI].textContent='—';
+          const ot=saturdayOvertime(rec,false);
+          if(cells[otI]){cells[otI].textContent=ot?minsText(ot):'—';cells[otI].classList.toggle('pos',ot>0);}
+          if(statusI>=0&&cells[statusI]){
+            cells[statusI].innerHTML=ot
+              ? `<span class="att-badge-v160 ${rec?.overtime_approved?'good':'warn'}">${rec?.overtime_approved?'Onaylı':'Onay Bekliyor'}</span>`
+              : '—';
+          }
           if(actionI>=0&&cells[actionI]){
-            cells[actionI].querySelectorAll('[data-att-overtime],[data-v235-normal],[data-duty-ot-id],.att-duty-ot-btn-v248').forEach(x=>x.remove());
-            const wrap=cells[actionI].querySelector('.att-row-actions-v160');if(wrap&&!wrap.children.length)wrap.remove();
+            cells[actionI].querySelectorAll('[data-att-overtime],[data-v235-normal],[data-duty-ot-id],.att-duty-ot-btn-v248,[data-sat-ot-approve-v310]').forEach(x=>x.remove());
+            let wrap=cells[actionI].querySelector('.att-row-actions-v160');
+            if(ot&&isAdminLocal()&&rec?.id){
+              if(!wrap){wrap=document.createElement('div');wrap.className='att-row-actions-v160';cells[actionI].appendChild(wrap);}
+              const b=document.createElement('button');b.className='ghost';b.type='button';
+              b.dataset.satOtApproveV310=rec.id;b.dataset.value=rec.overtime_approved?'0':'1';
+              b.textContent=rec.overtime_approved?'Onayı Kaldır':'Mesaiyi Onayla';wrap.prepend(b);
+            }else if(wrap&&!wrap.children.length){wrap.remove();}
           }
           return;
         }
         tr.dataset.saturdayDutyV212='1';
-        const ot=saturdayOvertime(rec);
+        const ot=saturdayOvertime(rec,true);
         if(cells[otI]){cells[otI].textContent=ot?minsText(ot):'—';cells[otI].classList.toggle('pos',ot>0);}
         if(statusI>=0&&cells[statusI]){
           cells[statusI].innerHTML=ot
@@ -175,7 +197,26 @@
   }
   function schedulePatch(){[70,220,650,1200].forEach(ms=>setTimeout(patch,ms));}
 
-  document.addEventListener('click',e=>{
+  document.addEventListener('click',async e=>{
+    const approve=e.target.closest('[data-sat-ot-approve-v310]');
+    if(approve){
+      e.preventDefault();e.stopPropagation();
+      if(!isAdminLocal())return;
+      const value=approve.dataset.value==='1';
+      try{
+        const {error}=await sb.from('attendance_records').update({
+          overtime_approved:value,
+          overtime_approved_by:value?profile.id:null,
+          overtime_approved_at:value?new Date().toISOString():null,
+          updated_at:new Date().toISOString()
+        }).eq('id',approve.dataset.satOtApproveV310);
+        if(error)throw error;
+        if(typeof toast==='function')toast(value?'Fazla mesai onaylandı.':'Fazla mesai onayı kaldırıldı.');
+        await loadDuty(true);
+        document.getElementById('monthPicker')?.dispatchEvent(new Event('change',{bubbles:true}));
+      }catch(err){if(typeof toast==='function')toast(err.message||'Mesai onayı güncellenemedi.',true);}
+      return;
+    }
     if(e.target.closest('[data-view="attendance"]'))setTimeout(()=>loadDuty(true),140);
     if(e.target.closest('[data-att-detail],.att-payroll-person-click-v191,.att-payroll-person-click-v195,.att-payroll-person-cell-v195,[data-att-edit-day],#attPersonSelectV160'))schedulePatch();
   },true);
