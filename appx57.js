@@ -21,6 +21,11 @@
   function timeTR(v){if(!v)return '—';const p=new Intl.DateTimeFormat('tr-TR',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(v));const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return `${o.hour}:${o.minute}`;}
   function dateTR(v){if(!v)return '—';const [y,m,d]=String(v).slice(0,10).split('-');return `${d}.${m}.${y}`;}
   function trToIso(v){const m=String(v||'').match(/(\d{2})\.(\d{2})\.(\d{4})/);return m?`${m[3]}-${m[2]}-${m[1]}`:'';}
+  function weekdayShort(v){
+    if(!v)return '';
+    const names=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+    return names[new Date(`${v}T12:00:00Z`).getUTCDay()]||'';
+  }
   function minsText(v){const n=Math.max(0,Math.round(Number(v||0))),h=Math.floor(n/60),m=n%60;return h?(m?`${h} sa ${m} dk`:`${h} sa`):`${m} dk`;}
   function durationMinutes(x,openNow=true){const end=x.end_at?new Date(x.end_at):(openNow?new Date():null);if(!end||!x.start_at)return 0;return Math.max(0,(end-new Date(x.start_at))/60000);}
   function typeLabel(t){return t==='unpaid'?'Ücretsiz':'Ücretli';}
@@ -36,11 +41,12 @@
       #attendance .att-intraday-start-v199{border:1px solid #5b5520!important;background:#29270c!important;color:#eee52b!important}
       #attendance .att-intraday-end-v199{border:1px solid #276a52!important;background:#123526!important;color:#8fe0b6!important}
       #attendance #attClockOutV160.att-intraday-disabled-v199{opacity:.42!important;cursor:not-allowed!important;filter:saturate(.5)}
-      #attendance .att-intraday-day-v199{margin-top:5px;display:grid;gap:4px;white-space:normal!important}
-      #attendance .att-intraday-chip-v199{display:inline-flex;align-items:center;gap:5px;max-width:100%;width:max-content;padding:4px 6px;border-radius:7px;border:1px solid #3b454a;background:#171e22;color:#cfd7da;font-size:8.7px;font-weight:750;line-height:1.35;white-space:normal!important}
-      #attendance .att-intraday-chip-v199.paid{border-color:#315e48;background:#142a20;color:#8dd3a8}
-      #attendance .att-intraday-chip-v199.unpaid{border-color:#6b4b27;background:#2d2113;color:#e7bc72}
-      #attendance .att-intraday-chip-v199.open{box-shadow:0 0 0 1px rgba(238,229,43,.15);border-color:#696323;color:#eee572}
+      #attendance .att-intraday-day-v199,#attDetailDrawerV166 .att-intraday-day-v199{margin-top:5px;display:grid;gap:4px;white-space:normal!important}
+      #attendance .att-intraday-chip-v199,#attDetailDrawerV166 .att-intraday-chip-v199{display:inline-flex;align-items:center;gap:5px;max-width:100%;width:max-content;padding:4px 6px;border-radius:7px;border:1px solid #3b454a;background:#171e22;color:#cfd7da;font-size:8.2px;font-weight:750;line-height:1.35;white-space:normal!important}
+      #attendance .att-intraday-chip-v199.paid,#attDetailDrawerV166 .att-intraday-chip-v199.paid{border-color:#315e48;background:#142a20;color:#8dd3a8}
+      #attendance .att-intraday-chip-v199.unpaid,#attDetailDrawerV166 .att-intraday-chip-v199.unpaid{border-color:#6b4b27;background:#2d2113;color:#e7bc72}
+      #attendance .att-intraday-chip-v199.open,#attDetailDrawerV166 .att-intraday-chip-v199.open{box-shadow:0 0 0 1px rgba(238,229,43,.15);border-color:#696323;color:#eee572}
+      .att-weekday-v305{display:inline-block;margin-left:3px;color:#8f9da3;font-size:7.5px;font-weight:850;white-space:nowrap}
       #attendance .att-intraday-section-v199{margin:12px 0;border:1px solid #2d383e;border-radius:11px;background:#0f1619;overflow:hidden}
       #attendance .att-intraday-head-v199{padding:11px 12px;border-bottom:1px solid #273137;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#12191d}
       #attendance .att-intraday-title-v199{display:flex;flex-direction:column;gap:3px}.att-intraday-title-v199 b{font-size:11.5px;color:#edf1f2}.att-intraday-title-v199 span{font-size:9px;color:#8b989e}
@@ -84,19 +90,24 @@
   }
 
   function patchDailyTables(){
-    document.querySelectorAll('#attendance table.att-table-v160').forEach(table=>{
+    document.querySelectorAll('#attendance table.att-table-v160,#attDetailDrawerV166 table.att-table-v160').forEach(table=>{
       const first=String(table.querySelector('thead th')?.textContent||'').trim().toLocaleLowerCase('tr-TR');if(first!=='tarih')return;
       const pid=personForTable(table);if(!pid)return;const idx=dailyStatusIndex(table);
       [...table.querySelectorAll('tbody tr')].forEach(tr=>{
-        const date=trToIso(tr.cells?.[0]?.textContent);if(!date)return;
+        const dateCell=tr.cells?.[0];
+        const date=trToIso(dateCell?.textContent);if(!date)return;
+        if(dateCell){
+          dateCell.querySelector('.att-weekday-v305')?.remove();
+          const day=document.createElement('span');day.className='att-weekday-v305';day.textContent='· '+weekdayShort(date);dateCell.appendChild(day);
+        }
         const cell=tr.cells?.[idx];if(!cell)return;
         cell.querySelector('.att-intraday-day-v199')?.remove();
-        const day=entries.filter(x=>x.person_id===pid&&x.work_date===date);if(!day.length)return;
+        const dayEntries=entries.filter(x=>String(x.person_id)===String(pid)&&x.work_date===date);if(!dayEntries.length)return;
         const host=document.createElement('div');host.className='att-intraday-day-v199';
-        day.sort((x,y)=>new Date(x.start_at)-new Date(y.start_at)).forEach(x=>{
-          const c=document.createElement('div');c.className=`att-intraday-chip-v199 ${x.leave_type}${x.end_at?'':' open'}`;
-          c.innerHTML=`☕ Gün İçi İzin · ${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'devam ediyor'} · ${esc(minsText(durationMinutes(x)))} · ${esc(typeLabel(x.leave_type))}${x.note?` · ${esc(x.note)}`:''}`;
-          host.appendChild(c);
+        dayEntries.sort((x,y)=>new Date(x.start_at)-new Date(y.start_at)).forEach(x=>{
+          const chip=document.createElement('div');chip.className=`att-intraday-chip-v199 ${x.leave_type}${x.end_at?'':' open'}`;
+          chip.innerHTML=`⏱ Saatlik İzin · ${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'devam ediyor'} · ${esc(minsText(durationMinutes(x)))} · ${esc(typeLabel(x.leave_type))}${x.note?` · ${esc(x.note)}`:''}`;
+          host.appendChild(chip);
         });cell.appendChild(host);
       });
     });
