@@ -130,6 +130,7 @@
       '.uw-kpis-v301{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 12px}'+
       '.uw-kpi-v301{border:1px solid #29343a;border-radius:9px;background:#11181c;padding:8px 10px}.uw-kpi-v301 small{display:block;font-size:7.5px;color:#7f8d93;text-transform:uppercase}.uw-kpi-v301 b{display:block;margin-top:3px;font-size:15px}.uw-kpi-v301.extra b{color:#E4E251}'+
       '#unifiedWorkGridV301{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:start}'+
+      '#unifiedWorkGridV301.uw-staff-single-v302{grid-template-columns:minmax(0,1fr)!important}#unifiedWorkGridV301.uw-staff-single-v302 .uw-person-v301{width:100%;max-width:none}#unifiedWorkGridV301.uw-staff-single-v302 .uw-person-body-v301{max-height:none}'+
       '.uw-person-v301{border:1px solid #2d373d;border-radius:13px;background:#10161a;overflow:hidden;min-width:0}.uw-person-head-v301{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;border-bottom:1px solid #2b343a;background:linear-gradient(180deg,#171e22,#12181c)}'+
       '.uw-person-head-v301 b{font-size:13px}.uw-person-head-v301 span{font-size:9px;color:#9aa5aa;border:1px solid #354047;border-radius:999px;padding:4px 7px}'+
       '.uw-person-body-v301{max-height:670px;overflow:auto;padding:0 8px 10px}.uw-date-v301{position:sticky;top:0;z-index:2;padding:10px 1px 6px;background:#10161a;color:#e5df4a;font-size:10.5px;font-weight:850;border-bottom:1px solid #232c31;margin-bottom:6px}'+
@@ -250,6 +251,7 @@
     var people=(state.profiles||[]).filter(function(p){return p.active&&p.role!=='admin';}).sort(function(a,b){return rank(a.full_name)-rank(b.full_name)||a.full_name.localeCompare(b.full_name,'tr');});
     if(!admin())people=people.filter(function(p){return String(p.id)===String(profile.id);});
     if(filterPerson!=='all')people=people.filter(function(p){return String(p.id)===filterPerson;});
+    hosts.grid.classList.toggle('uw-staff-single-v302',!admin());
     hosts.grid.innerHTML=people.map(function(p){
       var arr=items.filter(function(x){return String(x.person_id)===String(p.id);}).sort(function(a,b){
         return dateKey(b.work_date).localeCompare(dateKey(a.work_date))||String(b.created_at||'').localeCompare(String(a.created_at||''));
