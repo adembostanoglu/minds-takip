@@ -68,20 +68,26 @@
     var out=[];
     monthPackage().forEach(function(w){
       var f=packageFirm(w);
-      out.push({
+      var item={
         kind:'package',id:w.id,person_id:w.assigned_to,work_date:w.work_date,created_at:w.created_at,
         client:(f&&f.name)||'—',title:w.title||'İş',quantity:qty(w.quantity),
         type:w.type==='video'?'Video':'Post',status:w.status,status_text:packageStatus(w.status),
         notes:w.notes||'',raw:w,ownFirm:packageOwnFirm(w)
-      });
+      };
+      item.display_date=displayDate(item);
+      item.age_text=activeAgeText(item);
+      out.push(item);
     });
     monthExtra().forEach(function(x){
-      out.push({
+      var item={
         kind:'extra',id:x.id,person_id:x.person_id,work_date:x.work_date,created_at:x.created_at,
         client:extraClient(x),title:x.title||'Ekstra İş',quantity:qty(x.quantity),
         type:extraType(x.extra_work_type),status:x.task_status,status_text:extraStatus(x.task_status),
         notes:x.notes||'',raw:x,ownFirm:true
-      });
+      };
+      item.display_date=displayDate(item);
+      item.age_text=activeAgeText(item);
+      out.push(item);
     });
     return out;
   }
@@ -92,6 +98,39 @@
   function isActive(item){
     if(item.kind==='package')return ['bekliyor','devam_ediyor','revizede'].indexOf(item.status)>=0;
     return item.status==='waiting'||item.status==='in_progress';
+  }
+  function dateInIstanbul(value){
+    if(!value)return null;
+    var d=value instanceof Date?value:new Date(value);
+    if(Number.isNaN(d.getTime()))return null;
+    var parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Istanbul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+    var map={};parts.forEach(function(p){if(p.type!=='literal')map[p.type]=p.value;});
+    return map.year+'-'+map.month+'-'+map.day;
+  }
+  function todayIstanbul(){return dateInIstanbul(new Date());}
+  function sameSelectedMonth(dateValue){
+    return !!dateValue&&String(dateValue).slice(0,7)===String(selectedMonth||'').slice(0,7);
+  }
+  function displayDate(item){
+    var today=todayIstanbul();
+    if(isActive(item)&&sameSelectedMonth(today)&&String(item.work_date||'')<=today)return today;
+    if(isDone(item)){
+      var stamp=item.kind==='package'
+        ? (item.raw.ready_at||item.raw.approved_at||null)
+        : (item.raw.completed_at||item.raw.submitted_at||null);
+      var doneDate=dateInIstanbul(stamp);
+      if(doneDate&&sameSelectedMonth(doneDate))return doneDate;
+    }
+    return item.work_date;
+  }
+  function activeAgeText(item){
+    if(!isActive(item))return '';
+    var today=todayIstanbul(),start=String(item.work_date||'');
+    if(!today||!start||start>today)return '';
+    var a=Date.parse(start+'T00:00:00Z'),b=Date.parse(today+'T00:00:00Z');
+    if(!Number.isFinite(a)||!Number.isFinite(b))return '';
+    var days=Math.floor((b-a)/86400000)+1;
+    return days<=1?'Bugün başladı':days+' gündür';
   }
   function filtered(items){
     return items.filter(function(item){
@@ -211,7 +250,7 @@
     return '<div class="uw-job-v301">'+
       '<div class="uw-job-top-v301"><div class="uw-client-v301" title="'+esc(item.client)+'">'+esc(item.client)+'</div><span class="uw-kind-v301 '+item.kind+'">'+(item.kind==='package'?'PAKET':'EKSTRA')+'</span></div>'+
       '<div class="uw-title-v301">'+esc(item.title)+(item.quantity>1?' <small>· '+item.quantity+' adet</small>':'')+'</div>'+
-      '<div class="uw-meta-v301"><span>'+esc(item.type)+'</span><span>•</span><span class="uw-status-v301">'+esc(item.status_text)+'</span>'+(support?'<span class="uw-support-v301">Diğer Firma</span>':'')+'</div>'+
+      '<div class="uw-meta-v301"><span>'+esc(item.type)+'</span><span>•</span><span class="uw-status-v301">'+esc(item.status_text)+'</span>'+(item.age_text?'<span>•</span><span>'+esc(item.age_text)+'</span>':'')+(support?'<span class="uw-support-v301">Diğer Firma</span>':'')+'</div>'+
       (item.notes?'<div class="uw-note-v301">'+esc(item.notes)+'</div>':'')+
       '<div class="uw-actions-v301">'+actionHtml(item)+'</div></div>';
   }
@@ -240,7 +279,7 @@
     var hosts=ensureHosts();if(!hosts)return;
     var all=normalized();
     var sig=selectedMonth+'|'+filterPerson+'|'+filterKind+'|'+filterState+'|'+search+'|'+all.map(function(x){
-      return [x.kind,x.id,x.person_id,x.work_date,x.title,x.quantity,x.status,x.notes].join(':');
+      return [x.kind,x.id,x.person_id,x.work_date,x.display_date,x.title,x.quantity,x.status,x.notes].join(':');
     }).join('|');
     if(!force&&sig===lastSignature)return;
     lastSignature=sig;
@@ -254,12 +293,12 @@
     hosts.grid.classList.toggle('uw-staff-single-v302',!admin());
     hosts.grid.innerHTML=people.map(function(p){
       var arr=items.filter(function(x){return String(x.person_id)===String(p.id);}).sort(function(a,b){
-        return dateKey(b.work_date).localeCompare(dateKey(a.work_date))||String(b.created_at||'').localeCompare(String(a.created_at||''));
+        return dateKey(b.display_date).localeCompare(dateKey(a.display_date))||String(b.created_at||'').localeCompare(String(a.created_at||''));
       });
-      var dates=Array.from(new Set(arr.map(function(x){return x.work_date;})));
+      var dates=Array.from(new Set(arr.map(function(x){return x.display_date;})));
       var blocks=dates.map(function(d){
-        return '<div><div class="uw-date-v301">'+esc(fmtDate(d))+' · '+arr.filter(function(x){return x.work_date===d;}).length+' kayıt</div>'+
-          arr.filter(function(x){return x.work_date===d;}).map(itemHtml).join('')+'</div>';
+        return '<div><div class="uw-date-v301">'+esc(fmtDate(d))+' · '+arr.filter(function(x){return x.display_date===d;}).length+' kayıt</div>'+
+          arr.filter(function(x){return x.display_date===d;}).map(itemHtml).join('')+'</div>';
       }).join('');
       return '<section class="uw-person-v301"><div class="uw-person-head-v301"><b>'+esc(p.full_name)+'</b><span>'+arr.length+' kayıt</span></div><div class="uw-person-body-v301">'+(blocks||'<div class="uw-empty-v301">Bu filtrede kayıt yok.</div>')+'</div></section>';
     }).join('')||'<div class="uw-empty-v301">Bu filtrede kayıt yok.</div>';
