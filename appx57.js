@@ -41,17 +41,10 @@
       #attendance .att-intraday-start-v199{border:1px solid #5b5520!important;background:#29270c!important;color:#eee52b!important}
       #attendance .att-intraday-end-v199{border:1px solid #276a52!important;background:#123526!important;color:#8fe0b6!important}
       #attendance #attClockOutV160.att-intraday-disabled-v199{opacity:.42!important;cursor:not-allowed!important;filter:saturate(.5)}
-      #attendance th.att-hourly-leave-head-v308,#attDetailDrawerV166 th.att-hourly-leave-head-v308{min-width:112px}
-      #attendance td.att-hourly-leave-cell-v308,#attDetailDrawerV166 td.att-hourly-leave-cell-v308{min-width:112px;vertical-align:middle}
-      .att-hourly-leave-list-v308{display:grid;gap:4px;min-width:0}
-      .att-hourly-leave-v308{display:grid;gap:2px;padding:5px 6px;border-radius:7px;border:1px solid #354148;background:#151d21;line-height:1.2;min-width:0}
-      .att-hourly-leave-v308 b{font-size:8.3px;color:#eef2f3;white-space:nowrap}
-      .att-hourly-leave-v308 span{font-size:7.5px;font-weight:800;color:#9eabb0;white-space:nowrap}
-      .att-hourly-leave-v308 small{display:block;font-size:7px;color:#7f8d93;white-space:normal;overflow-wrap:anywhere}
-      .att-hourly-leave-v308.paid{border-color:#315e48;background:#14261d}.att-hourly-leave-v308.paid span{color:#8fd0a8}
-      .att-hourly-leave-v308.unpaid{border-color:#6a4b2a;background:#2a2015}.att-hourly-leave-v308.unpaid span{color:#e2b875}
-      .att-hourly-leave-v308.open{border-color:#696323;background:#28260e}.att-hourly-leave-v308.open span{color:#eee572}
-      .att-leave-status-v308{display:inline-flex;margin-top:3px;padding:3px 6px;border-radius:999px;border:1px solid #315e48;background:#14261d;color:#8fd0a8;font-size:7.2px;font-weight:850;white-space:nowrap}
+      .att-leave-compact-v309{display:inline-flex;align-items:center;margin-left:4px;padding:3px 6px;border-radius:999px;border:1px solid #315e48;background:#14261d;color:#8fd0a8;font-size:7.2px;font-weight:850;white-space:nowrap;cursor:pointer;vertical-align:middle}
+      .att-leave-compact-v309:hover{border-color:#4c886a;background:#193124}
+      .att-leave-detail-v309{display:grid;gap:8px}.att-leave-detail-row-v309{display:grid;grid-template-columns:92px 90px 90px minmax(120px,1fr);gap:8px;align-items:center;padding:9px 10px;border:1px solid #2d383e;border-radius:9px;background:#11181c;font-size:9px}.att-leave-detail-row-v309 b{font-size:9.5px;color:#eef1f2}.att-leave-detail-row-v309 span{color:#a7b2b7}.att-leave-detail-note-v309{color:#cfd6d8!important;white-space:normal;overflow-wrap:anywhere}.att-leave-detail-total-v309{margin-bottom:10px;padding:9px 10px;border:1px solid #2d383e;border-radius:9px;background:#10171b;color:#dfe5e7;font-size:9px}.att-leave-detail-total-v309 b{color:#eee52b}
+      @media(max-width:760px){.att-leave-detail-row-v309{grid-template-columns:1fr 1fr}.att-leave-detail-note-v309{grid-column:1/-1}}
       .att-weekday-v305{display:inline-block;margin-left:3px;color:#8f9da3;font-size:7.5px;font-weight:850;white-space:nowrap}
       #attendance .att-intraday-section-v199{margin:12px 0;border:1px solid #2d383e;border-radius:11px;background:#0f1619;overflow:hidden}
       #attendance .att-intraday-head-v199{padding:11px 12px;border-bottom:1px solid #273137;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#12191d}
@@ -98,31 +91,23 @@
   function patchDailyTables(){
     document.querySelectorAll('#attendance table.att-table-v160,#attDetailDrawerV166 table.att-table-v160').forEach(table=>{
       const headRow=table.querySelector('thead tr');if(!headRow)return;
-      let heads=[...headRow.children];
-      const first=String(heads[0]?.textContent||'').trim().toLocaleLowerCase('tr-TR');if(first!=='tarih')return;
-      const pid=personForTable(table);if(!pid)return;
 
-      // Dedicated hourly-leave column: directly after Fazla Mesai.
-      let leaveI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='saatlik izin');
-      if(leaveI<0){
-        const otI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='fazla mesai');
-        const th=document.createElement('th');th.className='att-hourly-leave-head-v308';th.textContent='Saatlik İzin';
-        if(otI>=0&&heads[otI]?.nextSibling)headRow.insertBefore(th,heads[otI].nextSibling);else headRow.appendChild(th);
-        heads=[...headRow.children];
-        leaveI=heads.indexOf(th);
-      }else{
-        heads[leaveI].classList.add('att-hourly-leave-head-v308');
+      // Clean up the previously added dedicated column so the original compact table returns.
+      let heads=[...headRow.children];
+      const legacyLeaveI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='saatlik izin');
+      if(legacyLeaveI>=0){
+        headRow.children[legacyLeaveI]?.remove();
+        [...table.querySelectorAll('tbody tr')].forEach(tr=>tr.children[legacyLeaveI]?.remove());
       }
 
+      heads=[...headRow.children];
+      const first=String(heads[0]?.textContent||'').trim().toLocaleLowerCase('tr-TR');if(first!=='tarih')return;
+      const pid=personForTable(table);if(!pid)return;
       let statusI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='mesai durumu');
       if(statusI<0)statusI=heads.findIndex(h=>String(h.textContent||'').trim().toLocaleLowerCase('tr-TR')==='durum');
+      if(statusI<0)statusI=1;
 
       [...table.querySelectorAll('tbody tr')].forEach(tr=>{
-        // Base render can recreate rows without our extra cell; normalize each row to header count.
-        if(tr.cells.length<heads.length){
-          const td=document.createElement('td');
-          if(leaveI<tr.cells.length)tr.insertBefore(td,tr.cells[leaveI]);else tr.appendChild(td);
-        }
         const dateCell=tr.cells?.[0];
         const date=trToIso(dateCell?.textContent);if(!date)return;
 
@@ -131,34 +116,23 @@
           const day=document.createElement('span');day.className='att-weekday-v305';day.textContent='· '+weekdayShort(date);dateCell.appendChild(day);
         }
 
-        // Remove the old long green inline leave display from any cell.
-        tr.querySelectorAll('.att-intraday-day-v199,.att-intraday-chip-v199').forEach(x=>x.remove());
-        tr.querySelectorAll('.att-leave-status-v308').forEach(x=>x.remove());
-
-        const leaveCell=tr.cells?.[leaveI];if(!leaveCell)return;
-        leaveCell.classList.add('att-hourly-leave-cell-v308');
-        leaveCell.innerHTML='—';
+        tr.querySelectorAll('.att-intraday-day-v199,.att-intraday-chip-v199,.att-leave-status-v308,.att-leave-compact-v309').forEach(x=>x.remove());
 
         const dayEntries=entries
           .filter(x=>String(x.person_id)===String(pid)&&x.work_date===date)
           .sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
         if(!dayEntries.length)return;
 
-        const list=document.createElement('div');list.className='att-hourly-leave-list-v308';
-        dayEntries.forEach(x=>{
-          const item=document.createElement('div');
-          item.className=`att-hourly-leave-v308 ${x.leave_type}${x.end_at?'':' open'}`;
-          item.innerHTML=`<b>${esc(timeTR(x.start_at))} – ${x.end_at?esc(timeTR(x.end_at)):'Devam ediyor'}</b><span>${esc(minsText(durationMinutes(x)))} · ${esc(typeLabel(x.leave_type))}</span>${x.note?`<small>${esc(x.note)}</small>`:''}`;
-          list.appendChild(item);
-        });
-        leaveCell.innerHTML='';leaveCell.appendChild(list);
-
-        if(statusI>=0&&tr.cells?.[statusI]){
-          const total=dayEntries.reduce((s,x)=>s+durationMinutes(x),0);
-          const badge=document.createElement('span');badge.className='att-leave-status-v308';
-          badge.textContent='İzinli · '+minsText(total);
-          tr.cells[statusI].appendChild(badge);
-        }
+        const total=dayEntries.reduce((s,x)=>s+durationMinutes(x),0);
+        const cell=tr.cells?.[statusI];if(!cell)return;
+        const badge=document.createElement('button');
+        badge.type='button';
+        badge.className='att-leave-compact-v309';
+        badge.dataset.attLeaveDetailV309=date;
+        badge.dataset.attLeavePersonV309=pid;
+        badge.title='Saatlik izin detayını görüntüle';
+        badge.textContent='Saatlik İzin · '+minsText(total);
+        cell.appendChild(badge);
       });
     });
   }
@@ -176,35 +150,13 @@
   }
 
   function renderSection(body,pid){
-    if(!body||!pid)return;
-    let section=body.querySelector(':scope > .att-intraday-section-v199');
-    if(!section){section=document.createElement('div');section.className='att-intraday-section-v199';const summary=body.querySelector('.att-detail-summary-v160');summary?summary.insertAdjacentElement('afterend',section):body.prepend(section);}
-    section.dataset.pid=pid;
-    const mine=entries.filter(x=>x.person_id===pid);
-    const closed=mine.filter(x=>x.end_at);
-    const paid=closed.filter(x=>x.leave_type==='paid').reduce((s,x)=>s+durationMinutes(x,false),0);
-    const unpaid=closed.filter(x=>x.leave_type==='unpaid').reduce((s,x)=>s+durationMinutes(x,false),0);
-    const total=paid+unpaid;
-    const rows=mine.length?mine.map(x=>{
-      const canEdit=isAdminLocal()||(String(x.person_id)===String(profile.id)&&String(x.created_by||'')===String(profile.id));
-      return `<div class="att-intraday-item-v199"><span class="date">${esc(dateTR(x.work_date))}</span><span class="hours">${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'Devam ediyor'}</span><span class="duration">${esc(minsText(durationMinutes(x)))}</span><span class="att-intraday-type-v199 ${x.leave_type}">${esc(typeLabel(x.leave_type))}</span><span class="note">${x.note?esc(x.note):'Açıklama yok'}</span>${canEdit?`<span class="att-intraday-actions-v199"><button type="button" class="ghost" data-att-intraday-edit="${x.id}">Düzenle</button>${isAdminLocal()?`<button type="button" class="danger" data-att-intraday-delete="${x.id}">Sil</button>`:''}</span>`:''}</div>`;
-    }).join(''):`<div class="att-intraday-empty-v199">Bu ay gün içi izin kaydı yok.</div>`;
-    const canAdd=isAdminLocal()||String(pid)===String(profile.id);
-    section.innerHTML=`<div class="att-intraday-head-v199"><div class="att-intraday-title-v199"><b>Saatlik İzinler</b><span>Bu ay toplam ${esc(minsText(total))} · Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</span></div>${canAdd?`<button type="button" class="att-intraday-add-v199" data-att-intraday-add="${pid}">+ Saatlik İzin Ekle</button>`:''}</div><div class="att-intraday-list-v199">${rows}</div>`;
+    if(!body)return;
+    body.querySelector(':scope > .att-intraday-section-v199')?.remove();
   }
 
   function patchDetailSummary(body,pid){
-    if(!body||!pid)return;
-    const summary=body.querySelector('.att-detail-summary-v160');if(!summary)return;
-    summary.querySelector('.att-intraday-summary-v306')?.remove();
-    const mine=entries.filter(x=>String(x.person_id)===String(pid)&&x.end_at);
-    const paid=mine.filter(x=>x.leave_type==='paid').reduce((s,x)=>s+durationMinutes(x,false),0);
-    const unpaid=mine.filter(x=>x.leave_type==='unpaid').reduce((s,x)=>s+durationMinutes(x,false),0);
-    const total=paid+unpaid;
-    const card=document.createElement('div');
-    card.className='att-detail-item-v160 att-intraday-summary-v306';
-    card.innerHTML=`<small>Saatlik İzin</small><b>${esc(minsText(total))}</b><span style="display:block;margin-top:3px;font-size:7.5px;color:#849197">Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</span>`;
-    summary.appendChild(card);
+    if(!body)return;
+    body.querySelector('.att-intraday-summary-v306')?.remove();
   }
 
   function patchDetailSections(){detailHosts().forEach(x=>{renderSection(x.body,x.pid);patchDetailSummary(x.body,x.pid);});}
@@ -275,6 +227,18 @@
     });
   }
 
+  function openLeaveDetail(pid,date){
+    if(typeof openModal!=='function'||!pid||!date)return;
+    const rows=entries.filter(x=>String(x.person_id)===String(pid)&&x.work_date===date).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
+    if(!rows.length)return;
+    const total=rows.reduce((s,x)=>s+durationMinutes(x),0);
+    const paid=rows.filter(x=>x.leave_type==='paid').reduce((s,x)=>s+durationMinutes(x),0);
+    const unpaid=rows.filter(x=>x.leave_type==='unpaid').reduce((s,x)=>s+durationMinutes(x),0);
+    const body=`<div class="att-leave-detail-total-v309"><b>${esc(personName(pid))}</b> · ${esc(dateTR(date))} · ${esc(weekdayShort(date))}<br>Toplam: <b>${esc(minsText(total))}</b> · Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</div><div class="att-leave-detail-v309">${rows.map(x=>`<div class="att-leave-detail-row-v309"><b>${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'Devam ediyor'}</b><span>${esc(minsText(durationMinutes(x)))}</span><span>${esc(typeLabel(x.leave_type))}</span><span class="att-leave-detail-note-v309">${x.note?esc(x.note):'Açıklama yok'}</span></div>`).join('')}</div>`;
+    openModal('Saatlik İzin Detayı',body,async()=>{});
+    const form=document.getElementById('modalForm');if(form)form.onsubmit=e=>e.preventDefault();
+  }
+
   async function deleteEntry(id){
     if(!isAdminLocal())return;const row=entries.find(x=>x.id===id);if(!row)return;
     if(!window.confirm(`${personName(row.person_id)} · ${dateTR(row.work_date)} gün içi izin kaydı silinsin mi?`))return;
@@ -291,6 +255,7 @@
   }
 
   document.addEventListener('click',e=>{
+    const detail=e.target.closest('[data-att-leave-detail-v309]');if(detail){e.preventDefault();e.stopPropagation();openLeaveDetail(detail.dataset.attLeavePersonV309,detail.dataset.attLeaveDetailV309);return;}
     const self=e.target.closest('#attendance [data-att-intraday-manual-self]');if(self){e.preventDefault();e.stopPropagation();openManualModal(profile.id);return;}
     const start=e.target.closest('#attendance [data-att-intraday-start]');if(start){e.preventDefault();e.stopPropagation();openStartModal();return;}
     const end=e.target.closest('#attendance [data-att-intraday-end]');if(end){e.preventDefault();e.stopPropagation();endLeave();return;}
