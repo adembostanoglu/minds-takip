@@ -11,7 +11,7 @@
   load('data-minds-v218-performance-pilot','appx28.js?v=2720','V1.21.8 performance continuity pilot module could not be loaded');
   load('data-minds-v143-external-shoots','appx29.js?v=2850','V1.14.3 external shoots module could not be loaded');
   load('data-minds-v144-prepared-highlight','appx30.js?v=1440','V1.14.4 prepared column highlight module could not be loaded');
-  load('data-minds-v150-agenda','appx31.js?v=1502','V1.15.0 agency agenda module could not be loaded');
+  load('data-minds-v150-agenda','appx31.js?v=3070','V1.15.0 agency agenda module could not be loaded');
   load('data-minds-v160-attendance-payroll','appx32.js?v=3040','V1.16.0 attendance/payroll module could not be loaded');
   load('data-minds-v161-my-account','appx33.js?v=1610','V1.16.1 account/password module could not be loaded');
   load('data-minds-v162-attendance-reference','appx34.js?v=2850','V1.16.3 premium attendance layout module could not be loaded');
@@ -27,8 +27,8 @@
   load('data-minds-v178-activity-by-person','appx42.js?v=1780','V1.17.8 person-grouped activity module could not be loaded');
   load('data-minds-v179-extras-by-person','appx43.js?v=1790','V1.17.9 person-grouped extra works module could not be loaded');
   load('data-minds-v211-saturday-overtime','appx44.js?v=3040','V1.21.1 Saturday overtime rule module could not be loaded');
-  load('data-minds-v181-manual-overtime','appx45.js?v=2850','V1.18.1 manual overtime workflow module could not be loaded');
-  load('data-minds-v182-manual-detail-rows','appx46.js?v=1820','V1.18.2 manual overtime detail rows module could not be loaded');
+  load('data-minds-v181-manual-overtime','appx45.js?v=3070','V1.18.1 manual overtime workflow module could not be loaded');
+  load('data-minds-v182-manual-detail-rows','appx46.js?v=3070','V1.18.2 manual overtime detail rows module could not be loaded');
   load('data-minds-v184-weekly-rest','appx47.js?v=1841','V1.18.4 fair Sunday weekly-rest workflow could not be loaded');
   load('data-minds-v185-completed-state','appx48.js?v=1850','V1.18.5 completed attendance state module could not be loaded');
   load('data-minds-v186-agenda-firm-names','appx49.js?v=1860','V1.18.6 staff agenda firm names module could not be loaded');
