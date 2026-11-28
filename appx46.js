@@ -31,7 +31,7 @@
   }
 
   function parseRowDate(text){
-    const m=String(text||'').trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);return m?`${m[3]}-${m[2]}-${m[1]}`:'';
+    const m=String(text||'').trim().match(/(\d{2})\.(\d{2})\.(\d{4})/);return m?`${m[3]}-${m[2]}-${m[1]}`:'';
   }
 
   function patchTable(table){
