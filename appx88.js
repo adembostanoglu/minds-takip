@@ -86,7 +86,7 @@ window.__mindsLegacyDutyOvertimeLoaderDisabledV304=true;
 (function loadInlineManualOvertimeApprovalV249(){
   if(document.querySelector('script[data-minds-v249-inline-manual-approval]'))return;
   const s=document.createElement('script');
-  s.src='appx90.js?v=2490';s.async=false;s.setAttribute('data-minds-v249-inline-manual-approval','1');
+  s.src='appx90.js?v=3070';s.async=false;s.setAttribute('data-minds-v249-inline-manual-approval','1');
   s.onerror=()=>console.error('V1.24.9 inline manual overtime approval module could not be loaded');
   document.body.appendChild(s);
 })();
