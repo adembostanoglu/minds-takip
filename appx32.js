@@ -43,7 +43,8 @@
   function overtimeMinutes(r){
     if(!r?.clock_out)return 0;
     const d=dow(r.work_date);
-    if(d<1||d>6)return 0;
+    // Temel render yalnız Pzt-Cuma'yı hesaplar. Cumartesi tek otorite appx63 nöbet kuralıdır.
+    if(d<1||d>5)return 0;
     const t=localMinutes(r.clock_out);
     return t>=1170?Math.max(0,t-1110):0;
   }
