@@ -233,6 +233,7 @@
     if(item.kind==='package'){
       var can=typeof staffOwnWork==='function'&&staffOwnWork(item.raw);
       return (can?'<button class="small-primary" data-edit-work="'+item.id+'">Güncelle</button>':'')+
+        (admin()?'<button class="small-danger" data-delete-work="'+item.id+'">Sil</button>':'')+
         '<button class="small-primary" data-work-history-v300="'+item.id+'">Geçmiş</button>';
     }
     var x=item.raw, html='';
