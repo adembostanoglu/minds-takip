@@ -38,7 +38,7 @@
   load('data-minds-v207-admin-social-nav','appx60.js?v=2070','V1.20.7 admin-only social media navigation module could not be loaded');
   load('data-minds-v208-package-quota-guard','appx61.js?v=2080','V1.20.8 package quota warning module could not be loaded');
   load('data-minds-v209-dashboard-targets','appx62.js?v=2090','V1.20.9 dashboard monthly target KPI module could not be loaded');
-  load('data-minds-v225-saturday-duty','appx63.js?v=3100','V1.22.5 Saturday duty assignment compatibility module could not be loaded');
+  load('data-minds-v225-saturday-duty','appx63.js?v=3120','V1.22.5 Saturday duty assignment compatibility module could not be loaded');
   load('data-minds-v215-extra-assignment-tracking','appx64.js?v=2152','V1.21.5 extra work assignment tracking module could not be loaded');
   load('data-minds-v232-extra-chronological-order','appx74.js?v=2320','V1.23.2 chronological extra-work ordering module could not be loaded');
   load('data-minds-v216-operations-hub','appx65.js?v=2910','V1.21.6 operations hub module could not be loaded');
@@ -52,7 +52,7 @@
   load('data-minds-v231-share-entry-asli-only','appx73.js?v=2310','V1.23.1 Aslı-only staff share entry guard could not be loaded');
   load('data-minds-v233-social-tracking-firm-continuity','appx75.js?v=2960','V1.23.3 social tracking firm continuity module could not be loaded');
   load('data-minds-v234-attendance-approval-visibility','appx76.js?v=2340','V1.23.4 attendance approval visibility module could not be loaded');
-  load('data-minds-v235-attendance-approval-controls','appx77.js?v=2851','V1.23.5 attendance approval controls module could not be loaded');
+  load('data-minds-v235-attendance-approval-controls','appx77.js?v=3120','V1.23.5 attendance approval controls module could not be loaded');
   load('data-minds-v236-attendance-payroll-refresh','appx78.js?v=2360','V1.23.6 attendance payroll refresh module could not be loaded');
   load('data-minds-v237-mobile-agenda-modal','appx79.js?v=2920','V1.23.7 mobile agenda/modal usability module could not be loaded');
   load('data-minds-v238-admin-work-correction','appx80.js?v=2380','V1.23.8 admin work correction module could not be loaded');
