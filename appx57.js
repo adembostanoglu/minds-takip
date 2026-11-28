@@ -124,8 +124,12 @@
     const paid=closed.filter(x=>x.leave_type==='paid').reduce((s,x)=>s+durationMinutes(x,false),0);
     const unpaid=closed.filter(x=>x.leave_type==='unpaid').reduce((s,x)=>s+durationMinutes(x,false),0);
     const total=paid+unpaid;
-    const rows=mine.length?mine.map(x=>`<div class="att-intraday-item-v199"><span class="date">${esc(dateTR(x.work_date))}</span><span class="hours">${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'Devam ediyor'}</span><span class="duration">${esc(minsText(durationMinutes(x)))}</span><span class="att-intraday-type-v199 ${x.leave_type}">${esc(typeLabel(x.leave_type))}</span><span class="note">${x.note?esc(x.note):'Açıklama yok'}</span>${isAdminLocal()?`<span class="att-intraday-actions-v199"><button type="button" class="ghost" data-att-intraday-edit="${x.id}">Düzenle</button><button type="button" class="danger" data-att-intraday-delete="${x.id}">Sil</button></span>`:''}</div>`).join(''):`<div class="att-intraday-empty-v199">Bu ay gün içi izin kaydı yok.</div>`;
-    section.innerHTML=`<div class="att-intraday-head-v199"><div class="att-intraday-title-v199"><b>Gün İçi İzinler</b><span>Bu ay toplam ${esc(minsText(total))} · Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</span></div>${isAdminLocal()?`<button type="button" class="att-intraday-add-v199" data-att-intraday-add="${pid}">+ Gün İçi İzin Ekle</button>`:''}</div><div class="att-intraday-list-v199">${rows}</div>`;
+    const rows=mine.length?mine.map(x=>{
+      const canEdit=isAdminLocal()||(String(x.person_id)===String(profile.id)&&String(x.created_by||'')===String(profile.id));
+      return `<div class="att-intraday-item-v199"><span class="date">${esc(dateTR(x.work_date))}</span><span class="hours">${esc(timeTR(x.start_at))}–${x.end_at?esc(timeTR(x.end_at)):'Devam ediyor'}</span><span class="duration">${esc(minsText(durationMinutes(x)))}</span><span class="att-intraday-type-v199 ${x.leave_type}">${esc(typeLabel(x.leave_type))}</span><span class="note">${x.note?esc(x.note):'Açıklama yok'}</span>${canEdit?`<span class="att-intraday-actions-v199"><button type="button" class="ghost" data-att-intraday-edit="${x.id}">Düzenle</button>${isAdminLocal()?`<button type="button" class="danger" data-att-intraday-delete="${x.id}">Sil</button>`:''}</span>`:''}</div>`;
+    }).join(''):`<div class="att-intraday-empty-v199">Bu ay gün içi izin kaydı yok.</div>`;
+    const canAdd=isAdminLocal()||String(pid)===String(profile.id);
+    section.innerHTML=`<div class="att-intraday-head-v199"><div class="att-intraday-title-v199"><b>Saatlik İzinler</b><span>Bu ay toplam ${esc(minsText(total))} · Ücretli ${esc(minsText(paid))} · Ücretsiz ${esc(minsText(unpaid))}</span></div>${canAdd?`<button type="button" class="att-intraday-add-v199" data-att-intraday-add="${pid}">+ Saatlik İzin Ekle</button>`:''}</div><div class="att-intraday-list-v199">${rows}</div>`;
   }
 
   function patchDetailSections(){detailHosts().forEach(x=>renderSection(x.body,x.pid));}
@@ -134,20 +138,20 @@
     if(isAdminLocal())return;
     const card=document.querySelector('#attendance .att-today-v160 .att-clock-card-v160');if(!card)return;
     let host=card.querySelector('.att-intraday-today-v199');
-    const today=todayISO(),att=attendanceRows.find(x=>x.person_id===profile.id&&x.work_date===today),open=entries.find(x=>x.person_id===profile.id&&!x.end_at);
-    const canUse=currentMonthIsToday()&&att?.clock_in&&!att?.clock_out;
-    const outBtn=card.querySelector('#attClockOutV160');
-    if(outBtn){outBtn.classList.toggle('att-intraday-disabled-v199',!!open);outBtn.disabled=!!open;outBtn.title=open?'Önce İzinden Döndüm butonuna basmalısın.':'';}
-    if(!canUse){host?.remove();return;}
+    if(!currentMonthIsToday()){host?.remove();return;}
     if(!host){host=document.createElement('div');host.className='att-intraday-today-v199';card.appendChild(host);}
-    if(open){host.innerHTML=`<div class="copy"><b>Gün İçi İzindesin</b><span>${esc(timeTR(open.start_at))} itibarıyla · ${esc(typeLabel(open.leave_type))}${open.note?` · ${esc(open.note)}`:''}</span></div><button type="button" class="att-intraday-end-v199" data-att-intraday-end="1">✓ İzinden Döndüm</button>`;}
-    else{host.innerHTML=`<div class="copy"><b>Gün içinde kısa süreli izin mi kullanacaksın?</b><span>İzne çıkış ve dönüş saatin otomatik kaydedilir.</span></div><button type="button" class="att-intraday-start-v199" data-att-intraday-start="1">☕ Gün İçi İzin</button>`;}
+    const open=entries.find(x=>String(x.person_id)===String(profile.id)&&!x.end_at);
+    if(open){
+      host.innerHTML=`<div class="copy"><b>Saatlik izin kaydın açık</b><span>${esc(timeTR(open.start_at))} itibarıyla · ${esc(typeLabel(open.leave_type))}${open.note?` · ${esc(open.note)}`:''}</span></div><button type="button" class="att-intraday-end-v199" data-att-intraday-end="1">✓ İzinden Döndüm</button>`;
+    }else{
+      host.innerHTML=`<div class="copy"><b>Saatlik izin</b><span>Normal giriş–çıkış kaydından bağımsızdır. Çıkış ve dönüş saatini ayrı gir.</span></div><button type="button" class="att-intraday-start-v199" data-att-intraday-manual-self="1">⏱ Saatlik İzin Ekle</button>`;
+    }
   }
 
   function patchRule(){
     document.querySelectorAll('#attendance .att-rules-v160').forEach(r=>{
       if(r.querySelector('.att-intraday-rule-v199'))return;
-      const d=document.createElement('div');d.className='att-rule-v160 att-intraday-rule-v199';d.innerHTML='<b>Gün İçi İzin</b><p>Personel <strong>İzne Çık</strong> ve <strong>İzinden Döndüm</strong> ile saat kaydı oluşturur. Ücretli saatlik izin maaş kesintisi oluşturmaz; ücretsiz saatlik izin yalnız normal çalışma süresine denk gelen bölüm kadar hakedişten düşer.</p>';r.appendChild(d);
+      const d=document.createElement('div');d.className='att-rule-v160 att-intraday-rule-v199';d.innerHTML='<b>Saatlik İzin</b><p>Saatlik izin, normal <strong>Giriş / Çıkış</strong> kaydından bağımsız tutulur. Personel izin çıkış ve dönüş saatini ayrıca girer. Ücretli saatlik izin maaş kesintisi oluşturmaz; ücretsiz saatlik izin yalnız normal çalışma süresine denk gelen bölüm kadar hakedişten düşer.</p>';r.appendChild(d);
     });
   }
 
@@ -178,15 +182,18 @@
   function localInputTime(ts){return ts?timeTR(ts):'';}
   function dtIso(date,time){return new Date(`${date}T${time}:00+03:00`).toISOString();}
 
-  function openAdminModal(pid,id=''){
-    if(!isAdminLocal()||typeof openModal!=='function')return;
+  function openManualModal(pid,id=''){
+    if(typeof openModal!=='function')return;
+    const admin=isAdminLocal();
+    if(!admin&&String(pid)!==String(profile.id))return;
     const row=id?entries.find(x=>x.id===id):null;
     const date=row?.work_date||defaultAdminDate(),start=row?localInputTime(row.start_at):'14:00',end=row?.end_at?localInputTime(row.end_at):'15:00',type=row?.leave_type||'paid';
-    openModal(row?'Gün İçi İzni Düzenle':'Gün İçi İzin Ekle',`<div class="form-grid"><div class="field full"><div class="info-banner"><b>${esc(personName(pid))}</b><br>Geçmiş bir gün için izin başlangıç ve dönüş saatini manuel girebilirsin.</div></div><div class="field"><label>Tarih</label><input type="date" name="work_date" value="${esc(date)}" required></div><div class="field"><label>İzin Türü</label><select name="leave_type"><option value="paid" ${type==='paid'?'selected':''}>Ücretli İzin</option><option value="unpaid" ${type==='unpaid'?'selected':''}>Ücretsiz İzin</option></select></div><div class="field"><label>İzne Çıkış</label><input type="time" name="start_time" value="${esc(start)}" required></div><div class="field"><label>İzinden Dönüş</label><input type="time" name="end_time" value="${esc(end)}" required></div><div class="field full"><label>Açıklama</label><textarea name="note" rows="3" maxlength="300" placeholder="İzin nedeni...">${esc(row?.note||'')}</textarea></div><div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button type="submit" class="primary">Kaydet</button></div></div>`,async fd=>{
+    if(row&&!admin&&!(String(row.person_id)===String(profile.id)&&String(row.created_by||'')===String(profile.id)))return;
+    openModal(row?'Saatlik İzni Düzenle':'Saatlik İzin Ekle',`<div class="form-grid"><div class="field full"><div class="info-banner"><b>${esc(personName(pid))}</b><br>Normal mesai giriş–çıkışından bağımsız olarak izin çıkış ve dönüş saatini gir.</div></div><div class="field"><label>Tarih</label><input type="date" name="work_date" value="${esc(date)}" required></div><div class="field"><label>İzin Türü</label><select name="leave_type"><option value="paid" ${type==='paid'?'selected':''}>Ücretli İzin</option><option value="unpaid" ${type==='unpaid'?'selected':''}>Ücretsiz İzin</option></select></div><div class="field"><label>İzne Çıkış</label><input type="time" name="start_time" value="${esc(start)}" required></div><div class="field"><label>İzinden Dönüş</label><input type="time" name="end_time" value="${esc(end)}" required></div><div class="field full"><label>Açıklama</label><textarea name="note" rows="3" maxlength="300" placeholder="İzin nedeni...">${esc(row?.note||'')}</textarea></div><div class="form-actions field full"><button type="button" class="ghost" onclick="closeModal()">Vazgeç</button><button type="submit" class="primary">Kaydet</button></div></div>`,async fd=>{
       const workDate=String(fd.get('work_date')||''),st=String(fd.get('start_time')||''),et=String(fd.get('end_time')||''),leaveType=String(fd.get('leave_type')||'paid'),note=String(fd.get('note')||'').trim();
       if(!workDate||!st||!et)throw new Error('Tarih, çıkış ve dönüş saati zorunlu.');
+      if(typeof assertSelectedMonthDate==='function')assertSelectedMonthDate(workDate,'Saatlik izin tarihi');
       const startAt=dtIso(workDate,st),endAt=dtIso(workDate,et);if(new Date(endAt)<=new Date(startAt))throw new Error('Dönüş saati çıkış saatinden sonra olmalı.');
-      const att=attendanceRows.find(x=>x.person_id===pid&&x.work_date===workDate&&x.clock_in);if(!att)throw new Error('Bu tarihte personelin işe giriş kaydı yok. Önce günlük puantaj kaydı olmalı.');
       if(row){const {error}=await sb.from('attendance_intraday_leave_entries').update({work_date:workDate,leave_type:leaveType,start_at:startAt,end_at:endAt,note:note||null}).eq('id',row.id);if(error)throw error;}
       else{const {error}=await sb.from('attendance_intraday_leave_entries').insert({person_id:pid,work_date:workDate,leave_type:leaveType,start_at:startAt,end_at:endAt,note:note||null,created_by:profile.id});if(error)throw error;}
       if(typeof toast==='function')toast(row?'Gün içi izin güncellendi.':'Gün içi izin eklendi.');loadedMonth='';await loadData(true);refreshBase();
@@ -209,12 +216,12 @@
   }
 
   document.addEventListener('click',e=>{
+    const self=e.target.closest('#attendance [data-att-intraday-manual-self]');if(self){e.preventDefault();e.stopPropagation();openManualModal(profile.id);return;}
     const start=e.target.closest('#attendance [data-att-intraday-start]');if(start){e.preventDefault();e.stopPropagation();openStartModal();return;}
     const end=e.target.closest('#attendance [data-att-intraday-end]');if(end){e.preventDefault();e.stopPropagation();endLeave();return;}
-    const add=e.target.closest('#attendance [data-att-intraday-add]');if(add){e.preventDefault();e.stopPropagation();openAdminModal(add.dataset.attIntradayAdd);return;}
-    const edit=e.target.closest('#attendance [data-att-intraday-edit]');if(edit){e.preventDefault();e.stopPropagation();const row=entries.find(x=>x.id===edit.dataset.attIntradayEdit);if(row)openAdminModal(row.person_id,row.id);return;}
+    const add=e.target.closest('#attendance [data-att-intraday-add]');if(add){e.preventDefault();e.stopPropagation();openManualModal(add.dataset.attIntradayAdd);return;}
+    const edit=e.target.closest('#attendance [data-att-intraday-edit]');if(edit){e.preventDefault();e.stopPropagation();const row=entries.find(x=>x.id===edit.dataset.attIntradayEdit);if(row)openManualModal(row.person_id,row.id);return;}
     const del=e.target.closest('#attendance [data-att-intraday-delete]');if(del){e.preventDefault();e.stopPropagation();deleteEntry(del.dataset.attIntradayDelete);return;}
-    const out=e.target.closest('#attendance #attClockOutV160');const open=entries.find(x=>x.person_id===profile.id&&!x.end_at);if(out&&open&&!isAdminLocal()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(typeof toast==='function')toast('Önce “İzinden Döndüm” butonuna basmalısın.',true);return;}
     if(e.target.closest('[data-view="attendance"]'))setTimeout(()=>{loadedMonth='';loadData(true);},180);
     if(e.target.closest('#attClockInV160,#attClockOutV160'))setTimeout(()=>{loadedMonth='';loadData(true);},650);
     if(e.target.closest('[data-att-detail],.att-payroll-person-cell-v195'))setTimeout(patchAll,170);
